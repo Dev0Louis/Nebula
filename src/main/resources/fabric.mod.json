@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "nebula",
+  "version": "${version}",
+  "name": "Nebula",
+  "description": "Magic, Magic Spells :D",
+  "authors": [
+    "D1p4k"
+  ],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "assets/Nebula/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "org.d1p4k.nebula.Nebula"
+    ]
+  },
+  "mixins": [
+    "Nebula.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "fabric": "*",
+    "minecraft": "1.19.2"
+  }
+}
