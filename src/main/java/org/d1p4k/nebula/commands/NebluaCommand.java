@@ -23,9 +23,8 @@ public class NebluaCommand {
 
                         .then(CommandManager.literal("fillmana")
                                 .executes(NebluaCommand::fillMana)
-                                .then(CommandManager.argument("targets", EntityArgumentType.players()).executes((context) -> {
-                                            return fillMana(context, EntityArgumentType.getPlayers(context, "targets"));
-                                        }
+                                .then(CommandManager.argument("targets", EntityArgumentType.players()).executes((context) ->
+                                        fillMana(EntityArgumentType.getPlayers(context, "targets"))
                                 ))
                         )
 
@@ -43,7 +42,7 @@ public class NebluaCommand {
         }
     }
 
-    private static int fillMana(CommandContext<ServerCommandSource> context, Collection<ServerPlayerEntity> players) {
+    private static int fillMana(Collection<ServerPlayerEntity> players) {
         for(ServerPlayerEntity player : players) {
             Nebula.LOGGER.info("Filling mana for " + player.getName().getString());
         }

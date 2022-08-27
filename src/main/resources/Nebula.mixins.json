@@ -4,7 +4,10 @@
   "package": "org.d1p4k.nebula.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "PlayerMixin"
+    "PlayerManagerMixin",
+    "PlayerMixin",
+    "ServerPlayerEntityMixin",
+    "WorldSaveHandlerMixin"
   ],
   "client": [
   ],
