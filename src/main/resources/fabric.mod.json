@@ -10,13 +10,10 @@
   "contact": {},
   "license": "GPL-3.0",
   "icon": "assets/Nebula/icon.png",
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
     "main": [
       "org.d1p4k.nebula.Nebula"
-    ],
-    "nebula": [
-      "org.d1p4k.nebula.registerer.SpellRegisterer"
     ]
   },
   "mixins": [

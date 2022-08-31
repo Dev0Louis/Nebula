@@ -23,8 +23,8 @@ public class ServerPlayerEntityMixin {
     @Inject(method = "copyFrom", at = @At("HEAD"))
     public void mixin(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         ((NebulaPlayer) currentPlayer)
-                .setManaManger(
-                        ((NebulaPlayer) oldPlayer).getManaManger()
+                .setManaManager(
+                        ((NebulaPlayer) oldPlayer).getManaManager()
                 );
     }
 

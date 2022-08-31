@@ -3,14 +3,25 @@ package org.d1p4k.nebula;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.entity.effect.InstantStatusEffect;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.potion.Potion;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.d1p4k.nebula.api.NebulaSpellRegisterEntrypoint;
 import org.d1p4k.nebula.commands.NebluaCommand;
+import org.d1p4k.nebula.mana.effect.InstantManaStatusEffect;
+import org.d1p4k.nebula.mana.effect.ManaRegenerationStatusEffect;
+import org.d1p4k.nebula.mana.effect.NebulaEffects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Nebula implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Nebula");
+
+
 
     @Override
     public void onInitialize() {
@@ -20,6 +31,10 @@ public class Nebula implements ModInitializer {
         FabricLoader.getInstance().getEntrypointContainers("nebula", NebulaSpellRegisterEntrypoint.class).forEach(entrypoint -> {
             entrypoint.getEntrypoint().registerSpells();
         });
+        NebulaEffects.init();
+
     }
+
+
 }
 

@@ -1,11 +1,15 @@
 package org.d1p4k.nebula.mixin;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.d1p4k.nebula.api.NebulaPlayer;
 import org.d1p4k.nebula.knowledge.SpellKnowledge;
 import org.d1p4k.nebula.mana.Mana;
@@ -24,13 +28,16 @@ public abstract class PlayerMixin implements NebulaPlayer {
     @Shadow public abstract void remove(Entity.RemovalReason reason);
 
     //Mana Start
-    public Mana mana = new Mana();;
+    public Mana manaManager;
 
-
+    @Inject(method = "<init>", at = @At("TAIL"))
+    public void manaInit(World world, BlockPos pos, float yaw, GameProfile gameProfile, PlayerPublicKey publicKey, CallbackInfo ci) {
+        manaManager = new Mana();
+    }
 
     @Inject(method = "writeCustomDataToNbt", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At("TAIL"))
     public void addManaToNbtMixin(NbtCompound nbt, CallbackInfo ci) {
-        nbt.putInt("Mana", mana.get());
+        nbt.putInt("Mana", manaManager.get());
     }
 
     @Inject(method = "readCustomDataFromNbt", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At("TAIL"))
@@ -40,20 +47,23 @@ public abstract class PlayerMixin implements NebulaPlayer {
 
     @Override
     public int getMana() {
-        return mana.get();
+        return manaManager.get();
     }
 
     @Override
     public void setMana(int mana) {
-        this.mana.set(mana);
+        this.manaManager.set(mana);
     }
 
+    @Override
     public Mana getManaManager() {
-        return this.mana;
+        System.out.println((manaManager == null));
+        return this.manaManager;
     }
 
+    @Override
     public void setManaManager(Mana mana) {
-        this.mana = mana;
+        this.manaManager = mana;
     }
 
 // Mana End

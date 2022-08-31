@@ -2,6 +2,7 @@ package org.d1p4k.nebula.knowledge;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 import org.d1p4k.nebula.api.NebulaPlayer;
@@ -63,15 +64,13 @@ public class SpellKnowledge extends Knowledge {
         NebulaPlayer nebulaPlayer = ((NebulaPlayer) player);
         List<Identifier> castableSpells = nebulaPlayer.getCastableSpells();
 
-
-
         for (int i = 0; i < castableSpells.size(); i++) {
             nbtCompound = new NbtCompound();
             childNbtCompound = new NbtCompound();
             Identifier spell = castableSpells.get(i);
 
             childNbtCompound.putString("Spell", spell.toString());
-
+            nbtCompound.remove(spell.getNamespace());
             nbtCompound.put(spell.getNamespace(), childNbtCompound);
 
             nbtList.add(nbtCompound);
@@ -89,7 +88,7 @@ public class SpellKnowledge extends Knowledge {
     public void readNbt(NbtList nbtList) {
         //TODO: Refactoring
 
-        NbtCompound nbtCompound = null;
+        NbtCompound nbtCompound;
         NbtCompound childNbtCompound;
         NebulaPlayer nebulaPlayer = ((NebulaPlayer) player);
         List<Identifier> castableSpells = nebulaPlayer.getCastableSpells();
@@ -97,18 +96,16 @@ public class SpellKnowledge extends Knowledge {
         //castableSpells.clear();
 
 
-
-
+        System.out.println("List: " + nbtList);
         for (int x = 0; x < nbtList.size(); ++x) {
             nbtCompound = nbtList.getCompound(x);
-            System.out.println(x+1 +": " + nbtCompound.toString());
-            for(int i = 0; i < nbtCompound.getSize(); ++i) {
-                childNbtCompound = nbtList.getCompound(i);
-                Identifier spell = Identifier.tryParse(childNbtCompound.getString("Spell"));
-                System.out.println("a: " + childNbtCompound.getString("Spell") + " " + spell.toUnderscoreSeparatedString());
-                if(Registry.isRegistered(spell)) {
-                    castableSpells.add(spell);
-                }
+
+            childNbtCompound = nbtCompound.getCompound(nbtCompound.getKeys().stream().toList().get(0));
+
+            Identifier spell = new Identifier(childNbtCompound.getString("Spell"));
+            if(Registry.isRegistered(spell)) {
+                System.out.println(spell);
+                castableSpells.add(spell);
             }
         }
 

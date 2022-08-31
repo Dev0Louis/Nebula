@@ -5,7 +5,7 @@ public class Mana {
 
 
     private int mana = 0;
-    private int max = -1;
+    private int max = 10;
 
 
     public int get() {
