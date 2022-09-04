@@ -8,6 +8,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import org.d1p4k.nebula.Nebula;
+import org.d1p4k.nebula.api.NebulaPlayer;
 
 import java.util.Collection;
 
@@ -16,7 +17,6 @@ import java.util.Collection;
 public class NebluaCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        Nebula.LOGGER.info("Test");
         dispatcher.register(
                 (CommandManager.literal("Nebula")
                         .requires(NebluaCommand::hasPermissionLevel))
@@ -26,8 +26,18 @@ public class NebluaCommand {
                                 .then(CommandManager.argument("targets", EntityArgumentType.players()).executes((context) ->
                                         fillMana(EntityArgumentType.getPlayers(context, "targets"))
                                 ))
-                        )
+                        ).then(CommandManager.literal("getmana")
+                                .then(CommandManager.argument("target", EntityArgumentType.player()).executes((context) -> {
+                                            EntityArgumentType.getPlayer(context, "target").sendMessage(
+                                                    Text.of(
+                                                            String.valueOf(((NebulaPlayer) EntityArgumentType.getPlayer(context, "target")).getMana())
+                                                    )
+                                            );
+                                            return 1;
+                                        }
+                                ))
 
+        )
         );
     }
 

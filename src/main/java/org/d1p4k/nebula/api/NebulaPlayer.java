@@ -1,6 +1,5 @@
 package org.d1p4k.nebula.api;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import org.d1p4k.nebula.knowledge.SpellKnowledge;
 import org.d1p4k.nebula.mana.Mana;

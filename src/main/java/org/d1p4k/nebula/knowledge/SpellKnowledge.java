@@ -104,7 +104,6 @@ public class SpellKnowledge extends Knowledge {
 
             Identifier spell = new Identifier(childNbtCompound.getString("Spell"));
             if(Registry.isRegistered(spell)) {
-                System.out.println(spell);
                 castableSpells.add(spell);
             }
         }
@@ -144,7 +143,7 @@ public class SpellKnowledge extends Knowledge {
          *
          * @return True if the spell is registered, false otherwise.
          */
-        private static boolean isRegistered(Identifier spell) {
+        public static boolean isRegistered(Identifier spell) {
             AtomicBoolean isRegistered = new AtomicBoolean(false);
             REGISTERED_SPELLS.forEach((identifier) -> {
                 if(identifier.equals(spell)) {

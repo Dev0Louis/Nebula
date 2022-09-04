@@ -1,9 +1,11 @@
 package org.d1p4k.nebula.mana.effect;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.InstantStatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.player.PlayerEntity;
+import org.d1p4k.nebula.api.NebulaPlayer;
+import org.jetbrains.annotations.Nullable;
 
 public class InstantManaStatusEffect extends InstantStatusEffect {
     public InstantManaStatusEffect() {
@@ -12,14 +14,9 @@ public class InstantManaStatusEffect extends InstantStatusEffect {
     }
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
-        return true;
-    }
-
-    @Override
-    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
-        if (entity instanceof PlayerEntity) {
-            ((PlayerEntity) entity).addExperienceLevels(5 << amplifier);
+    public void applyInstantEffect(@Nullable Entity source, @Nullable Entity attacker, LivingEntity target, int amplifier, double proximity) {
+        if (target instanceof NebulaPlayer) {
+            ((NebulaPlayer) target).getManaManager().add(amplifier*5);
         }
     }
 }

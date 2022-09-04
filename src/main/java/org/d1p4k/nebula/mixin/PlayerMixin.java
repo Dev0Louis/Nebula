@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.encryption.PlayerPublicKey;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -32,7 +33,9 @@ public abstract class PlayerMixin implements NebulaPlayer {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void manaInit(World world, BlockPos pos, float yaw, GameProfile gameProfile, PlayerPublicKey publicKey, CallbackInfo ci) {
-        manaManager = new Mana();
+        manaManager = new Mana(
+                ((PlayerEntity) (Object) this)
+        );
     }
 
     @Inject(method = "writeCustomDataToNbt", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At("TAIL"))
@@ -42,7 +45,7 @@ public abstract class PlayerMixin implements NebulaPlayer {
 
     @Inject(method = "readCustomDataFromNbt", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At("TAIL"))
     public void addManaFromNbtMixin(NbtCompound nbt, CallbackInfo ci, NbtList nbtList) {
-        this.setMana(nbt.getInt("Mana"));
+        this.getManaManager().set(nbt.getInt("Mana"), false);
     }
 
     @Override

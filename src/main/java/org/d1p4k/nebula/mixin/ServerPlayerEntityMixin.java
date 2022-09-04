@@ -1,5 +1,6 @@
 package org.d1p4k.nebula.mixin;
 
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.d1p4k.nebula.api.NebulaPlayer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,10 +23,12 @@ public class ServerPlayerEntityMixin {
 
     @Inject(method = "copyFrom", at = @At("HEAD"))
     public void mixin(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        ((NebulaPlayer) currentPlayer)
-                .setManaManager(
-                        ((NebulaPlayer) oldPlayer).getManaManager()
-                );
+        if(alive) {
+            ((NebulaPlayer) currentPlayer)
+                    .setManaManager(
+                            ((NebulaPlayer) oldPlayer).getManaManager().copy((PlayerEntity) (Object) this)
+                    );
+        }
     }
 
 }
