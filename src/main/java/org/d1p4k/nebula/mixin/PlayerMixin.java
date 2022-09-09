@@ -60,7 +60,6 @@ public abstract class PlayerMixin implements NebulaPlayer {
 
     @Override
     public Mana getManaManager() {
-        System.out.println((manaManager == null));
         return this.manaManager;
     }
 

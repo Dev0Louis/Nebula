@@ -13,7 +13,6 @@ public class ManaAmountS2CPacket {
 
     public static void send(ServerPlayerEntity player, byte mana) {
         if(player.networkHandler != null) {
-            System.out.println("::" + mana);
             PacketByteBuf packetByteBuf = new PacketByteBuf(Unpooled.buffer());
             packetByteBuf.writeByte(mana);
 

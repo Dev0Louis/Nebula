@@ -96,7 +96,6 @@ public class SpellKnowledge extends Knowledge {
         //castableSpells.clear();
 
 
-        System.out.println("List: " + nbtList);
         for (int x = 0; x < nbtList.size(); ++x) {
             nbtCompound = nbtList.getCompound(x);
 
