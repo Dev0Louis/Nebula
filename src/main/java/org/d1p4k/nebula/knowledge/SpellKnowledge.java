@@ -18,13 +18,7 @@ public class SpellKnowledge extends Knowledge {
         this.player = player;
     }
 
-    public List<Identifier> castableSpells = new ArrayList<>(){
-        {
-            add(new Identifier("nebula", "suicide"));
-            add(new Identifier("addon", "cool"));
-
-        }
-    };
+    public List<Identifier> castableSpells = new ArrayList<>();
 
 
 
