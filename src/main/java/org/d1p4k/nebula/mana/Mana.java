@@ -40,8 +40,9 @@ public class Mana {
     }
 
     public boolean decreaseIfEnough(int mana) {
-        if(get() - mana < 0) return false;
-        decrease(get() - mana);
+        int newMana = get() - mana;
+        if(newMana < 0) return false;
+        decrease(mana);
         return true;
     }
 
