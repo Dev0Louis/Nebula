@@ -1,15 +1,15 @@
 package org.d1p4k.nebula.spell;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.d1p4k.nebula.api.NebulaPlayer;
 
 public abstract class AbstractSpell {
     public Identifier spellIdentifier;
-    public PlayerEntity player;
+    public ServerPlayerEntity player;
     public int cost;
 
-    public AbstractSpell(PlayerEntity player, Identifier spellIdentifier, int cost) {
+    public AbstractSpell(ServerPlayerEntity player, Identifier spellIdentifier, int cost) {
         this.player = player;
         this.cost = cost;
         this.spellIdentifier = spellIdentifier;
