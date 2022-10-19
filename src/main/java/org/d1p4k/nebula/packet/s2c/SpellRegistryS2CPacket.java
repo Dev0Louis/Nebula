@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import org.d1p4k.nebula.api.NebulaPlayer;
 import org.d1p4k.nebula.knowledge.SpellKnowledge;
 
 import java.util.Collection;
@@ -20,6 +21,7 @@ public class SpellRegistryS2CPacket {
 
         for (Identifier spell : registeredSpells) {
             packetByteBuf.writeIdentifier(spell);
+            packetByteBuf.writeBoolean(((NebulaPlayer) player).getSpellKnowledge().getCastableSpells().contains(spell));
         }
 
         ServerPlayNetworking.send(player, packetId, packetByteBuf);

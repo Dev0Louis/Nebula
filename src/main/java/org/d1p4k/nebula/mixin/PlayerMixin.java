@@ -8,6 +8,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -75,9 +76,7 @@ public abstract class PlayerMixin implements NebulaPlayer {
 
 // Knowledge Start
 
-
-
-    private final SpellKnowledge spellKnowledge = new SpellKnowledge((PlayerEntity) (Object) this);
+    private final SpellKnowledge spellKnowledge = new SpellKnowledge((ServerPlayerEntity) (Object) this);
 
     @Inject(method = "writeCustomDataToNbt", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At(value = "TAIL"))
     public void addKnowledgeToNbtMixin(NbtCompound nbt, CallbackInfo ci) {
@@ -94,16 +93,6 @@ public abstract class PlayerMixin implements NebulaPlayer {
     @Override
     public SpellKnowledge getSpellKnowledge() {
         return this.spellKnowledge;
-    }
-
-    @Override
-    public List<Identifier> getCastableSpells() {
-        return spellKnowledge.getCastableSpells();
-    }
-
-    @Override
-    public void setCastableSpells(List<Identifier> castableSpells) {
-        this.spellKnowledge.setCastableSpells(castableSpells);
     }
 
 // Knowledge End

@@ -4,27 +4,30 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.d1p4k.nebula.api.NebulaPlayer;
+import org.d1p4k.nebula.packet.s2c.KnowledgeS2CPacket;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SpellKnowledge extends Knowledge {
-    PlayerEntity player;
+    ServerPlayerEntity player;
 
 
-    public SpellKnowledge(PlayerEntity player) {
+    public SpellKnowledge(ServerPlayerEntity player) {
         this.player = player;
     }
 
-    public List<Identifier> castableSpells = new ArrayList<>();
+    private List<Identifier> castableSpells = new ArrayList<>();
 
 
-
-
+    /**
+     * @return a copy of the CastableSpells.
+     */
     public List<Identifier> getCastableSpells() {
-        return castableSpells;
+        return new ArrayList<>(castableSpells);
     }
 
 
@@ -34,8 +37,17 @@ public class SpellKnowledge extends Knowledge {
      * @param castableSpells Set the list of spells that the player can cast
      *
      */
-    public void setCastableSpells(List<Identifier> castableSpells) {
+    private void setCastableSpells(List<Identifier> castableSpells) {
         this.castableSpells = castableSpells;
+    }
+    public void addCastableSpell(Identifier... spells) {
+        for(Identifier spell : spells) {
+            castableSpells.add(spell);
+            KnowledgeS2CPacket.send(player, spell);
+        }
+    }
+    public void copyFrom(ServerPlayerEntity playerToCopyFrom) {
+        setCastableSpells(((NebulaPlayer)playerToCopyFrom).getSpellKnowledge().getCastableSpells());
     }
 
     public boolean isCastable(Identifier spell) {
@@ -56,7 +68,7 @@ public class SpellKnowledge extends Knowledge {
         NbtCompound nbtCompound;
         NbtCompound childNbtCompound;
         NebulaPlayer nebulaPlayer = ((NebulaPlayer) player);
-        List<Identifier> castableSpells = nebulaPlayer.getCastableSpells();
+        List<Identifier> castableSpells = nebulaPlayer.getSpellKnowledge().getCastableSpells();
 
         for (int i = 0; i < castableSpells.size(); i++) {
             nbtCompound = new NbtCompound();
@@ -85,7 +97,7 @@ public class SpellKnowledge extends Knowledge {
         NbtCompound nbtCompound;
         NbtCompound childNbtCompound;
         NebulaPlayer nebulaPlayer = ((NebulaPlayer) player);
-        List<Identifier> castableSpells = nebulaPlayer.getCastableSpells();
+        List<Identifier> castableSpells = nebulaPlayer.getSpellKnowledge().getCastableSpells();
 
         //castableSpells.clear();
 

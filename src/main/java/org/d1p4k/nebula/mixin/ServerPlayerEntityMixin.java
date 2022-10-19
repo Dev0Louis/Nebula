@@ -16,7 +16,7 @@ public class ServerPlayerEntityMixin {
     @Inject(method = "copyFrom", at = @At("HEAD"))
     public void KnowledgeMixin(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         if(alive) {
-            ((NebulaPlayer) currentPlayer).setCastableSpells(((NebulaPlayer) oldPlayer).getCastableSpells());
+            ((NebulaPlayer) currentPlayer).getSpellKnowledge().copyFrom(oldPlayer);
         }
 
     }
