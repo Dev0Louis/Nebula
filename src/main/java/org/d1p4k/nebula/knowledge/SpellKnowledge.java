@@ -13,10 +13,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SpellKnowledge extends Knowledge {
-    ServerPlayerEntity player;
+    PlayerEntity player;
 
 
-    public SpellKnowledge(ServerPlayerEntity player) {
+    public SpellKnowledge(PlayerEntity player) {
         this.player = player;
     }
 
@@ -41,15 +41,19 @@ public class SpellKnowledge extends Knowledge {
         this.castableSpells = castableSpells;
     }
     public void addCastableSpell(Identifier... spells) {
-        for(Identifier spell : spells) {
-            castableSpells.add(spell);
-            KnowledgeS2CPacket.send(player, spell);
+        if(player instanceof ServerPlayerEntity serverPlayer) {
+            for(Identifier spell : spells) {
+                castableSpells.add(spell);
+                KnowledgeS2CPacket.send(serverPlayer, spell);
+            }
         }
     }
     public void removeCastableSpell(Identifier... spells) {
-        for(Identifier spell : spells) {
-            castableSpells.remove(spell);
-            KnowledgeS2CPacket.send(player, spell);
+        if(player instanceof ServerPlayerEntity serverPlayer) {
+            for(Identifier spell : spells) {
+                castableSpells.remove(spell);
+                KnowledgeS2CPacket.send(serverPlayer, spell);
+            }
         }
     }
     public void copyFrom(ServerPlayerEntity playerToCopyFrom) {

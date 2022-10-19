@@ -76,7 +76,7 @@ public abstract class PlayerMixin implements NebulaPlayer {
 
 // Knowledge Start
 
-    private final SpellKnowledge spellKnowledge = new SpellKnowledge((ServerPlayerEntity) (Object) this);
+    private final SpellKnowledge spellKnowledge = new SpellKnowledge((PlayerEntity) (Object) this);
 
     @Inject(method = "writeCustomDataToNbt", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At(value = "TAIL"))
     public void addKnowledgeToNbtMixin(NbtCompound nbt, CallbackInfo ci) {
