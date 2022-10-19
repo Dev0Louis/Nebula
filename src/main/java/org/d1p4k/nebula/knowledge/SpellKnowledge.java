@@ -46,6 +46,12 @@ public class SpellKnowledge extends Knowledge {
             KnowledgeS2CPacket.send(player, spell);
         }
     }
+    public void removeCastableSpell(Identifier... spells) {
+        for(Identifier spell : spells) {
+            castableSpells.remove(spell);
+            KnowledgeS2CPacket.send(player, spell);
+        }
+    }
     public void copyFrom(ServerPlayerEntity playerToCopyFrom) {
         setCastableSpells(((NebulaPlayer)playerToCopyFrom).getSpellKnowledge().getCastableSpells());
     }
