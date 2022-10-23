@@ -22,7 +22,7 @@ public abstract class AbstractSpellBook extends Item {
                 Identifier id = getType();
                 if(SpellKnowledge.Registry.isRegistered(id)) {
                     ((NebulaPlayer) playerEntity).getSpellKnowledge().addCastableSpell(id);
-                    return TypedActionResult.success(playerEntity.getStackInHand(hand));
+                    return TypedActionResult.consume(playerEntity.getStackInHand(hand));
                 }
             }
         }
