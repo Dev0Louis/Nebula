@@ -21,8 +21,10 @@ public abstract class AbstractSpellBook extends Item {
             if(playerEntity instanceof NebulaPlayer) {
                 Identifier id = getType();
                 if(SpellKnowledge.Registry.isRegistered(id)) {
+                    var stack = playerEntity.getStackInHand(hand);
+                    stack.setCount(stack.getCount()-1);
                     ((NebulaPlayer) playerEntity).getSpellKnowledge().addCastableSpell(id);
-                    return TypedActionResult.consume(playerEntity.getStackInHand(hand));
+                    return TypedActionResult.consume(stack);
                 }
             }
         }
