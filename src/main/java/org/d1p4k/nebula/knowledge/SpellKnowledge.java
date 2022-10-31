@@ -20,14 +20,15 @@ public class SpellKnowledge extends Knowledge {
         this.player = player;
     }
 
-    private List<Identifier> castableSpells = new ArrayList<>();
+    //private List<Identifier> castableSpells = new ArrayList<>();
+    private Set<Identifier> castableSpells = new HashSet<>();
 
 
     /**
      * @return a copy of the CastableSpells.
      */
-    public List<Identifier> getCastableSpells() {
-        return new ArrayList<>(castableSpells);
+    public Set<Identifier> getCastableSpells() {
+        return new HashSet<>(castableSpells);
     }
 
 
@@ -37,7 +38,7 @@ public class SpellKnowledge extends Knowledge {
      * @param castableSpells Set the list of spells that the player can cast
      *
      */
-    private void setCastableSpells(List<Identifier> castableSpells) {
+    private void setCastableSpells(Set<Identifier> castableSpells) {
         this.castableSpells = castableSpells;
     }
     public void addCastableSpell(Identifier... spells) {
@@ -78,12 +79,12 @@ public class SpellKnowledge extends Knowledge {
         NbtCompound nbtCompound;
         NbtCompound childNbtCompound;
         NebulaPlayer nebulaPlayer = ((NebulaPlayer) player);
-        List<Identifier> castableSpells = nebulaPlayer.getSpellKnowledge().getCastableSpells();
+        Set<Identifier> castableSpells = nebulaPlayer.getSpellKnowledge().getCastableSpells();
 
-        for (int i = 0; i < castableSpells.size(); i++) {
+
+        for (Identifier spell : castableSpells) {
             nbtCompound = new NbtCompound();
             childNbtCompound = new NbtCompound();
-            Identifier spell = castableSpells.get(i);
 
             childNbtCompound.putString("Spell", spell.toString());
             nbtCompound.remove(spell.getNamespace());
@@ -107,7 +108,7 @@ public class SpellKnowledge extends Knowledge {
         NbtCompound nbtCompound;
         NbtCompound childNbtCompound;
         NebulaPlayer nebulaPlayer = ((NebulaPlayer) player);
-        List<Identifier> castableSpells = nebulaPlayer.getSpellKnowledge().getCastableSpells();
+        Set<Identifier> castableSpells = nebulaPlayer.getSpellKnowledge().getCastableSpells();
 
         //castableSpells.clear();
 
