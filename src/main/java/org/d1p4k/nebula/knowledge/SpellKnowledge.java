@@ -107,8 +107,6 @@ public class SpellKnowledge extends Knowledge {
 
         NbtCompound nbtCompound;
         NbtCompound childNbtCompound;
-        NebulaPlayer nebulaPlayer = ((NebulaPlayer) player);
-        Set<Identifier> castableSpells = nebulaPlayer.getSpellKnowledge().getCastableSpells();
 
         //castableSpells.clear();
 
