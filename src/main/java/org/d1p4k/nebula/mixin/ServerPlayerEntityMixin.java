@@ -3,6 +3,7 @@ package org.d1p4k.nebula.mixin;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.d1p4k.nebula.api.NebulaPlayer;
+import org.d1p4k.nebula.packet.s2c.SpellRegistryS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,6 +30,12 @@ public class ServerPlayerEntityMixin {
                             ((NebulaPlayer) oldPlayer).getManaManager().copy((PlayerEntity) (Object) this)
                     );
         }
+    }
+
+
+    @Inject(method = "onSpawn", at = @At("RETURN"))
+    public void onDeathMixin(CallbackInfo ci) {
+        SpellRegistryS2CPacket.send((ServerPlayerEntity) (Object) this);
     }
 
 }
