@@ -1,7 +1,6 @@
 package org.d1p4k.nebula.mixin;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -12,7 +11,6 @@ import org.d1p4k.nebula.api.NebulaPlayer;
 import org.d1p4k.nebula.knowledge.SpellKnowledge;
 import org.d1p4k.nebula.mana.Mana;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,8 +18,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerMixin implements NebulaPlayer {
-
-    @Shadow public abstract void remove(Entity.RemovalReason reason);
 
     //Mana Start
     public Mana manaManager;
