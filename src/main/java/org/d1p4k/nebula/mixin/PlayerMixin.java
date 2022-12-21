@@ -6,10 +6,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.encryption.PlayerPublicKey;
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.d1p4k.nebula.api.NebulaPlayer;
@@ -22,8 +18,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.List;
-
 @Mixin(PlayerEntity.class)
 public abstract class PlayerMixin implements NebulaPlayer {
 
@@ -33,7 +27,7 @@ public abstract class PlayerMixin implements NebulaPlayer {
     public Mana manaManager;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    public void manaInit(World world, BlockPos pos, float yaw, GameProfile gameProfile, PlayerPublicKey publicKey, CallbackInfo ci) {
+    public void manaInit(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo ci) {
         manaManager = new Mana(
                 ((PlayerEntity) (Object) this)
         );
