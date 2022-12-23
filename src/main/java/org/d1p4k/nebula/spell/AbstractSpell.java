@@ -22,5 +22,6 @@ public abstract class AbstractSpell {
         return ((NebulaPlayer) player).getSpellKnowledge().isCastable(spellIdentifier);
     }
     public abstract void cast();
+    public abstract Identifier getID();
 
 }
