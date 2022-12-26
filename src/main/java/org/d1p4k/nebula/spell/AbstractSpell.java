@@ -5,23 +5,19 @@ import net.minecraft.util.Identifier;
 import org.d1p4k.nebula.api.NebulaPlayer;
 
 public abstract class AbstractSpell {
-    public Identifier spellIdentifier;
-    public ServerPlayerEntity player;
     public int cost;
 
-    public AbstractSpell(ServerPlayerEntity player, Identifier spellIdentifier, int cost) {
-        this.player = player;
+    public AbstractSpell(int cost) {
         this.cost = cost;
-        this.spellIdentifier = spellIdentifier;
     }
 
-    public boolean checkMana() {
+    public boolean checkMana(ServerPlayerEntity player) {
         return((NebulaPlayer) player).getManaManager().decreaseIfEnough(cost);
     }
-    public boolean checkKnowledge() {
-        return ((NebulaPlayer) player).getSpellKnowledge().isCastable(spellIdentifier);
+    public boolean checkKnowledge(ServerPlayerEntity player) {
+        return ((NebulaPlayer) player).getSpellKnowledge().isCastable(getID());
     }
-    public abstract void cast();
+    public abstract void cast(ServerPlayerEntity player);
     public abstract Identifier getID();
 
 }

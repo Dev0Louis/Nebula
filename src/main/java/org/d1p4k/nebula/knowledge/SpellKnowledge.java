@@ -2,15 +2,15 @@ package org.d1p4k.nebula.knowledge;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.d1p4k.nebula.api.NebulaPlayer;
 import org.d1p4k.nebula.packet.s2c.KnowledgeS2CPacket;
+import org.d1p4k.nebula.registry.NebulaRegistries;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SpellKnowledge extends Knowledge {
     PlayerEntity player;
@@ -117,54 +117,10 @@ public class SpellKnowledge extends Knowledge {
             childNbtCompound = nbtCompound.getCompound(nbtCompound.getKeys().stream().toList().get(0));
 
             Identifier spell = new Identifier(childNbtCompound.getString("Spell"));
-            if(Registry.isRegistered(spell)) {
+
+            if (NebulaRegistries.SPELLS.containsId(spell)) {
                 castableSpells.add(spell);
             }
-        }
-
-
-    }
-
-    public static class Registry {
-        private static final List<Identifier> REGISTERED_SPELLS = new ArrayList<>();
-
-        public static List<Identifier> getRegisteredSpells() {
-            return REGISTERED_SPELLS;
-        }
-
-        /**
-         * Add a spell to the registry.
-         *
-         * @param spell Spell to add.
-         */
-        public static void add(Identifier spell) {
-            REGISTERED_SPELLS.add(spell);
-        }
-
-        /**
-         * The addAll function adds all the spells in the given collection to this registry.
-         *
-         * @param spells Spells to add
-         */
-        public static void addAll(Collection<Identifier> spells) {
-            spells.forEach(Registry::add);
-        }
-
-        /**
-         * The isRegistered function checks if the spell is registered.
-         *
-         * @param spell The Spell to check if it is registered
-         *
-         * @return True if the spell is registered, false otherwise.
-         */
-        public static boolean isRegistered(Identifier spell) {
-            AtomicBoolean isRegistered = new AtomicBoolean(false);
-            REGISTERED_SPELLS.forEach((identifier) -> {
-                if(identifier.equals(spell)) {
-                    isRegistered.set(true);
-                }
-            });
-        return isRegistered.get();
         }
     }
 }

@@ -11,11 +11,6 @@
   "license": "GPL-3.0",
   "icon": "assets/Nebula/icon.png",
   "environment": "*",
-  "entrypoints": {
-    "main": [
-      "org.d1p4k.nebula.Nebula"
-    ]
-  },
   "mixins": [
     "Nebula.mixins.json"
   ],

@@ -6,7 +6,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.d1p4k.nebula.api.NebulaPlayer;
-import org.d1p4k.nebula.knowledge.SpellKnowledge;
+import org.d1p4k.nebula.registry.NebulaRegistries;
 
 import java.util.Collection;
 
@@ -16,7 +16,7 @@ public class SpellRegistryS2CPacket {
 
     public static void send(ServerPlayerEntity player) {
         PacketByteBuf packetByteBuf = new PacketByteBuf(Unpooled.buffer());
-        Collection<Identifier> registeredSpells = SpellKnowledge.Registry.getRegisteredSpells();
+        Collection<Identifier> registeredSpells = NebulaRegistries.SPELLS.getIds();
         packetByteBuf.writeVarInt(registeredSpells.size());
 
         for (Identifier spell : registeredSpells) {
