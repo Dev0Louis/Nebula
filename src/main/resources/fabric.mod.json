@@ -13,7 +13,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "org.d1p4k.nebula.Nebula"
+      "dev.louis.nebula.Nebula"
+    ],
+    "client": [
+      "dev.louis.nebula.NebulaClient"
     ]
   },
   "mixins": [
@@ -22,6 +25,10 @@
   "depends": {
     "fabricloader": ">=0.14.9",
     "fabric": "*",
-    "minecraft": "1.19.3"
-  }
+    "minecraft": ">=1.19.3"
+  },
+  "custom": {
+    "nebula:contains_manamanager": true
+  },
+  "accessWidener": "nebula.accesswidener"
 }

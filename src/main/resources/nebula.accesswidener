@@ -1,0 +1,5 @@
+accessWidener	v1	named
+
+accessible class net/minecraft/registry/Registries$Initializer
+accessible method net/minecraft/registry/Registries create (Lnet/minecraft/registry/RegistryKey;Ljava/lang/String;Lnet/minecraft/registry/Registries$Initializer;)Lnet/minecraft/registry/DefaultedRegistry;
+accessible method net/minecraft/registry/RegistryKeys of (Ljava/lang/String;)Lnet/minecraft/registry/RegistryKey;
