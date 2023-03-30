@@ -8,7 +8,7 @@
     "D1p4k"
   ],
   "contact": {},
-  "license": "GPL-3.0",
+  "license": "MIT",
   "icon": "assets/Nebula/icon.png",
   "environment": "*",
   "entrypoints": {
