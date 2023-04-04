@@ -1,6 +1,7 @@
 package dev.louis.nebula.manamanager.player;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.NebulaManager;
 import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.networking.SynchronizeManaAmountS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -50,7 +51,7 @@ public class NebulaPlayerManaManager implements PlayerManaManager {
 
     public void setPlayerMaxMana(int max) {
         if(max > 0)this.maxmana = max;
-        this.maxmana = Nebula.INSTANCE.getManaManager().getMaxMana();
+        this.maxmana = NebulaManager.INSTANCE.getManaManager().getMaxMana();
     }
 
     @Override

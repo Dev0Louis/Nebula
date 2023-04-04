@@ -1,4 +1,4 @@
-package dev.louis.nebula.knowledge;
+package dev.louis.nebula.knowledgemanager.player;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.NebulaPlayer;
@@ -18,11 +18,11 @@ import net.minecraft.util.Identifier;
 
 import java.util.*;
 
-public class SpellKnowledgeManager {
+public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeManager {
     PlayerEntity player;
 
 
-    public SpellKnowledgeManager(PlayerEntity player) {
+    public NebulaPlayerSpellKnowledgeManager(PlayerEntity player) {
         this.player = player;
     }
 
@@ -32,21 +32,19 @@ public class SpellKnowledgeManager {
     /**
      * @return a copy of the CastableSpells.
      */
+    @Override
     public Set<SpellType<? extends Spell>> getCastableSpells() {
         return castableSpells;
     }
 
-
-    /**
-     * The setCastableSpells function sets the castableSpells field of this object to the given list.
-     *
-     * @param castableSpells Set the list of spells that the player can cast
-     *
-     */
-    private void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells) {
+    @Override
+    public void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells) {
         this.castableSpells = castableSpells;
     }
-    public void addCastableSpell(SpellType<? extends Spell>... castableSpells) {
+
+
+    @Override
+    public void addCastableSpell(Iterable<SpellType<? extends Spell>> castableSpells) {
         Map<SpellType<? extends Spell>, Boolean> spellMaps = new HashMap<>();
         for (SpellType<? extends Spell> spellType : castableSpells) {
             if (SpellKnowledgeAddCallback.EVENT.invoker().interact(player, spellType) == ActionResult.PASS) {
@@ -66,7 +64,8 @@ public class SpellKnowledgeManager {
             ServerPlayNetworking.send(serverPlayer, SynchronizeSpellKnowledgeS2CPacket.ID, new SynchronizeSpellKnowledgeS2CPacket(castableSpells).write(PacketByteBufs.create()));
         }
     }
-    public void removeCastableSpell(SpellType<? extends Spell>... castableSpells) {
+    @Override
+    public void removeCastableSpell(Iterable<SpellType<? extends Spell>> castableSpells) {
         Map<SpellType<? extends Spell>, Boolean> spellMaps = new HashMap<>();
         for (SpellType<? extends Spell> spellType : castableSpells) {
             if (SpellKnowledgeRemoveCallback.EVENT.invoker().interact(player, spellType) == ActionResult.PASS) {
@@ -75,16 +74,19 @@ public class SpellKnowledgeManager {
         }
         updateCastableSpell(spellMaps);
     }
+    @Override
     public void copyFrom(ServerPlayerEntity oldPlayer, boolean alive) {
         if(alive) {
             setCastableSpells(((NebulaPlayer)oldPlayer).getSpellKnowledge().getCastableSpells());
         }
     }
 
+    @Override
     public boolean doesKnow(SpellType<? extends Spell> spellType) {
         return castableSpells.contains(spellType);
     }
 
+    @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         Set<SpellType<? extends Spell>> castableSpells = NebulaPlayer.access(player).getSpellKnowledge().getCastableSpells();
 
@@ -102,6 +104,7 @@ public class SpellKnowledgeManager {
 
     }
 
+    @Override
     public void readNbt(NbtCompound nbt) {
         NbtList nbtList = (NbtList) nbt.getCompound(Nebula.MOD_ID).get("Spells");
         if(nbtList == null)return;

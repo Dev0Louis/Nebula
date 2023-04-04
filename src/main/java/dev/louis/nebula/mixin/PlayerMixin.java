@@ -1,8 +1,8 @@
 package dev.louis.nebula.mixin;
 
-import dev.louis.nebula.Nebula;
+import dev.louis.nebula.NebulaManager;
 import dev.louis.nebula.api.NebulaPlayer;
-import dev.louis.nebula.knowledge.SpellKnowledgeManager;
+import dev.louis.nebula.knowledgemanager.player.PlayerSpellKnowledgeManager;
 import dev.louis.nebula.manamanager.player.PlayerManaManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,7 +22,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
 
     //Mana Start
 
-    public PlayerManaManager playerManaManager = Nebula.INSTANCE.createManaManager((PlayerEntity) (Object) this);
+    public PlayerManaManager playerManaManager = NebulaManager.INSTANCE.createPlayerManaManager((PlayerEntity) (Object) this);
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
     public void addManaToNbtMixin(NbtCompound nbt, CallbackInfo ci) {
@@ -64,7 +64,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     
 // Knowledge Start
 
-    private final SpellKnowledgeManager spellKnowledge = new SpellKnowledgeManager((PlayerEntity) (Object) this);
+    private final PlayerSpellKnowledgeManager spellKnowledge = NebulaManager.INSTANCE.createPlayerSpellKnowledgeManager((PlayerEntity) (Object) this);
 
     @Inject(method = "writeCustomDataToNbt", at = @At(value = "TAIL"))
     public void addKnowledgeToNbtMixin(NbtCompound nbt, CallbackInfo ci) {
@@ -76,7 +76,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
         spellKnowledge.readNbt(nbt);
     }
     @Override
-    public SpellKnowledgeManager getSpellKnowledge() {
+    public PlayerSpellKnowledgeManager getSpellKnowledge() {
         return this.spellKnowledge;
     }
 

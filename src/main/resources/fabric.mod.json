@@ -28,7 +28,8 @@
     "minecraft": ">=1.19.3"
   },
   "custom": {
-    "nebula:contains_manamanager": true
+    "nebula:contains_manamanager": true,
+    "nebula:contains_spellknowledgemanager": true
   },
   "accessWidener": "nebula.accesswidener"
 }
