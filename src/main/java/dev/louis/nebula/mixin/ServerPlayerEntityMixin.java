@@ -39,7 +39,9 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     @Inject(method = "onSpawn", at = @At("RETURN"))
     public void onDeathMixin(CallbackInfo ci) {
-        ServerPlayNetworking.send(This(), SynchronizeSpellKnowledgeS2CPacket.ID, SynchronizeSpellKnowledgeS2CPacket.create().write(PacketByteBufs.create()));
+        var buf = PacketByteBufs.create();
+        SynchronizeSpellKnowledgeS2CPacket.create(this).write(buf);
+        ServerPlayNetworking.send(This(), SynchronizeSpellKnowledgeS2CPacket.getID(), buf);
 
     }
 

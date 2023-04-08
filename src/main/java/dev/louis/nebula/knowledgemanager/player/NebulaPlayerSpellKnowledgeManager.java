@@ -2,8 +2,7 @@ package dev.louis.nebula.knowledgemanager.player;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.NebulaPlayer;
-import dev.louis.nebula.event.SpellKnowledgeAddCallback;
-import dev.louis.nebula.event.SpellKnowledgeRemoveCallback;
+import dev.louis.nebula.event.SpellKnowledgeUpdateCallback;
 import dev.louis.nebula.networking.SynchronizeSpellKnowledgeS2CPacket;
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
@@ -38,8 +37,16 @@ public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeMa
     }
 
     @Override
+    public void tick() {}
+
+    @Override
     public void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells) {
         this.castableSpells = castableSpells;
+    }
+
+    @Override
+    public void addCastableSpell(SpellType<? extends Spell> spellType) {
+        addCastableSpell(List.of(spellType));
     }
 
 
@@ -47,30 +54,35 @@ public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeMa
     public void addCastableSpell(Iterable<SpellType<? extends Spell>> castableSpells) {
         Map<SpellType<? extends Spell>, Boolean> spellMaps = new HashMap<>();
         for (SpellType<? extends Spell> spellType : castableSpells) {
-            if (SpellKnowledgeAddCallback.EVENT.invoker().interact(player, spellType) == ActionResult.PASS) {
-                spellMaps.put(spellType, true);
-            }
+            spellMaps.put(spellType, true);
         }
         updateCastableSpell(spellMaps);
     }
 
     public void updateCastableSpell(Map<SpellType<? extends Spell>, Boolean> castableSpells) {
+        if(SpellKnowledgeUpdateCallback.EVENT.invoker().interact(player, castableSpells) != ActionResult.PASS)return;
         castableSpells.forEach((spellType, knows) -> {
-            if (knows) this.castableSpells.add(spellType);
-            else this.castableSpells.remove(spellType);
+                if (knows) this.castableSpells.add(spellType);
+                else this.castableSpells.remove(spellType);
         });
 
         if(player instanceof ServerPlayerEntity serverPlayer) {
-            ServerPlayNetworking.send(serverPlayer, SynchronizeSpellKnowledgeS2CPacket.ID, new SynchronizeSpellKnowledgeS2CPacket(castableSpells).write(PacketByteBufs.create()));
+            var buf = PacketByteBufs.create();
+            new SynchronizeSpellKnowledgeS2CPacket(castableSpells).write(buf);
+            ServerPlayNetworking.send(serverPlayer, SynchronizeSpellKnowledgeS2CPacket.getID(), buf);
         }
     }
+
+    @Override
+    public void removeCastableSpell(SpellType<? extends Spell> spellType) {
+        removeCastableSpell(List.of(spellType));
+    }
+
     @Override
     public void removeCastableSpell(Iterable<SpellType<? extends Spell>> castableSpells) {
         Map<SpellType<? extends Spell>, Boolean> spellMaps = new HashMap<>();
         for (SpellType<? extends Spell> spellType : castableSpells) {
-            if (SpellKnowledgeRemoveCallback.EVENT.invoker().interact(player, spellType) == ActionResult.PASS) {
-                spellMaps.put(spellType, true);
-            }
+                spellMaps.put(spellType, false);
         }
         updateCastableSpell(spellMaps);
     }

@@ -57,10 +57,13 @@ public class NebulaPlayerManaManager implements PlayerManaManager {
     @Override
     public void sync() {
         if(this.player.getWorld().isClient() || ((ServerPlayerEntity)player).networkHandler == null)return;
+        var buf = PacketByteBufs.create();
+        new SynchronizeManaAmountS2CPacket(((NebulaPlayer)player).getMana()).write(buf);
+
         ServerPlayNetworking.send(
                 (ServerPlayerEntity) this.player,
-                SynchronizeManaAmountS2CPacket.ID,
-                new SynchronizeManaAmountS2CPacket(((NebulaPlayer)player).getMana()).write(PacketByteBufs.create())
+                SynchronizeManaAmountS2CPacket.getId(),
+                buf
         );
     }
 

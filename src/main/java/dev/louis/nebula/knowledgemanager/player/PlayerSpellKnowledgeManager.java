@@ -9,12 +9,15 @@ import java.util.Map;
 import java.util.Set;
 
 public interface PlayerSpellKnowledgeManager {
-    Set<SpellType<? extends Spell>> getCastableSpells();
+    void tick();
 
     void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells);
+    Set<SpellType<? extends Spell>> getCastableSpells();
 
+    void addCastableSpell(SpellType<? extends Spell> spellType);
     void addCastableSpell(Iterable<SpellType<? extends Spell>> castableSpells);
     void updateCastableSpell(Map<SpellType<? extends Spell>, Boolean> castableSpells);
+    void removeCastableSpell(SpellType<? extends Spell> spellType);
     void removeCastableSpell(Iterable<SpellType<? extends Spell>> castableSpells);
 
     void copyFrom(ServerPlayerEntity oldPlayer, boolean alive);
