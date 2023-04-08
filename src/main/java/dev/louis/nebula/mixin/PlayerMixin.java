@@ -64,20 +64,24 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     
 // Knowledge Start
 
-    private final PlayerSpellKnowledgeManager spellKnowledge = NebulaManager.INSTANCE.createPlayerSpellKnowledgeManager((PlayerEntity) (Object) this);
+    private final PlayerSpellKnowledgeManager spellKnowledgeManager = NebulaManager.INSTANCE.createPlayerSpellKnowledgeManager((PlayerEntity) (Object) this);
 
     @Inject(method = "writeCustomDataToNbt", at = @At(value = "TAIL"))
     public void addKnowledgeToNbtMixin(NbtCompound nbt, CallbackInfo ci) {
-        this.spellKnowledge.writeNbt(nbt);
+        this.spellKnowledgeManager.writeNbt(nbt);
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     public void addKnowledgeFromNbtMixin(NbtCompound nbt, CallbackInfo ci) {
-        spellKnowledge.readNbt(nbt);
+        spellKnowledgeManager.readNbt(nbt);
+    }
+    @Inject(method = "tick", at = @At("RETURN"))
+    public void tickKnowledgeManager(CallbackInfo ci) {
+        spellKnowledgeManager.tick();
     }
     @Override
-    public PlayerSpellKnowledgeManager getSpellKnowledge() {
-        return this.spellKnowledge;
+    public PlayerSpellKnowledgeManager getSpellKnowledgeManager() {
+        return this.spellKnowledgeManager;
     }
 
 // Knowledge End

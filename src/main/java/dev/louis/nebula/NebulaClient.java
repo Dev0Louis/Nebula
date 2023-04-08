@@ -22,7 +22,7 @@ public class NebulaClient implements ClientModInitializer {
         //Register the Knowledge Packet.
         ClientPlayNetworking.registerGlobalReceiver(SynchronizeSpellKnowledgeS2CPacket.getID(), (client, handler, buf, responseSender) -> {
             SynchronizeSpellKnowledgeS2CPacket packet = SynchronizeSpellKnowledgeS2CPacket.read(buf);
-            client.executeSync(() -> NebulaPlayer.access(client.player).getSpellKnowledge().updateCastableSpell(packet.spells()));
+            client.executeSync(() -> NebulaPlayer.access(client.player).getSpellKnowledgeManager().updateCastableSpell(packet.spells()));
         });
         //Register the ManaAmount Packet.
         ClientPlayConnectionEvents.INIT.register(((handler, client) -> ClientPlayNetworking.registerReceiver(SynchronizeManaAmountS2CPacket.PACKET_TYPE, SynchronizeManaAmountS2CPacket::receive)));

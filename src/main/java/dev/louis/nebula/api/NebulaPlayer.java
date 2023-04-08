@@ -10,7 +10,7 @@ public interface NebulaPlayer {
     void setPlayerManaManager(PlayerManaManager manaManager);
     public int getMana();
     public void setMana(int mana);
-    public PlayerSpellKnowledgeManager getSpellKnowledge();
+    public PlayerSpellKnowledgeManager getSpellKnowledgeManager();
 
     @NotNull
     static NebulaPlayer access(PlayerEntity player) {

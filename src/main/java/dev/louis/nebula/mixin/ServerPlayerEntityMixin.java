@@ -24,7 +24,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     @Inject(method = "copyFrom", at = @At("RETURN"))
     public void KnowledgeMixin(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        ((NebulaPlayer) This()).getSpellKnowledge().copyFrom(oldPlayer, alive);
+        ((NebulaPlayer) This()).getSpellKnowledgeManager().copyFrom(oldPlayer, alive);
 
 
     }

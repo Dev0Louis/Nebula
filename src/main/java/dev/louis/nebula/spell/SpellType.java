@@ -90,7 +90,7 @@ public class SpellType<T extends Spell> {
         return doesKnow(NebulaPlayer.access(player));
     }
     public boolean doesKnow(NebulaPlayer player) {
-        return player.getSpellKnowledge().doesKnow(this);
+        return player.getSpellKnowledgeManager().doesKnow(this);
     }
 
 

@@ -89,7 +89,7 @@ public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeMa
     @Override
     public void copyFrom(ServerPlayerEntity oldPlayer, boolean alive) {
         if(alive) {
-            setCastableSpells(((NebulaPlayer)oldPlayer).getSpellKnowledge().getCastableSpells());
+            setCastableSpells(((NebulaPlayer)oldPlayer).getSpellKnowledgeManager().getCastableSpells());
         }
     }
 
@@ -100,7 +100,7 @@ public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeMa
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
-        Set<SpellType<? extends Spell>> castableSpells = NebulaPlayer.access(player).getSpellKnowledge().getCastableSpells();
+        Set<SpellType<? extends Spell>> castableSpells = NebulaPlayer.access(player).getSpellKnowledgeManager().getCastableSpells();
 
         NbtList nbtList = new NbtList();
         for (SpellType<? extends Spell> spell : castableSpells) {
