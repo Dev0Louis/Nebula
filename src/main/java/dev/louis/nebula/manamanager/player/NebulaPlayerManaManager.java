@@ -1,6 +1,7 @@
 package dev.louis.nebula.manamanager.player;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.NebulaManager;
 import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.networking.SynchronizeManaAmountS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -50,16 +51,19 @@ public class NebulaPlayerManaManager implements PlayerManaManager {
 
     public void setPlayerMaxMana(int max) {
         if(max > 0)this.maxmana = max;
-        this.maxmana = Nebula.INSTANCE.getManaManager().getMaxMana();
+        this.maxmana = NebulaManager.INSTANCE.getManaManager().getMaxMana();
     }
 
     @Override
     public void sync() {
         if(this.player.getWorld().isClient() || ((ServerPlayerEntity)player).networkHandler == null)return;
+        var buf = PacketByteBufs.create();
+        new SynchronizeManaAmountS2CPacket(((NebulaPlayer)player).getMana()).write(buf);
+
         ServerPlayNetworking.send(
                 (ServerPlayerEntity) this.player,
-                SynchronizeManaAmountS2CPacket.ID,
-                new SynchronizeManaAmountS2CPacket(((NebulaPlayer)player).getMana()).write(PacketByteBufs.create())
+                SynchronizeManaAmountS2CPacket.getId(),
+                buf
         );
     }
 

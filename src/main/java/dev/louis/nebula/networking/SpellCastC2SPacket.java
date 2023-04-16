@@ -2,22 +2,22 @@ package dev.louis.nebula.networking;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.spell.Spell;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-public class SpellCastC2SPacket {
-    public static final Identifier ID = new Identifier(Nebula.MOD_ID, "spellcast");
-
-    private final Spell spell;
-
-    public SpellCastC2SPacket(Spell spell) {
-        this.spell = spell;
-    }
-    public PacketByteBuf write(PacketByteBuf buf) {
+public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
+    public static final PacketType<SynchronizeManaAmountS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "spellcast"), SynchronizeManaAmountS2CPacket::new);
+    public void write(PacketByteBuf buf) {
         buf.writeRegistryValue(Nebula.NebulaRegistries.SPELL_TYPE, spell.getType());
         spell.writeBuf(buf);
-        return buf;
+    }
+
+    @Override
+    public PacketType<?> getType() {
+        return PACKET_TYPE;
     }
 
     public static SpellCastC2SPacket read(PlayerEntity caster, PacketByteBuf buf) {
@@ -25,8 +25,7 @@ public class SpellCastC2SPacket {
         spell.readBuf(buf);
         return new SpellCastC2SPacket(spell);
     }
-
-    public Spell spell() {
-        return spell;
+    public static Identifier getId() {
+        return PACKET_TYPE.getId();
     }
 }

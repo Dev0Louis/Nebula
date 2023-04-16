@@ -1,26 +1,35 @@
 package dev.louis.nebula.networking;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.NebulaPlayer;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-public class SynchronizeManaAmountS2CPacket {
-    public static final Identifier ID = new Identifier(Nebula.MOD_ID, "spellcast");
+public record SynchronizeManaAmountS2CPacket(int mana) implements FabricPacket {
+    public static final PacketType<SynchronizeManaAmountS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "synchronizemana"), SynchronizeManaAmountS2CPacket::new);
 
-    private final int mana;
-
-    public SynchronizeManaAmountS2CPacket(int mana) {
-        this.mana = mana;
+    public SynchronizeManaAmountS2CPacket(PacketByteBuf buf) {
+        this(buf.readVarInt());
     }
-    public PacketByteBuf write(PacketByteBuf buf) {
+    @Override
+    public void write(PacketByteBuf buf) {
         buf.writeVarInt(mana);
-        return buf;
     }
 
-    public static SynchronizeManaAmountS2CPacket read(PacketByteBuf buf) {
-        return new SynchronizeManaAmountS2CPacket(buf.readVarInt());
+    @Override
+    public PacketType<?> getType() {
+        return PACKET_TYPE;
     }
-    public int mana() {
-        return mana;
+
+    public static void receive(SynchronizeManaAmountS2CPacket packet, ClientPlayerEntity player, PacketSender responseSender) {
+        NebulaPlayer.access(player).setMana(packet.mana());
+    }
+
+    public static Identifier getId() {
+        return PACKET_TYPE.getId();
     }
 }
