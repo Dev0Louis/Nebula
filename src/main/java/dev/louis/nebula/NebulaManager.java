@@ -1,98 +1,68 @@
 package dev.louis.nebula;
 
-import dev.louis.nebula.knowledgemanager.NebulaSpellKnowledgeManager;
-import dev.louis.nebula.knowledgemanager.SpellKnowledgeManager;
-import dev.louis.nebula.knowledgemanager.player.PlayerSpellKnowledgeManager;
-import dev.louis.nebula.manamanager.ManaManager;
-import dev.louis.nebula.manamanager.NebulaManaManager;
-import dev.louis.nebula.manamanager.player.PlayerManaManager;
+import dev.louis.nebula.mana.manager.ManaManager;
+import dev.louis.nebula.mana.manager.NebulaManaManager;
+import dev.louis.nebula.spell.manager.NebulaSpellManager;
+import dev.louis.nebula.spell.manager.SpellManager;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.entity.player.PlayerEntity;
 
-import java.util.Optional;
-
 public class NebulaManager {
     private static final String JSON_KEY_CONTAINS_MANAMANAGER = "nebula:contains_manamanager";
-    private static final String JSON_KEY_CONTAINS_SPELLKNOWLEDGEMANAGER = "nebula:contains_spellknowledgemanager";
+    private static final String JSON_KEY_CONTAINS_SPELLMANAGER = "nebula:contains_spellmanager";
     public static final NebulaManager INSTANCE = new NebulaManager();
+    private NebulaManager(){}
 
-
+    private ManaManager.Factory<?> manaManager;
+    private SpellManager.Factory<?> spellKnowledgeManager;
     private boolean nebulaManaManagerActive = true;
     private boolean nebulaSpellManagerActive = true;
-    private Optional<ManaManager> manaManager = Optional.empty();
-    private Optional<SpellKnowledgeManager> spellKnowledgeManager = Optional.empty();
-
-
-    private NebulaManager() {
-
-    }
-
-    public static void init() {
-        INSTANCE.internal_init();
-    }
-    private void internal_init() {
+    public void init() {
         load();
-        if(nebulaManaManagerActive) {
-            registerManaManager(new NebulaManaManager());
-        }
-        if(nebulaSpellManagerActive) {
-            registerSpellKnowledgeManager(new NebulaSpellKnowledgeManager());
-        }
+        if(nebulaManaManagerActive)registerManaManagerFactory(NebulaManaManager::new);
+        if(nebulaSpellManagerActive)registerSpellManagerFactory(NebulaSpellManager::new);
     }
-
-
     private void load() {
         for (ModContainer container : FabricLoader.getInstance().getAllMods()) {
             final ModMetadata meta = container.getMetadata();
             if(meta.getId().equals("nebula"))continue;
-            if (meta.containsCustomValue(JSON_KEY_CONTAINS_MANAMANAGER)) {
-                nebulaManaManagerActive = false;
-            }
-            if (meta.containsCustomValue(JSON_KEY_CONTAINS_SPELLKNOWLEDGEMANAGER)) {
-                nebulaSpellManagerActive = false;
-            }
+            if (meta.containsCustomValue(JSON_KEY_CONTAINS_MANAMANAGER)) nebulaManaManagerActive = false;
+            if (meta.containsCustomValue(JSON_KEY_CONTAINS_SPELLMANAGER)) nebulaSpellManagerActive = false;
         }
     }
-    public void registerManaManager(ManaManager<?> manaManager) {
+
+    public void registerManaManagerFactory(ManaManager.Factory<?> manaManager) {
         if (manaManager == null) {
             throw new NullPointerException("Attempt to register a NULL ManaManager");
-        } else if (this.manaManager.isPresent()) {
-            throw new UnsupportedOperationException("A second ManaManager attempted to register. Multiple ManaManagers are not supported.");
-        } else {
-            this.manaManager = Optional.of(manaManager);
-            manaManager.setUp();
         }
+        if (this.manaManager != null) {
+            throw new UnsupportedOperationException("A second ManaManager attempted to register. Multiple ManaManagers are not supported.");
+        }
+        this.manaManager = manaManager;
     }
 
-    public void registerSpellKnowledgeManager(SpellKnowledgeManager<?> spellKnowledgeManager) {
+    public void registerSpellManagerFactory(SpellManager.Factory<?> spellKnowledgeManager) {
         if (spellKnowledgeManager == null) {
             throw new NullPointerException("Attempt to register a NULL SpellKnowledgeManager");
-        } else if (this.spellKnowledgeManager.isPresent()) {
-            throw new UnsupportedOperationException("A SpellKnowledgeManager plug-in attempted to register. Multiple SpellKnowledgeManagers are not supported.");
-        } else {
-            this.spellKnowledgeManager = Optional.of(spellKnowledgeManager);
-            spellKnowledgeManager.setUp();
         }
+        if (this.spellKnowledgeManager != null) {
+            throw new UnsupportedOperationException("A SpellKnowledgeManager plug-in attempted to register. Multiple SpellKnowledgeManagers are not supported.");
+        }
+        this.spellKnowledgeManager = spellKnowledgeManager;
     }
 
-
-
-    public ManaManager<?> getManaManager() {
-        return manaManager.orElseThrow();
+    public ManaManager.Factory<?> getManaManager() {
+        return manaManager;
     }
-
-    public SpellKnowledgeManager<?> getSpellKnowledgeManager() {
-        return spellKnowledgeManager.orElseThrow();
+    public SpellManager.Factory<?> getSpellManager() {
+        return spellKnowledgeManager;
     }
-
-    public PlayerManaManager createPlayerManaManager(PlayerEntity player) {
-        return getManaManager().createPlayerManaManager(player);
+    public static ManaManager createManaManager(PlayerEntity player) {
+        return INSTANCE.getManaManager().createPlayerManaManager(player);
     }
-
-    public PlayerSpellKnowledgeManager createPlayerSpellKnowledgeManager(PlayerEntity player) {
-        return getSpellKnowledgeManager().createPlayerSpellKnowledgeManager(player);
+    public static SpellManager createSpellManager(PlayerEntity player) {
+        return INSTANCE.getSpellManager().createPlayerSpellKnowledgeManager(player);
     }
-
 }

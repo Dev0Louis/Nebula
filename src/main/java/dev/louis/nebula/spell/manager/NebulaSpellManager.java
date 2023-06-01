@@ -1,9 +1,9 @@
-package dev.louis.nebula.knowledgemanager.player;
+package dev.louis.nebula.spell.manager;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.NebulaPlayer;
-import dev.louis.nebula.event.SpellKnowledgeUpdateCallback;
-import dev.louis.nebula.networking.SynchronizeSpellKnowledgeS2CPacket;
+import dev.louis.nebula.event.SpellUpdateCallback;
+import dev.louis.nebula.networking.SynchronizeSpellsS2CPacket;
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -17,11 +17,11 @@ import net.minecraft.util.Identifier;
 
 import java.util.*;
 
-public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeManager {
+public class NebulaSpellManager implements SpellManager {
     PlayerEntity player;
 
 
-    public NebulaPlayerSpellKnowledgeManager(PlayerEntity player) {
+    public NebulaSpellManager(PlayerEntity player) {
         this.player = player;
     }
 
@@ -60,7 +60,7 @@ public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeMa
     }
 
     public void updateCastableSpell(Map<SpellType<? extends Spell>, Boolean> castableSpells) {
-        if(SpellKnowledgeUpdateCallback.EVENT.invoker().interact(player, castableSpells) != ActionResult.PASS)return;
+        if(SpellUpdateCallback.EVENT.invoker().interact(player, castableSpells) != ActionResult.PASS)return;
         castableSpells.forEach((spellType, knows) -> {
                 if (knows) this.castableSpells.add(spellType);
                 else this.castableSpells.remove(spellType);
@@ -68,8 +68,8 @@ public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeMa
 
         if(player instanceof ServerPlayerEntity serverPlayer) {
             var buf = PacketByteBufs.create();
-            new SynchronizeSpellKnowledgeS2CPacket(castableSpells).write(buf);
-            ServerPlayNetworking.send(serverPlayer, SynchronizeSpellKnowledgeS2CPacket.getID(), buf);
+            new SynchronizeSpellsS2CPacket(castableSpells).write(buf);
+            ServerPlayNetworking.send(serverPlayer, SynchronizeSpellsS2CPacket.getID(), buf);
         }
     }
 
@@ -89,7 +89,7 @@ public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeMa
     @Override
     public void copyFrom(ServerPlayerEntity oldPlayer, boolean alive) {
         if(alive) {
-            setCastableSpells(((NebulaPlayer)oldPlayer).getSpellKnowledgeManager().getCastableSpells());
+            setCastableSpells(((NebulaPlayer)oldPlayer).getSpellManager().getCastableSpells());
         }
     }
 
@@ -100,7 +100,7 @@ public class NebulaPlayerSpellKnowledgeManager implements PlayerSpellKnowledgeMa
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
-        Set<SpellType<? extends Spell>> castableSpells = NebulaPlayer.access(player).getSpellKnowledgeManager().getCastableSpells();
+        Set<SpellType<? extends Spell>> castableSpells = NebulaPlayer.access(player).getSpellManager().getCastableSpells();
 
         NbtList nbtList = new NbtList();
         for (SpellType<? extends Spell> spell : castableSpells) {

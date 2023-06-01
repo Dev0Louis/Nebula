@@ -28,15 +28,14 @@ public class Nebula implements ModInitializer {
         SpellType.init();
         registerPacketReceivers();
         NebulaRegistries.init();
-        NebulaManager.init();
+        NebulaManager.INSTANCE.init();
     }
 
     public void registerPacketReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(SpellCastC2SPacket.getId(), ((server, player, handler, buf, responseSender) -> {
             Spell spell = SpellCastC2SPacket.read(player, buf).spell();
-            if (SpellCastCallback.EVENT.invoker().interact(player, spell) == ActionResult.PASS) {
-                spell.cast();
-            }
+            if (SpellCastCallback.EVENT.invoker().interact(player, spell) == ActionResult.PASS) spell.cast();
+
         }));
     }
 

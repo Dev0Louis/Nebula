@@ -82,7 +82,7 @@ public class SpellType<T extends Spell> {
         return hasEnoughMana(NebulaPlayer.access(player));
     }
     public boolean hasEnoughMana(NebulaPlayer player) {
-        return ((player.getMana() - getManaCost()) >= 0);
+        return ((player.getManaManager().getMana() - getManaCost()) >= 0);
     }
 
 
@@ -90,7 +90,7 @@ public class SpellType<T extends Spell> {
         return doesKnow(NebulaPlayer.access(player));
     }
     public boolean doesKnow(NebulaPlayer player) {
-        return player.getSpellKnowledgeManager().doesKnow(this);
+        return player.getSpellManager().doesKnow(this);
     }
 
 

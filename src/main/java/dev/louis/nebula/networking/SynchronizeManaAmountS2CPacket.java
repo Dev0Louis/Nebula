@@ -26,7 +26,7 @@ public record SynchronizeManaAmountS2CPacket(int mana) implements FabricPacket {
     }
 
     public static void receive(SynchronizeManaAmountS2CPacket packet, PlayerEntity player, PacketSender responseSender) {
-        NebulaPlayer.access(player).setMana(packet.mana());
+        NebulaPlayer.access(player).getManaManager().setMana(packet.mana());
     }
 
     public static Identifier getId() {

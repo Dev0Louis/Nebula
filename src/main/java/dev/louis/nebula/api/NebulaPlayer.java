@@ -1,17 +1,15 @@
 package dev.louis.nebula.api;
 
-import dev.louis.nebula.knowledgemanager.player.PlayerSpellKnowledgeManager;
-import dev.louis.nebula.manamanager.player.PlayerManaManager;
+import dev.louis.nebula.mana.manager.ManaManager;
+import dev.louis.nebula.spell.manager.SpellManager;
 import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.NotNull;
 
 public interface NebulaPlayer {
-    PlayerManaManager getPlayerManaManager();
-    void setPlayerManaManager(PlayerManaManager manaManager);
-    public int getMana();
-    public void setMana(int mana);
-    public PlayerSpellKnowledgeManager getSpellKnowledgeManager();
-
+    ManaManager getManaManager();
+    void setManaManager(ManaManager manaManager);
+    public SpellManager getSpellManager();
+    public SpellManager setSpellManager(SpellManager spellManager);
     @NotNull
     static NebulaPlayer access(PlayerEntity player) {
         return (NebulaPlayer) player;

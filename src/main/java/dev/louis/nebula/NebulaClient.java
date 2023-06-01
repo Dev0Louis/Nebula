@@ -3,7 +3,7 @@ package dev.louis.nebula;
 import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.config.NebulaConfig;
 import dev.louis.nebula.networking.SynchronizeManaAmountS2CPacket;
-import dev.louis.nebula.networking.SynchronizeSpellKnowledgeS2CPacket;
+import dev.louis.nebula.networking.SynchronizeSpellsS2CPacket;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
@@ -19,10 +19,10 @@ public class NebulaClient implements ClientModInitializer {
     }
 
     private void registerPacketReceivers() {
-        //Register the Knowledge Packet.
-        ClientPlayNetworking.registerGlobalReceiver(SynchronizeSpellKnowledgeS2CPacket.getID(), (client, handler, buf, responseSender) -> {
-            SynchronizeSpellKnowledgeS2CPacket packet = SynchronizeSpellKnowledgeS2CPacket.read(buf);
-            client.executeSync(() -> NebulaPlayer.access(client.player).getSpellKnowledgeManager().updateCastableSpell(packet.spells()));
+        //Register the Spell Sync Packet.
+        ClientPlayNetworking.registerGlobalReceiver(SynchronizeSpellsS2CPacket.getID(), (client, handler, buf, responseSender) -> {
+            SynchronizeSpellsS2CPacket packet = SynchronizeSpellsS2CPacket.read(buf);
+            client.executeSync(() -> NebulaPlayer.access(client.player).getSpellManager().updateCastableSpell(packet.spells()));
         });
         //Register the ManaAmount Packet.
         ClientPlayConnectionEvents.INIT.register(((handler, client) -> ClientPlayNetworking.registerReceiver(SynchronizeManaAmountS2CPacket.PACKET_TYPE, SynchronizeManaAmountS2CPacket::receive)));

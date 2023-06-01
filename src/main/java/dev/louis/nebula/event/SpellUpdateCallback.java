@@ -9,9 +9,9 @@ import net.minecraft.util.ActionResult;
 
 import java.util.Map;
 
-public interface SpellKnowledgeUpdateCallback {
-    Event<SpellKnowledgeUpdateCallback> EVENT = EventFactory.createArrayBacked(SpellKnowledgeUpdateCallback.class, (listeners) -> (player, castableSpells) -> {
-                for (SpellKnowledgeUpdateCallback event : listeners) {
+public interface SpellUpdateCallback {
+    Event<SpellUpdateCallback> EVENT = EventFactory.createArrayBacked(SpellUpdateCallback.class, (listeners) -> (player, castableSpells) -> {
+                for (SpellUpdateCallback event : listeners) {
                     ActionResult result = event.interact(player, castableSpells);
 
                     if (result != ActionResult.PASS) {

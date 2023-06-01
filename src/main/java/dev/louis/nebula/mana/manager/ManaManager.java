@@ -1,9 +1,9 @@
-package dev.louis.nebula.manamanager.player;
+package dev.louis.nebula.mana.manager;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 
-public interface PlayerManaManager {
+public interface ManaManager {
     void tick();
 
     void setMana(int mana);
@@ -16,4 +16,8 @@ public interface PlayerManaManager {
     void writeNbt(NbtCompound nbt);
     void readNbt(NbtCompound nbt);
     void copyFrom(PlayerEntity oldPlayer, boolean alive);
+    @FunctionalInterface
+    public static interface Factory<T extends ManaManager> {
+        T createPlayerManaManager(PlayerEntity player);
+    }
 }

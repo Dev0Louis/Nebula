@@ -12,10 +12,10 @@ import net.minecraft.util.Identifier;
 import java.util.HashMap;
 import java.util.Map;
 
-public record SynchronizeSpellKnowledgeS2CPacket(Map<SpellType<? extends Spell>, Boolean> spells) implements FabricPacket {
+public record SynchronizeSpellsS2CPacket(Map<SpellType<? extends Spell>, Boolean> spells) implements FabricPacket {
     public static final PacketType<SynchronizeManaAmountS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "syncspellknowledge"), SynchronizeManaAmountS2CPacket::new);
 
-    public SynchronizeSpellKnowledgeS2CPacket(PacketByteBuf buf) {
+    public SynchronizeSpellsS2CPacket(PacketByteBuf buf) {
         this(readMap(buf));
     }
 
@@ -36,16 +36,16 @@ public record SynchronizeSpellKnowledgeS2CPacket(Map<SpellType<? extends Spell>,
         return PACKET_TYPE.getId();
     }
 
-    public static SynchronizeSpellKnowledgeS2CPacket create(PlayerEntity player) {
+    public static SynchronizeSpellsS2CPacket create(PlayerEntity player) {
         Map<SpellType<? extends Spell>, Boolean> map = new HashMap<>();
         Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> {
             map.put(spellType, spellType.doesKnow(player));
         });
-        return new SynchronizeSpellKnowledgeS2CPacket(map);
+        return new SynchronizeSpellsS2CPacket(map);
     }
 
-    public static SynchronizeSpellKnowledgeS2CPacket read(PacketByteBuf buf) {
-        return new SynchronizeSpellKnowledgeS2CPacket(buf);
+    public static SynchronizeSpellsS2CPacket read(PacketByteBuf buf) {
+        return new SynchronizeSpellsS2CPacket(buf);
     }
 
     private static Map<SpellType<? extends Spell>, Boolean> readMap(PacketByteBuf buf) {
