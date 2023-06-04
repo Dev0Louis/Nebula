@@ -5,7 +5,6 @@ import net.minecraft.nbt.NbtCompound;
 
 public interface ManaManager {
     void tick();
-
     void setMana(int mana);
     int getMana();
     void addMana(int mana);
@@ -17,7 +16,7 @@ public interface ManaManager {
     void readNbt(NbtCompound nbt);
     void copyFrom(PlayerEntity oldPlayer, boolean alive);
     @FunctionalInterface
-    public static interface Factory<T extends ManaManager> {
+    interface Factory<T extends ManaManager> {
         T createPlayerManaManager(PlayerEntity player);
     }
 }

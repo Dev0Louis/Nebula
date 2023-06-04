@@ -29,7 +29,7 @@
   },
   "custom": {
     "nebula:contains_manamanager": true,
-    "nebula:contains_spellknowledgemanager": true
+    "nebula:contains_spellmanager": true
   },
   "accessWidener": "nebula.accesswidener"
 }

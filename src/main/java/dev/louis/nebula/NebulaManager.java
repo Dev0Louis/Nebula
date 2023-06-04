@@ -5,7 +5,6 @@ import dev.louis.nebula.mana.manager.NebulaManaManager;
 import dev.louis.nebula.spell.manager.NebulaSpellManager;
 import dev.louis.nebula.spell.manager.SpellManager;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.entity.player.PlayerEntity;
 
@@ -15,54 +14,54 @@ public class NebulaManager {
     public static final NebulaManager INSTANCE = new NebulaManager();
     private NebulaManager(){}
 
-    private ManaManager.Factory<?> manaManager;
-    private SpellManager.Factory<?> spellKnowledgeManager;
-    private boolean nebulaManaManagerActive = true;
-    private boolean nebulaSpellManagerActive = true;
+    private ManaManager.Factory<?> manaManagerFactory;
+    private SpellManager.Factory<?> spellManagerFactory;
+    private boolean loadManaManager = true;
+    private boolean loadSpellManager = true;
     public void init() {
         load();
-        if(nebulaManaManagerActive)registerManaManagerFactory(NebulaManaManager::new);
-        if(nebulaSpellManagerActive)registerSpellManagerFactory(NebulaSpellManager::new);
+        if(loadManaManager)registerManaManagerFactory(NebulaManaManager::new);
+        if(loadSpellManager)registerSpellManagerFactory(NebulaSpellManager::new);
     }
     private void load() {
-        for (ModContainer container : FabricLoader.getInstance().getAllMods()) {
-            final ModMetadata meta = container.getMetadata();
-            if(meta.getId().equals("nebula"))continue;
-            if (meta.containsCustomValue(JSON_KEY_CONTAINS_MANAMANAGER)) nebulaManaManagerActive = false;
-            if (meta.containsCustomValue(JSON_KEY_CONTAINS_SPELLMANAGER)) nebulaSpellManagerActive = false;
-        }
+        FabricLoader.getInstance().getAllMods().forEach(mod -> {
+            final ModMetadata metadata = mod.getMetadata();
+            if(metadata.getId().equals("nebula"))return;
+            if (metadata.containsCustomValue(JSON_KEY_CONTAINS_MANAMANAGER)) loadManaManager = false;
+            if (metadata.containsCustomValue(JSON_KEY_CONTAINS_SPELLMANAGER)) loadSpellManager = false;
+        });
     }
 
     public void registerManaManagerFactory(ManaManager.Factory<?> manaManager) {
         if (manaManager == null) {
             throw new NullPointerException("Attempt to register a NULL ManaManager");
         }
-        if (this.manaManager != null) {
+        if (this.manaManagerFactory != null) {
             throw new UnsupportedOperationException("A second ManaManager attempted to register. Multiple ManaManagers are not supported.");
         }
-        this.manaManager = manaManager;
+        this.manaManagerFactory = manaManager;
     }
 
     public void registerSpellManagerFactory(SpellManager.Factory<?> spellKnowledgeManager) {
         if (spellKnowledgeManager == null) {
             throw new NullPointerException("Attempt to register a NULL SpellKnowledgeManager");
         }
-        if (this.spellKnowledgeManager != null) {
+        if (this.spellManagerFactory != null) {
             throw new UnsupportedOperationException("A SpellKnowledgeManager plug-in attempted to register. Multiple SpellKnowledgeManagers are not supported.");
         }
-        this.spellKnowledgeManager = spellKnowledgeManager;
+        this.spellManagerFactory = spellKnowledgeManager;
     }
 
-    public ManaManager.Factory<?> getManaManager() {
-        return manaManager;
+    public ManaManager.Factory<?> getManaManagerFactory() {
+        return manaManagerFactory;
     }
-    public SpellManager.Factory<?> getSpellManager() {
-        return spellKnowledgeManager;
+    public SpellManager.Factory<?> getSpellManagerFactory() {
+        return spellManagerFactory;
     }
     public static ManaManager createManaManager(PlayerEntity player) {
-        return INSTANCE.getManaManager().createPlayerManaManager(player);
+        return INSTANCE.getManaManagerFactory().createPlayerManaManager(player);
     }
     public static SpellManager createSpellManager(PlayerEntity player) {
-        return INSTANCE.getSpellManager().createPlayerSpellKnowledgeManager(player);
+        return INSTANCE.getSpellManagerFactory().createPlayerSpellKnowledgeManager(player);
     }
 }
