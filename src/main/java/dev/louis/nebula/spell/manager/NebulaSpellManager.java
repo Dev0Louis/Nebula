@@ -7,15 +7,22 @@ import dev.louis.nebula.networking.SynchronizeSpellsS2CPacket;
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class NebulaSpellManager implements SpellManager {
     PlayerEntity player;
@@ -28,38 +35,30 @@ public class NebulaSpellManager implements SpellManager {
     private Set<SpellType<? extends Spell>> castableSpells = new HashSet<>();
 
 
-    /**
-     * @return a copy of the CastableSpells.
-     */
-    @Override
-    public Set<SpellType<? extends Spell>> getCastableSpells() {
-        return castableSpells;
-    }
-
     @Override
     public void tick() {}
 
     @Override
-    public void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells) {
+    public boolean addSpell(SpellType<? extends Spell> spellType) {
+        castableSpells.add(spellType);
+        return true;
+    }
+
+    @Override
+    public boolean removeSpell(SpellType<? extends Spell> spellType) {
+        castableSpells.remove(spellType);
+        return false;
+    }
+
+    private void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells) {
         this.castableSpells = castableSpells;
     }
 
-    @Override
-    public void addCastableSpell(SpellType<? extends Spell> spellType) {
-        addCastableSpell(List.of(spellType));
+    private Set<SpellType<? extends Spell>> getCastableSpells() {
+        return castableSpells;
     }
 
-
-    @Override
-    public void addCastableSpell(Iterable<SpellType<? extends Spell>> castableSpells) {
-        Map<SpellType<? extends Spell>, Boolean> spellMaps = new HashMap<>();
-        for (SpellType<? extends Spell> spellType : castableSpells) {
-            spellMaps.put(spellType, true);
-        }
-        updateCastableSpell(spellMaps);
-    }
-
-    public void updateCastableSpell(Map<SpellType<? extends Spell>, Boolean> castableSpells) {
+    private void updateCastableSpell(Map<SpellType<? extends Spell>, Boolean> castableSpells) {
         if(SpellUpdateCallback.EVENT.invoker().interact(player, castableSpells) != ActionResult.PASS)return;
         castableSpells.forEach((spellType, knows) -> {
                 if (knows) this.castableSpells.add(spellType);
@@ -74,36 +73,38 @@ public class NebulaSpellManager implements SpellManager {
     }
 
     @Override
-    public void removeCastableSpell(SpellType<? extends Spell> spellType) {
-        removeCastableSpell(List.of(spellType));
-    }
-
-    @Override
-    public void removeCastableSpell(Iterable<SpellType<? extends Spell>> castableSpells) {
-        Map<SpellType<? extends Spell>, Boolean> spellMaps = new HashMap<>();
-        for (SpellType<? extends Spell> spellType : castableSpells) {
-                spellMaps.put(spellType, false);
-        }
-        updateCastableSpell(spellMaps);
-    }
-    @Override
     public void copyFrom(ServerPlayerEntity oldPlayer, boolean alive) {
         if(alive) {
-            setCastableSpells(((NebulaPlayer)oldPlayer).getSpellManager().getCastableSpells());
+            setCastableSpells(getNebulaSpellmanager(NebulaPlayer.access(oldPlayer)).getCastableSpells());
         }
     }
 
     @Override
-    public boolean doesKnow(SpellType<? extends Spell> spellType) {
+    public boolean canCast(SpellType<? extends Spell> spellType) {
         return castableSpells.contains(spellType);
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        Set<SpellType<? extends Spell>> castableSpells = NebulaPlayer.access(player).getSpellManager().getCastableSpells();
+    public boolean sendSync() {
+        if(!(player instanceof ServerPlayerEntity serverPlayer))return false;
+        Map<SpellType<? extends Spell>, Boolean> castableSpells = new HashMap<>();
+        var buf = PacketByteBufs.create();
+        new SynchronizeSpellsS2CPacket(castableSpells).write(buf);
+        ServerPlayNetworking.send(serverPlayer, SynchronizeSpellsS2CPacket.getID(), buf);
+        return true;
+    }
 
+    @Override
+    public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        SynchronizeSpellsS2CPacket packet = SynchronizeSpellsS2CPacket.read(buf);
+        MinecraftClient.getInstance().executeSync(() -> getNebulaSpellmanager(NebulaPlayer.access(player)).updateCastableSpell(packet.spells()));
+        return true;
+    }
+
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt) {
         NbtList nbtList = new NbtList();
-        for (SpellType<? extends Spell> spell : castableSpells) {
+        for (SpellType<? extends Spell> spell : getCastableSpells()) {
             NbtCompound nbtCompound = new NbtCompound();
             nbtCompound.putString("Spell", SpellType.getId(spell).toString());
 
@@ -123,8 +124,16 @@ public class NebulaSpellManager implements SpellManager {
         for (int x = 0; x < nbtList.size(); ++x) {
             NbtCompound nbtCompound = nbtList.getCompound(0);
             Identifier spell = new Identifier(nbtCompound.getString("Spell"));
-            Optional<SpellType<? extends Spell>> optionalSpellType = SpellType.get(spell);
-            optionalSpellType.ifPresent(castableSpells::add);
+            SpellType.get(spell).ifPresent(castableSpells::add);
         }
+    }
+
+    /**
+     * It is safe to do this here because if code runs inside this Spell manager the Spell manager should be this one.
+     * @param player The Player you want the Spell Manager from.
+     * @return The NebulaSpellManager of that Player.
+     */
+    private NebulaSpellManager getNebulaSpellmanager(NebulaPlayer player) {
+        return (NebulaSpellManager) player.getSpellManager();
     }
 }

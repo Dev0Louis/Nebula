@@ -4,9 +4,13 @@ import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.networking.SynchronizeManaAmountS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class NebulaManaManager implements ManaManager {
@@ -29,7 +33,7 @@ public class NebulaManaManager implements ManaManager {
     public void setMana(int mana, boolean sendToPlayer) {
         this.mana = Math.max(Math.min(mana, maxmana), 0);
         if(sendToPlayer) {
-            sync();
+            sendSync();
         }
     }
     public void setMana(int mana) {
@@ -53,16 +57,25 @@ public class NebulaManaManager implements ManaManager {
     }
 
     @Override
-    public void sync() {
-        if(this.player.getWorld().isClient() || ((ServerPlayerEntity)player).networkHandler == null)return;
+    public boolean sendSync() {
+        if(this.player.getWorld().isClient() || ((ServerPlayerEntity)player).networkHandler == null)return false;
         var buf = PacketByteBufs.create();
-        new SynchronizeManaAmountS2CPacket(((NebulaPlayer)player).getManaManager().getMana()).write(buf);
+        new SynchronizeManaAmountS2CPacket((NebulaPlayer.access(player)).getManaManager().getMana()).write(buf);
 
         ServerPlayNetworking.send(
                 (ServerPlayerEntity) this.player,
                 SynchronizeManaAmountS2CPacket.getId(),
                 buf
         );
+        System.out.println("a");
+        return true;
+    }
+
+    @Override
+    public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        var packet = new SynchronizeManaAmountS2CPacket(buf);
+        NebulaPlayer.access(player).getManaManager().setMana(packet.mana());
+        return true;
     }
 
     @Override

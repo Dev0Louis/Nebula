@@ -39,7 +39,7 @@ public record SynchronizeSpellsS2CPacket(Map<SpellType<? extends Spell>, Boolean
     public static SynchronizeSpellsS2CPacket create(PlayerEntity player) {
         Map<SpellType<? extends Spell>, Boolean> map = new HashMap<>();
         Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> {
-            map.put(spellType, spellType.doesKnow(player));
+            map.put(spellType, spellType.canCast(player));
         });
         return new SynchronizeSpellsS2CPacket(map);
     }
