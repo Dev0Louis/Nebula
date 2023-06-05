@@ -41,10 +41,11 @@ jobs:
       with:
         name: Artifacts
         path: build/libs/       
-    - name: Upload artifacts to Modrinth, Curseforge and GitHub
-      uses: Kir-Antipov/mc-publish@v3.2
+    - name: Release & Publish
+      # You may pin to the exact commit or the version.
+      # uses: zattoo/publish@c7658fd8c63641736ef23627ca2d6644797565ca
+      uses: zattoo/publish@1.1.2
       with:
-        github-token: ${{ secrets.GH_TOKEN }}
-
-        files: build/libs/!(*-@(dev|sources|all)).jar
+        # GitHub Token
+        github_token: ${{ secrets.GH_TOKEN }}
 
