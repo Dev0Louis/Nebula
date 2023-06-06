@@ -16,12 +16,16 @@ public class NebulaClient implements ClientModInitializer {
     private void registerPacketReceivers() {
         //Register the Spell Sync Packet.
         registerReceiver(SynchronizeSpellsS2CPacket.getID(), ((client, handler, buf, responseSender) -> {
-            NebulaPlayer.access(client.player).getSpellManager().receiveSync(client, handler, buf, responseSender);
+            client.executeSync(() -> {
+                NebulaPlayer.access(client.player).getSpellManager().receiveSync(client, handler, buf, responseSender);
+            });
         }));
 
         //Register the ManaAmount Packet.
         registerReceiver(SynchronizeManaAmountS2CPacket.getId(), ((client, handler, buf, responseSender) -> {
-            NebulaPlayer.access(client.player).getManaManager().receiveSync(client, handler, buf, responseSender);
+            client.executeSync(() -> {
+                NebulaPlayer.access(client.player).getManaManager().receiveSync(client, handler, buf, responseSender);
+            });
         }));
     }
 
