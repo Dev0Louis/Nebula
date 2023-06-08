@@ -2,8 +2,7 @@ package dev.louis.nebula.spell.manager;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.NebulaPlayer;
-import dev.louis.nebula.event.SpellUpdateCallback;
-import dev.louis.nebula.networking.SynchronizeSpellsS2CPacket;
+import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -16,7 +15,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
@@ -59,7 +57,6 @@ public class NebulaSpellManager implements SpellManager {
     }
 
     private void updateCastableSpell(Map<SpellType<? extends Spell>, Boolean> castableSpells) {
-        if(SpellUpdateCallback.EVENT.invoker().interact(player, castableSpells) != ActionResult.PASS)return;
         castableSpells.forEach((spellType, knows) -> {
                 if (knows) this.castableSpells.add(spellType);
                 else this.castableSpells.remove(spellType);
@@ -67,9 +64,19 @@ public class NebulaSpellManager implements SpellManager {
 
         if(player instanceof ServerPlayerEntity serverPlayer) {
             var buf = PacketByteBufs.create();
-            new SynchronizeSpellsS2CPacket(castableSpells).write(buf);
-            ServerPlayNetworking.send(serverPlayer, SynchronizeSpellsS2CPacket.getID(), buf);
+            new UpdateSpellCastabilityS2CPacket(castableSpells).write(buf);
+            ServerPlayNetworking.send(serverPlayer, UpdateSpellCastabilityS2CPacket.getID(), buf);
         }
+    }
+
+    @Override
+    public void cast(PlayerEntity player, SpellType spellType) {
+        cast(spellType.create(player));
+    }
+
+    @Override
+    public void cast(Spell spell) {
+        spell.cast();
     }
 
     @Override
@@ -88,15 +95,18 @@ public class NebulaSpellManager implements SpellManager {
     public boolean sendSync() {
         if(!(player instanceof ServerPlayerEntity serverPlayer))return false;
         Map<SpellType<? extends Spell>, Boolean> castableSpells = new HashMap<>();
+        Nebula.NebulaRegistries.SPELL_TYPE.forEach((spellType -> {
+            if(this.castableSpells.contains(spellType))castableSpells.put(spellType, true);
+        }));
         var buf = PacketByteBufs.create();
-        new SynchronizeSpellsS2CPacket(castableSpells).write(buf);
-        ServerPlayNetworking.send(serverPlayer, SynchronizeSpellsS2CPacket.getID(), buf);
+        new UpdateSpellCastabilityS2CPacket(castableSpells).write(buf);
+        ServerPlayNetworking.send(serverPlayer, UpdateSpellCastabilityS2CPacket.getID(), buf);
         return true;
     }
 
     @Override
     public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        SynchronizeSpellsS2CPacket packet = SynchronizeSpellsS2CPacket.read(buf);
+        UpdateSpellCastabilityS2CPacket packet = UpdateSpellCastabilityS2CPacket.readBuf(buf);
         MinecraftClient.getInstance().executeSync(() -> getNebulaSpellmanager(NebulaPlayer.access(player)).updateCastableSpell(packet.spells()));
         return true;
     }

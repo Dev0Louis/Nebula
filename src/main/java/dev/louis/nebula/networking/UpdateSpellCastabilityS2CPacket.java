@@ -12,11 +12,11 @@ import net.minecraft.util.Identifier;
 import java.util.HashMap;
 import java.util.Map;
 
-public record SynchronizeSpellsS2CPacket(Map<SpellType<? extends Spell>, Boolean> spells) implements FabricPacket {
-    public static final PacketType<SynchronizeManaAmountS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "syncspellknowledge"), SynchronizeManaAmountS2CPacket::new);
+public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Boolean> spells) implements FabricPacket {
+    public static final PacketType<UpdateSpellCastabilityS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "updatespellcastability"), UpdateSpellCastabilityS2CPacket::new);
 
-    public SynchronizeSpellsS2CPacket(PacketByteBuf buf) {
-        this(readMap(buf));
+    private UpdateSpellCastabilityS2CPacket(PacketByteBuf buf) {
+        this(readMapFromBuf(buf));
     }
 
     public void write(PacketByteBuf buf) {
@@ -27,28 +27,19 @@ public record SynchronizeSpellsS2CPacket(Map<SpellType<? extends Spell>, Boolean
         });
     }
 
-    @Override
-    public PacketType<?> getType() {
-        return PACKET_TYPE;
-    }
-
-    public static Identifier getID() {
-        return PACKET_TYPE.getId();
-    }
-
-    public static SynchronizeSpellsS2CPacket create(PlayerEntity player) {
+    public static UpdateSpellCastabilityS2CPacket create(PlayerEntity player) {
         Map<SpellType<? extends Spell>, Boolean> map = new HashMap<>();
         Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> {
             map.put(spellType, spellType.canCast(player));
         });
-        return new SynchronizeSpellsS2CPacket(map);
+        return new UpdateSpellCastabilityS2CPacket(map);
     }
 
-    public static SynchronizeSpellsS2CPacket read(PacketByteBuf buf) {
-        return new SynchronizeSpellsS2CPacket(buf);
+    public static UpdateSpellCastabilityS2CPacket readBuf(PacketByteBuf buf) {
+        return new UpdateSpellCastabilityS2CPacket(readMapFromBuf(buf));
     }
 
-    private static Map<SpellType<? extends Spell>, Boolean> readMap(PacketByteBuf buf) {
+    private static Map<SpellType<? extends Spell>, Boolean> readMapFromBuf(PacketByteBuf buf) {
         Map<SpellType<? extends Spell>, Boolean> spells = new HashMap<>();
         int size = buf.readVarInt();
         for (int i = 0; i < size; i++) {
@@ -59,7 +50,12 @@ public record SynchronizeSpellsS2CPacket(Map<SpellType<? extends Spell>, Boolean
         return spells;
     }
 
-    public Map<SpellType<? extends Spell>, Boolean> spells() {
-        return spells;
-    };
+    @Override
+    public PacketType<?> getType() {
+        return PACKET_TYPE;
+    }
+
+    public static Identifier getID() {
+        return PACKET_TYPE.getId();
+    }
 }

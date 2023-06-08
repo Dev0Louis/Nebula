@@ -15,6 +15,11 @@ public interface SpellManager {
 
     boolean addSpell(SpellType<? extends Spell> spellType);
     boolean removeSpell(SpellType<? extends Spell> spellType);
+
+    void cast(PlayerEntity player, SpellType spellType);
+
+    void cast(Spell spell);
+
     void copyFrom(ServerPlayerEntity oldPlayer, boolean alive);
     boolean canCast(SpellType<? extends Spell> spellType);
     boolean sendSync();
@@ -24,6 +29,6 @@ public interface SpellManager {
 
     @FunctionalInterface
     interface Factory<T extends SpellManager> {
-        T createPlayerSpellKnowledgeManager(PlayerEntity player);
+        T createSpellKnowledgeManager(PlayerEntity player);
     }
 }

@@ -62,6 +62,6 @@ public class NebulaManager {
         return INSTANCE.getManaManagerFactory().createPlayerManaManager(player);
     }
     public static SpellManager createSpellManager(PlayerEntity player) {
-        return INSTANCE.getSpellManagerFactory().createPlayerSpellKnowledgeManager(player);
+        return INSTANCE.getSpellManagerFactory().createSpellKnowledgeManager(player);
     }
 }
