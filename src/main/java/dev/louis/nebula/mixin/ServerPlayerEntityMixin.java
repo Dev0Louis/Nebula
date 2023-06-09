@@ -21,20 +21,19 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     }
 
     @Inject(method = "copyFrom", at = @At("RETURN"))
-    public void spellManagerCopyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        NebulaPlayer.access(this).getSpellManager().copyFrom(oldPlayer, alive);
-    }
+    public void copySpellAndManaManagerFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
+        NebulaPlayer player = NebulaPlayer.access(this);
+        player.getSpellManager().copyFrom(oldPlayer, alive);
+        player.getManaManager().copyFrom(oldPlayer, alive);
 
-    @Inject(method = "copyFrom", at = @At("HEAD"))
-    public void manaManagerCopyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        NebulaPlayer.access(this).getManaManager().copyFrom(oldPlayer, alive);
     }
 
     @Inject(method = "onSpawn", at = @At("RETURN"))
-    public void onSpawnSyncSpells(CallbackInfo ci) {
+    public void syncSpellsOnSpawn(CallbackInfo ci) {
         var buf = PacketByteBufs.create();
         UpdateSpellCastabilityS2CPacket.create(this).write(buf);
         ServerPlayNetworking.send((ServerPlayerEntity) (Object) this, UpdateSpellCastabilityS2CPacket.getID(), buf);
+
 
     }
 }
