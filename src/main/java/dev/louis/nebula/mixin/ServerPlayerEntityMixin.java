@@ -33,7 +33,5 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
         var buf = PacketByteBufs.create();
         UpdateSpellCastabilityS2CPacket.create(this).write(buf);
         ServerPlayNetworking.send((ServerPlayerEntity) (Object) this, UpdateSpellCastabilityS2CPacket.getID(), buf);
-
-
     }
 }

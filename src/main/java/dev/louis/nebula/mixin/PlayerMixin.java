@@ -20,7 +20,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
         super(null, null);
     }
 
-    //Mana Start
+//Mana Start
 
     public ManaManager manaManager = NebulaManager.createManaManager((PlayerEntity) (Object) this);
 
