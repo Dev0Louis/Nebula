@@ -56,11 +56,11 @@ public class SpellType<T extends Spell> {
     }
 
 
-    public static boolean doesKnow(PlayerEntity player, SpellType<? extends Spell> spellType) {
-        return doesKnow(NebulaPlayer.access(player), spellType);
+    public static boolean canCast(PlayerEntity player, SpellType<? extends Spell> spellType) {
+        return canCast(NebulaPlayer.access(player), spellType);
     }
-    public static boolean doesKnow(NebulaPlayer player, SpellType<? extends Spell> spellType) {
-        return spellType.doesKnow(player);
+    public static boolean canCast(NebulaPlayer player, SpellType<? extends Spell> spellType) {
+        return spellType.canCast(player);
     }
 
 
@@ -74,7 +74,7 @@ public class SpellType<T extends Spell> {
         return isCastable(NebulaPlayer.access(player));
     }
     public boolean isCastable(NebulaPlayer player) {
-        return doesKnow(player) && hasEnoughMana(player);
+        return canCast(player) && hasEnoughMana(player);
     }
 
 
@@ -82,15 +82,15 @@ public class SpellType<T extends Spell> {
         return hasEnoughMana(NebulaPlayer.access(player));
     }
     public boolean hasEnoughMana(NebulaPlayer player) {
-        return ((player.getMana() - getManaCost()) >= 0);
+        return ((player.getManaManager().getMana() - getManaCost()) >= 0);
     }
 
 
-    public boolean doesKnow(PlayerEntity player) {
-        return doesKnow(NebulaPlayer.access(player));
+    public boolean canCast(PlayerEntity player) {
+        return canCast(NebulaPlayer.access(player));
     }
-    public boolean doesKnow(NebulaPlayer player) {
-        return player.getSpellKnowledgeManager().doesKnow(this);
+    public boolean canCast(NebulaPlayer player) {
+        return player.getSpellManager().canCast(this);
     }
 
 

@@ -1,11 +1,8 @@
 package dev.louis.nebula.networking;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.NebulaPlayer;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
@@ -23,10 +20,6 @@ public record SynchronizeManaAmountS2CPacket(int mana) implements FabricPacket {
     @Override
     public PacketType<?> getType() {
         return PACKET_TYPE;
-    }
-
-    public static void receive(SynchronizeManaAmountS2CPacket packet, PlayerEntity player, PacketSender responseSender) {
-        NebulaPlayer.access(player).setMana(packet.mana());
     }
 
     public static Identifier getId() {

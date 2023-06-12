@@ -1,5 +1,6 @@
 package dev.louis.nebula;
 
+import dev.louis.nebula.comand.NebulaCommand;
 import dev.louis.nebula.event.SpellCastCallback;
 import dev.louis.nebula.networking.SpellCastC2SPacket;
 import dev.louis.nebula.spell.Spell;
@@ -28,15 +29,16 @@ public class Nebula implements ModInitializer {
         SpellType.init();
         registerPacketReceivers();
         NebulaRegistries.init();
-        NebulaManager.init();
+        NebulaManager.INSTANCE.init();
+        NebulaCommand.init();
+        LOGGER.info("Nebula has started.");
     }
 
     public void registerPacketReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(SpellCastC2SPacket.getId(), ((server, player, handler, buf, responseSender) -> {
             Spell spell = SpellCastC2SPacket.read(player, buf).spell();
-            if (SpellCastCallback.EVENT.invoker().interact(player, spell) == ActionResult.PASS) {
-                spell.cast();
-            }
+            if (SpellCastCallback.EVENT.invoker().interact(player, spell) == ActionResult.PASS) spell.cast();
+
         }));
     }
 

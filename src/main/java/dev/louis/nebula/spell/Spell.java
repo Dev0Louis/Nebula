@@ -17,7 +17,7 @@ public abstract class Spell {
 
     public abstract void cast();
     public void drainMana() {
-        NebulaPlayer.access(getCaster()).getPlayerManaManager().drainMana(getType().getManaCost());
+        NebulaPlayer.access(getCaster()).getManaManager().drainMana(getType().getManaCost());
     }
     public Identifier getID() {
         return SpellType.getId(spellType);
