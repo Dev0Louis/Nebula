@@ -67,7 +67,6 @@ public class NebulaManaManager implements ManaManager {
                 SynchronizeManaAmountS2CPacket.getId(),
                 buf
         );
-        System.out.println("a");
         return true;
     }
 
