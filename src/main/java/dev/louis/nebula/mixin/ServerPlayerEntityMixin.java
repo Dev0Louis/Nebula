@@ -29,9 +29,10 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     }
 
     @Inject(method = "onSpawn", at = @At("RETURN"))
-    public void syncSpellsOnSpawn(CallbackInfo ci) {
+    public void syncManaAndSpellsOnSpawn(CallbackInfo ci) {
         var buf = PacketByteBufs.create();
         UpdateSpellCastabilityS2CPacket.create(this).write(buf);
         ServerPlayNetworking.send((ServerPlayerEntity) (Object) this, UpdateSpellCastabilityS2CPacket.getID(), buf);
+        NebulaPlayer.access(this).getManaManager().sendSync();
     }
 }
