@@ -39,17 +39,20 @@ public class NebulaSpellManager implements SpellManager {
     @Override
     public boolean addSpell(SpellType<? extends Spell> spellType) {
         castableSpells.add(spellType);
+        sendSync();
         return true;
     }
 
     @Override
     public boolean removeSpell(SpellType<? extends Spell> spellType) {
         castableSpells.remove(spellType);
+        sendSync();
         return false;
     }
 
     private void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells) {
         this.castableSpells = castableSpells;
+        sendSync();
     }
 
     private Set<SpellType<? extends Spell>> getCastableSpells() {
@@ -61,12 +64,7 @@ public class NebulaSpellManager implements SpellManager {
                 if (knows) this.castableSpells.add(spellType);
                 else this.castableSpells.remove(spellType);
         });
-
-        if(player instanceof ServerPlayerEntity serverPlayer) {
-            var buf = PacketByteBufs.create();
-            new UpdateSpellCastabilityS2CPacket(castableSpells).write(buf);
-            ServerPlayNetworking.send(serverPlayer, UpdateSpellCastabilityS2CPacket.getID(), buf);
-        }
+        sendSync();
     }
 
     @Override
@@ -96,7 +94,7 @@ public class NebulaSpellManager implements SpellManager {
         if(!(player instanceof ServerPlayerEntity serverPlayer))return false;
         Map<SpellType<? extends Spell>, Boolean> castableSpells = new HashMap<>();
         Nebula.NebulaRegistries.SPELL_TYPE.forEach((spellType -> {
-            if(this.castableSpells.contains(spellType))castableSpells.put(spellType, true);
+            castableSpells.put(spellType, this.castableSpells.contains(spellType));
         }));
         var buf = PacketByteBufs.create();
         new UpdateSpellCastabilityS2CPacket(castableSpells).write(buf);
@@ -107,6 +105,7 @@ public class NebulaSpellManager implements SpellManager {
     @Override
     public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         UpdateSpellCastabilityS2CPacket packet = UpdateSpellCastabilityS2CPacket.readBuf(buf);
+        System.out.println("PACKET!");
         MinecraftClient.getInstance().executeSync(() -> getNebulaSpellmanager(NebulaPlayer.access(player)).updateCastableSpell(packet.spells()));
         return true;
     }
