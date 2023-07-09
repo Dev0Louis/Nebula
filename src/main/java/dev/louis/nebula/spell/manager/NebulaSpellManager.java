@@ -84,8 +84,12 @@ public class NebulaSpellManager implements SpellManager {
         }
     }
 
+    public boolean isCastable(SpellType<? extends Spell> spellType) {
+        return hasLearned(spellType) && spellType.hasEnoughMana(this.player);
+    }
+
     @Override
-    public boolean canCast(SpellType<? extends Spell> spellType) {
+    public boolean hasLearned(SpellType<? extends Spell> spellType) {
         return castableSpells.contains(spellType);
     }
 
@@ -94,11 +98,11 @@ public class NebulaSpellManager implements SpellManager {
         if(!(player instanceof ServerPlayerEntity serverPlayer))return false;
         Map<SpellType<? extends Spell>, Boolean> castableSpells = new HashMap<>();
         Nebula.NebulaRegistries.SPELL_TYPE.forEach((spellType -> {
-            castableSpells.put(spellType, this.castableSpells.contains(spellType));
+            castableSpells.put(spellType, hasLearned(spellType));
         }));
-        var buf = PacketByteBufs.create();
-        new UpdateSpellCastabilityS2CPacket(castableSpells).write(buf);
-        ServerPlayNetworking.send(serverPlayer, UpdateSpellCastabilityS2CPacket.getID(), buf);
+        var packet = new UpdateSpellCastabilityS2CPacket(castableSpells);
+        packet.write(PacketByteBufs.create());
+        ServerPlayNetworking.send(serverPlayer, packet);
         return true;
     }
 
@@ -115,7 +119,7 @@ public class NebulaSpellManager implements SpellManager {
         NbtList nbtList = new NbtList();
         for (SpellType<? extends Spell> spell : getCastableSpells()) {
             NbtCompound nbtCompound = new NbtCompound();
-            nbtCompound.putString("Spell", SpellType.getId(spell).toString());
+            nbtCompound.putString("Spell", spell.getId().toString());
 
             nbtList.add(nbtCompound);
         }

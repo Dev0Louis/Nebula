@@ -20,7 +20,7 @@ public abstract class Spell {
         NebulaPlayer.access(getCaster()).getManaManager().drainMana(getType().getManaCost());
     }
     public Identifier getID() {
-        return SpellType.getId(spellType);
+        return getType().getId();
     }
 
     public PlayerEntity getCaster() {

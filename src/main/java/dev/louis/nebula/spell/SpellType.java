@@ -36,31 +36,8 @@ public class SpellType<T extends Spell> {
         return SPELL_TYPE.getOrEmpty(id);
     }
 
-    public static Identifier getId(SpellType<?> type) {
-        return SPELL_TYPE.getId(type);
-    }
-
-    public static boolean isCastable(PlayerEntity player, SpellType<? extends Spell> spellType) {
-        return isCastable(NebulaPlayer.access(player), spellType);
-    }
-    public static boolean isCastable(NebulaPlayer player, SpellType<? extends Spell> spellType) {
-        return spellType.isCastable(player);
-    }
-
-
-    public static boolean hasEnoughMana(PlayerEntity player, SpellType<? extends Spell> spellType) {
-        return hasEnoughMana(player, spellType);
-    }
-    public static boolean hasEnoughMana(NebulaPlayer player, SpellType<? extends Spell> spellType) {
-        return spellType.hasEnoughMana(player);
-    }
-
-
-    public static boolean canCast(PlayerEntity player, SpellType<? extends Spell> spellType) {
-        return canCast(NebulaPlayer.access(player), spellType);
-    }
-    public static boolean canCast(NebulaPlayer player, SpellType<? extends Spell> spellType) {
-        return spellType.canCast(player);
+    public Identifier getId() {
+        return SPELL_TYPE.getId(this);
     }
 
 
@@ -74,7 +51,7 @@ public class SpellType<T extends Spell> {
         return isCastable(NebulaPlayer.access(player));
     }
     public boolean isCastable(NebulaPlayer player) {
-        return canCast(player) && hasEnoughMana(player);
+        return player.getSpellManager().isCastable(this);
     }
 
 
@@ -86,11 +63,11 @@ public class SpellType<T extends Spell> {
     }
 
 
-    public boolean canCast(PlayerEntity player) {
-        return canCast(NebulaPlayer.access(player));
+    public boolean hasLearned(PlayerEntity player) {
+        return hasLearned(NebulaPlayer.access(player));
     }
-    public boolean canCast(NebulaPlayer player) {
-        return player.getSpellManager().canCast(this);
+    public boolean hasLearned(NebulaPlayer player) {
+        return player.getSpellManager().hasLearned(this);
     }
 
 

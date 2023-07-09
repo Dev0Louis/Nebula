@@ -16,12 +16,13 @@ public interface SpellManager {
     boolean addSpell(SpellType<? extends Spell> spellType);
     boolean removeSpell(SpellType<? extends Spell> spellType);
 
-    void cast(PlayerEntity player, SpellType spellType);
+    void cast(PlayerEntity player, SpellType<? extends Spell> spellType);
 
     void cast(Spell spell);
 
     void copyFrom(ServerPlayerEntity oldPlayer, boolean alive);
-    boolean canCast(SpellType<? extends Spell> spellType);
+    boolean isCastable(SpellType<? extends Spell> spellType);
+    boolean hasLearned(SpellType<? extends Spell> spellType);
     boolean sendSync();
     boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
     NbtCompound writeNbt(NbtCompound nbt);

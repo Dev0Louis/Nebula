@@ -19,20 +19,25 @@ public class NebulaManaManager implements ManaManager {
         this.player = p;
     }
     private int mana = 0;
-    private int maxmana = 20;
+    private int lastSyncedMana = getMana();
 
 
     @Override
     public void tick() {
     }
 
+    @Override
+    public int getMaxmana() {
+        return 20;
+    }
+
     public int getMana() {
         return mana;
-
     }
-    public void setMana(int mana, boolean sendToPlayer) {
-        this.mana = Math.max(Math.min(mana, maxmana), 0);
-        if(sendToPlayer) {
+
+    public void setMana(int mana, boolean syncToClient) {
+        this.mana = Math.max(Math.min(mana, getMaxmana()), 0);
+        if(syncToClient) {
             sendSync();
         }
     }
@@ -48,12 +53,8 @@ public class NebulaManaManager implements ManaManager {
         setMana(getMana() - mana);
     }
 
-    public int getPlayerMaxMana() {
-        return maxmana;
-    }
-
-    public void setPlayerMaxMana(int max) {
-        if(max > 0)this.maxmana = max;
+    public int getMaxMana() {
+        return 20;
     }
 
     @Override
@@ -82,7 +83,6 @@ public class NebulaManaManager implements ManaManager {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
 
         nebulaNbt.putInt("Mana", this.getMana());
-        nebulaNbt.putInt("MaxMana", this.getPlayerMaxMana());
         nbt.put(Nebula.MOD_ID, nebulaNbt);
     }
 
@@ -90,14 +90,12 @@ public class NebulaManaManager implements ManaManager {
     public void readNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
         this.setMana(nebulaNbt.getInt("Mana"));
-        this.setPlayerMaxMana(nebulaNbt.getInt("MaxMana"));
     }
 
     public void copyFrom(PlayerEntity oldPlayer, boolean alive) {
         if(alive) {
             ManaManager oldManaManager = NebulaPlayer.access(oldPlayer).getManaManager();
             this.setMana(oldManaManager.getMana());
-            this.setPlayerMaxMana(oldManaManager.getPlayerMaxMana());
         }
     }
 

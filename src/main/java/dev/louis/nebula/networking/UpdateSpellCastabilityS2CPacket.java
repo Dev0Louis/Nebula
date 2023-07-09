@@ -30,7 +30,7 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
     public static UpdateSpellCastabilityS2CPacket create(PlayerEntity player) {
         Map<SpellType<? extends Spell>, Boolean> map = new HashMap<>();
         Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> {
-            map.put(spellType, spellType.canCast(player));
+            map.put(spellType, spellType.hasLearned(player));
         });
         return new UpdateSpellCastabilityS2CPacket(map);
     }
