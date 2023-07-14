@@ -1,4 +1,4 @@
-package dev.louis.nebula.comand;
+package dev.louis.nebula.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dev.louis.nebula.api.NebulaPlayer;
@@ -22,7 +22,7 @@ public class NebulaCommand {
     }
 
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        var command = literal("nebula");
+        var command = literal("nebula").requires(source -> source.hasPermissionLevel(4));
         var getManaCommand = literal("getMana").executes(context -> getMana(context.getSource()));
         var getManaWithPlayerCommand = argument("player", player())
                 .executes(ctx -> getMana(ctx.getSource(), getPlayer(ctx, "player")));
