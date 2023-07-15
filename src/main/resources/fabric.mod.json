@@ -28,8 +28,8 @@
     "minecraft": ">=1.20"
   },
   "custom": {
-    "nebula:contains_manamanager": true,
-    "nebula:contains_spellmanager": true,
+    "nebula:contains_mana_manager": true,
+    "nebula:contains_spell_manager": true,
     "loom:injected_interfaces": {
       "net/minecraft/class_1657": ["dev/louis/nebula/api/InjectedNebulaUser"]
     }
