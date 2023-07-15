@@ -27,8 +27,10 @@ public class NebulaManager {
         FabricLoader.getInstance().getAllMods().forEach(mod -> {
             final ModMetadata metadata = mod.getMetadata();
             if(metadata.getId().equals("nebula"))return;
-            if (metadata.containsCustomValue(JSON_KEY_CONTAINS_MANA_MANAGER)) loadManaManager = false;
-            if (metadata.containsCustomValue(JSON_KEY_CONTAINS_SPELL_MANAGER)) loadSpellManager = false;
+            var loadManaManager = metadata.getCustomValue(JSON_KEY_CONTAINS_MANA_MANAGER);
+            if (loadManaManager != null && loadManaManager.getAsBoolean()) this.loadManaManager = false;
+            var loadSpellManager = metadata.getCustomValue(JSON_KEY_CONTAINS_SPELL_MANAGER);
+            if (loadSpellManager != null && loadSpellManager.getAsBoolean()) this.loadSpellManager = false;
         });
     }
 
