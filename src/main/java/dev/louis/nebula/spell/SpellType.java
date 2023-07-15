@@ -77,16 +77,16 @@ public class SpellType<T extends Spell<?>> {
         }
 
         public static <T extends Spell<?>> Builder<T> create(SpellFactory<T> factory, int manaCost) {
-            return new Builder<T>(factory, manaCost);
+            return new Builder<>(factory, manaCost);
         }
 
         public SpellType<T> build() {
-            return new SpellType<T>(this.factory, manaCost);
+            return new SpellType<>(this.factory, manaCost);
         }
 
 
     }
-    public static interface SpellFactory<T extends Spell<?>> {
-        public T create(SpellType<T> spellType, NebulaUser caster);
+    public interface SpellFactory<T extends Spell<?>> {
+        T create(SpellType<T> spellType, NebulaUser caster);
     }
 }

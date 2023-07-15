@@ -7,15 +7,25 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public interface InjectedNebulaUser extends NebulaUser {
     default ManaManager getManaManager() {
-        return null;
-    };
+        throw new UnsupportedOperationException("InjectedInterface Method was not overridden!");
+    }
     default ManaManager setManaManager(ManaManager manaManager) {
-        return null;
-    };
+        throw new UnsupportedOperationException("InjectedInterface Method was not overridden!");
+    }
     default SpellManager getSpellManager() {
-        return null;
-    };
+        throw new UnsupportedOperationException("InjectedInterface Method was not overridden!");
+    }
     default SpellManager setSpellManager(SpellManager spellManager) {
-        return null;
-    };
+        throw new UnsupportedOperationException("InjectedInterface Method was not overridden!");
+    }
+
+    default double getX() {
+        throw new UnsupportedOperationException("InjectedInterface Method was not overridden!");
+    }
+    default double getY() {
+        throw new UnsupportedOperationException("InjectedInterface Method was not overridden!");
+    }
+    default double getZ() {
+        throw new UnsupportedOperationException("InjectedInterface Method was not overridden!");
+    }
 }

@@ -60,7 +60,7 @@ public class NebulaManaManager implements ManaManager {
     public boolean sendSync() {
         if(this.nebulaUser instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
             ServerPlayNetworking.send(
-                    (ServerPlayerEntity) this.nebulaUser,
+                    serverPlayerEntity,
                     new SynchronizeManaAmountS2CPacket(nebulaUser.getManaManager().getMana())
             );
             return true;

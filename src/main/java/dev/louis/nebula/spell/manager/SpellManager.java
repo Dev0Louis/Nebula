@@ -6,23 +6,22 @@ import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 public interface SpellManager {
     void tick();
 
-    boolean addSpell(SpellType<? extends Spell> spellType);
-    boolean removeSpell(SpellType<? extends Spell> spellType);
+    boolean addSpell(SpellType<? extends Spell<?>> spellType);
+    boolean removeSpell(SpellType<? extends Spell<?>> spellType);
 
-    void cast(PlayerEntity player, SpellType<? extends Spell> spellType);
+    void cast(NebulaUser nebulaUser, SpellType<? extends Spell<?>> spellType);
 
-    void cast(Spell spell);
+    void cast(Spell<?> spell);
 
-    void copyFrom(NebulaUser oldPlayer, boolean alive);
-    boolean isCastable(SpellType<? extends Spell> spellType);
-    boolean hasLearned(SpellType<? extends Spell> spellType);
+    void copyFrom(NebulaUser oldNebulaUser, boolean alive);
+    boolean isCastable(SpellType<? extends Spell<?>> spellType);
+    boolean hasLearned(SpellType<? extends Spell<?>> spellType);
     boolean sendSync();
     boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
     NbtCompound writeNbt(NbtCompound nbt);

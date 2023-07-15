@@ -22,10 +22,10 @@ public class NebulaCommand {
 
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         var command = literal("nebula").requires(source -> source.hasPermissionLevel(4));
-        var getManaCommand = literal("getMana").executes(context -> getMana(context.getSource()));
+        var getManaCommand = literal("getPlayerMana").executes(context -> getMana(context.getSource()));
         var getManaWithPlayerCommand = argument("player", player())
                 .executes(ctx -> getMana(ctx.getSource(), getPlayer(ctx, "player")));
-        var setManaCommand = literal("setMana")
+        var setManaCommand = literal("setPlayerMana")
                 .then(argument("player", player())
                         .then(argument("mana", integer(0))
                                 .executes(context -> setMana(context.getSource(), getPlayer(context, "player"), getInteger(context, "mana")))));
