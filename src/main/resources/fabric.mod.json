@@ -31,7 +31,7 @@
     "nebula:contains_manamanager": true,
     "nebula:contains_spellmanager": true,
     "loom:injected_interfaces": {
-      "net/minecraft/class_1657": ["dev.louis.nebula.api.NebulaUser"]
+      "net/minecraft/class_1657": ["dev/louis/nebula/api/InjectedNebulaUser"]
     }
   },
   "accessWidener": "nebula.accesswidener"

@@ -39,11 +39,11 @@ public class Nebula implements ModInitializer {
 
 
     public static class NebulaRegistries {
-        public static SimpleRegistry<SpellType<? extends Spell>> SPELL_TYPE = FabricRegistryBuilder.createSimple(NebulaRegistryKeys.SPELL_TYPE).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+        public static SimpleRegistry<SpellType<? extends Spell<?>>> SPELL_TYPE = FabricRegistryBuilder.createSimple(NebulaRegistryKeys.SPELL_TYPE).attribute(RegistryAttribute.SYNCED).buildAndRegister();
         public static void init(){}
     }
     public static class NebulaRegistryKeys {
-        public static final RegistryKey<Registry<SpellType<? extends Spell>>> SPELL_TYPE = RegistryKeys.of("spell_type");
+        public static final RegistryKey<Registry<SpellType<? extends Spell<?>>>> SPELL_TYPE = RegistryKeys.of("spell_type");
     }
 }
 

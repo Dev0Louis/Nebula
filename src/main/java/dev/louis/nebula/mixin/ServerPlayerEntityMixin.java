@@ -1,9 +1,7 @@
 package dev.louis.nebula.mixin;
 
 import com.mojang.authlib.GameProfile;
-import dev.louis.nebula.api.NebulaUser;
 import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -29,9 +27,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     @Inject(method = "onSpawn", at = @At("RETURN"))
     public void syncManaAndSpellsOnSpawn(CallbackInfo ci) {
-        var buf = PacketByteBufs.create();
-        UpdateSpellCastabilityS2CPacket.create(this).write(buf);
-        ServerPlayNetworking.send((ServerPlayerEntity) (Object) this, UpdateSpellCastabilityS2CPacket.getID(), buf);
-        NebulaUser.access(this).getManaManager().sendSync();
+        this.getSpellManager().sendSync();
+        ServerPlayNetworking.send((ServerPlayerEntity) (Object) this, UpdateSpellCastabilityS2CPacket.create(this));
+        this.getManaManager().sendSync();
     }
 }

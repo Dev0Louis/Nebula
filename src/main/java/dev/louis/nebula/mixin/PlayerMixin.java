@@ -44,8 +44,8 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaUser {
     }
 
     @Override
-    public void setManaManager(ManaManager manaManager) {
-        this.manaManager = manaManager;
+    public ManaManager setManaManager(ManaManager manaManager) {
+        return this.manaManager = manaManager;
     }
 
 // Mana End
