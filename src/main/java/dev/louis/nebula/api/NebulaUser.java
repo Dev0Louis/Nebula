@@ -5,13 +5,13 @@ import dev.louis.nebula.spell.manager.SpellManager;
 import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.NotNull;
 
-public interface NebulaPlayer {
+public interface NebulaUser {
     ManaManager getManaManager();
     void setManaManager(ManaManager manaManager);
     public SpellManager getSpellManager();
     public SpellManager setSpellManager(SpellManager spellManager);
     @NotNull
-    static NebulaPlayer access(PlayerEntity player) {
-        return (NebulaPlayer) player;
+    static NebulaUser access(PlayerEntity player) {
+        return (NebulaUser) player;
     }
 }

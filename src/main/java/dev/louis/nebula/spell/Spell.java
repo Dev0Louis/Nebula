@@ -1,6 +1,6 @@
 package dev.louis.nebula.spell;
 
-import dev.louis.nebula.api.NebulaPlayer;
+import dev.louis.nebula.api.NebulaUser;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
@@ -17,7 +17,7 @@ public abstract class Spell {
 
     public abstract void cast();
     public void drainMana() {
-        NebulaPlayer.access(getCaster()).getManaManager().drainMana(getType().getManaCost());
+        NebulaUser.access(getCaster()).getManaManager().drainMana(getType().getManaCost());
     }
     public Identifier getID() {
         return getType().getId();

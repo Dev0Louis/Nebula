@@ -9,7 +9,7 @@
   ],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/Nebula/icon.png",
+  "icon": "assets/nebula/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -29,7 +29,10 @@
   },
   "custom": {
     "nebula:contains_manamanager": true,
-    "nebula:contains_spellmanager": true
+    "nebula:contains_spellmanager": true,
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1657": ["dev.louis.nebula.api.NebulaUser"]
+    }
   },
   "accessWidener": "nebula.accesswidener"
 }

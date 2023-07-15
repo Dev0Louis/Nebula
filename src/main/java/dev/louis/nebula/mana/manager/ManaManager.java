@@ -1,9 +1,9 @@
 package dev.louis.nebula.mana.manager;
 
+import dev.louis.nebula.api.NebulaUser;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
@@ -19,9 +19,9 @@ public interface ManaManager {
     boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
     void writeNbt(NbtCompound nbt);
     void readNbt(NbtCompound nbt);
-    void copyFrom(PlayerEntity oldPlayer, boolean alive);
+    void copyFrom(NebulaUser oldPlayer, boolean alive);
     @FunctionalInterface
     interface Factory<T extends ManaManager> {
-        T createPlayerManaManager(PlayerEntity player);
+        T createPlayerManaManager(NebulaUser player);
     }
 }

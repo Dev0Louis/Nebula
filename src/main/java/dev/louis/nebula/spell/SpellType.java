@@ -1,6 +1,6 @@
 package dev.louis.nebula.spell;
 
-import dev.louis.nebula.api.NebulaPlayer;
+import dev.louis.nebula.api.NebulaUser;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -47,29 +47,17 @@ public class SpellType<T extends Spell> {
     }
 
 
-    public boolean isCastable(PlayerEntity player) {
-        return isCastable(NebulaPlayer.access(player));
-    }
-    public boolean isCastable(NebulaPlayer player) {
+    public boolean isCastable(NebulaUser player) {
         return player.getSpellManager().isCastable(this);
     }
 
-
-    public boolean hasEnoughMana(PlayerEntity player) {
-        return hasEnoughMana(NebulaPlayer.access(player));
-    }
-    public boolean hasEnoughMana(NebulaPlayer player) {
+    public boolean hasEnoughMana(NebulaUser player) {
         return ((player.getManaManager().getMana() - getManaCost()) >= 0);
     }
 
-
-    public boolean hasLearned(PlayerEntity player) {
-        return hasLearned(NebulaPlayer.access(player));
-    }
-    public boolean hasLearned(NebulaPlayer player) {
+    public boolean hasLearned(NebulaUser player) {
         return player.getSpellManager().hasLearned(this);
     }
-
 
     public int getManaCost() {
         return manaCost;
