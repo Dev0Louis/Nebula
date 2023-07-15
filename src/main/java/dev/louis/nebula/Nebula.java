@@ -10,8 +10,8 @@ import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class Nebula implements ModInitializer {
         public static void init(){}
     }
     public static class NebulaRegistryKeys {
-        public static final RegistryKey<Registry<SpellType<? extends Spell<?>>>> SPELL_TYPE = RegistryKeys.of("spell_type");
+        public static final RegistryKey<Registry<SpellType<? extends Spell<?>>>> SPELL_TYPE = RegistryKey.ofRegistry(new Identifier("nebula","spell_type"));
     }
 }
 
