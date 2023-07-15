@@ -2,6 +2,7 @@ package dev.louis.nebula.api;
 
 import dev.louis.nebula.mana.manager.ManaManager;
 import dev.louis.nebula.spell.manager.SpellManager;
+import net.minecraft.world.World;
 
 public interface NebulaUser {
     ManaManager getManaManager();
@@ -12,4 +13,5 @@ public interface NebulaUser {
     double getX();
     double getY();
     double getZ();
+    World getWorld();
 }
