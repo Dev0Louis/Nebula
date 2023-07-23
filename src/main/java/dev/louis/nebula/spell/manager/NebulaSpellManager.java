@@ -44,7 +44,7 @@ public class NebulaSpellManager implements SpellManager {
     public boolean removeSpell(SpellType<? extends Spell> spellType) {
         castableSpells.remove(spellType);
         sendSync();
-        return false;
+        return true;
     }
 
     private void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells) {
