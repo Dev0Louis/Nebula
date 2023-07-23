@@ -1,7 +1,7 @@
 package dev.louis.nebula.mixin;
 
 import dev.louis.nebula.NebulaManager;
-import dev.louis.nebula.api.NebulaUser;
+import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.mana.manager.ManaManager;
 import dev.louis.nebula.spell.manager.SpellManager;
 import net.minecraft.entity.LivingEntity;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Debug(export = true)
 @Mixin(PlayerEntity.class)
-public abstract class PlayerMixin extends LivingEntity implements NebulaUser {
+public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     private PlayerMixin() {
         super(null, null);
     }

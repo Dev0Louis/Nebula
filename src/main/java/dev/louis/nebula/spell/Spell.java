@@ -1,14 +1,15 @@
 package dev.louis.nebula.spell;
 
-import dev.louis.nebula.api.NebulaUser;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-public abstract class Spell<T extends NebulaUser> {
-    private final SpellType<? extends Spell<?>> spellType;
-    private final T caster;
+public abstract class Spell {
+    private final SpellType<? extends Spell> spellType;
+    private final PlayerEntity caster;
 
 
-    public Spell(SpellType<? extends Spell<?>> spellType, T caster) {
+    public Spell(SpellType<? extends Spell> spellType, PlayerEntity caster) {
         this.spellType = spellType;
         this.caster = caster;
     }
@@ -21,10 +22,10 @@ public abstract class Spell<T extends NebulaUser> {
         return getType().getId();
     }
 
-    public T getCaster() {
+    public PlayerEntity getCaster() {
         return caster;
     }
-    public SpellType<? extends Spell<?>> getType() {
+    public SpellType<? extends Spell> getType() {
         return spellType;
     }
 
@@ -37,4 +38,11 @@ public abstract class Spell<T extends NebulaUser> {
         return getClass().getSimpleName() + "[" + getID().toString() + "]";
     }
 
+    public PacketByteBuf readBuf(PacketByteBuf buf) {
+        return buf;
+    }
+
+    public PacketByteBuf writeBuf(PacketByteBuf buf) {
+        return buf;
+    }
 }

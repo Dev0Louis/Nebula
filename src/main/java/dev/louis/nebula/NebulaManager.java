@@ -1,12 +1,12 @@
 package dev.louis.nebula;
 
-import dev.louis.nebula.api.NebulaUser;
 import dev.louis.nebula.mana.manager.ManaManager;
 import dev.louis.nebula.mana.manager.NebulaManaManager;
 import dev.louis.nebula.spell.manager.NebulaSpellManager;
 import dev.louis.nebula.spell.manager.SpellManager;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class NebulaManager {
     private static final String JSON_KEY_CONTAINS_MANA_MANAGER = "nebula:contains_mana_manager";
@@ -60,10 +60,10 @@ public class NebulaManager {
     public SpellManager.Factory<?> getSpellManagerFactory() {
         return spellManagerFactory;
     }
-    public static ManaManager createManaManager(NebulaUser nebulaUser) {
-        return INSTANCE.getManaManagerFactory().createPlayerManaManager(nebulaUser);
+    public static ManaManager createManaManager(PlayerEntity player) {
+        return INSTANCE.getManaManagerFactory().createPlayerManaManager(player);
     }
-    public static SpellManager createSpellManager(NebulaUser nebulaUser) {
-        return INSTANCE.getSpellManagerFactory().createSpellKnowledgeManager(nebulaUser);
+    public static SpellManager createSpellManager(PlayerEntity player) {
+        return INSTANCE.getSpellManagerFactory().createSpellKnowledgeManager(player);
     }
 }

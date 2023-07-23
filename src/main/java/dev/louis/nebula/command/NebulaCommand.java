@@ -39,7 +39,7 @@ public class NebulaCommand {
     private static int setMana(ServerCommandSource source, ServerPlayerEntity player, int mana) {
         if(source.getPlayer() != null) {
             player.getManaManager().setMana(mana);
-            source.sendMessage(Text.of(player.getName().getString() + " now has " + mana + " Mana."));
+            source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
         }
         return 1;
     }

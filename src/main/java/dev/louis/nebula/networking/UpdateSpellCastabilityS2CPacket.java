@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static dev.louis.nebula.NebulaClient.runWithBuf;
 
-public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell<?>>, Boolean> spells) implements FabricPacket {
+public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Boolean> spells) implements FabricPacket {
     public static final PacketType<UpdateSpellCastabilityS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "updatespellcastability"), UpdateSpellCastabilityS2CPacket::new);
 
     private UpdateSpellCastabilityS2CPacket(PacketByteBuf buf) {
@@ -33,7 +33,7 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell<?>>,
     }
 
     public static UpdateSpellCastabilityS2CPacket create(PlayerEntity player) {
-        Map<SpellType<? extends Spell<?>>, Boolean> map = new HashMap<>();
+        Map<SpellType<? extends Spell>, Boolean> map = new HashMap<>();
         Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> map.put(spellType, spellType.hasLearned(player)));
         return new UpdateSpellCastabilityS2CPacket(map);
     }
@@ -42,11 +42,11 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell<?>>,
         return new UpdateSpellCastabilityS2CPacket(readMapFromBuf(buf));
     }
 
-    private static Map<SpellType<? extends Spell<?>>, Boolean> readMapFromBuf(PacketByteBuf buf) {
-        Map<SpellType<? extends Spell<?>>, Boolean> spells = new HashMap<>();
+    private static Map<SpellType<? extends Spell>, Boolean> readMapFromBuf(PacketByteBuf buf) {
+        Map<SpellType<? extends Spell>, Boolean> spells = new HashMap<>();
         int size = buf.readVarInt();
         for (int i = 0; i < size; i++) {
-            SpellType<? extends Spell<?>> spellType = buf.readRegistryValue(Nebula.NebulaRegistries.SPELL_TYPE);
+            SpellType<? extends Spell> spellType = buf.readRegistryValue(Nebula.NebulaRegistries.SPELL_TYPE);
             boolean knows = buf.readBoolean();
             spells.put(spellType, knows);
         }

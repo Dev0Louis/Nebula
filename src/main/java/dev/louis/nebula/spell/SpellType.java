@@ -1,6 +1,6 @@
 package dev.louis.nebula.spell;
 
-import dev.louis.nebula.api.NebulaUser;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import static dev.louis.nebula.Nebula.NebulaRegistries.SPELL_TYPE;
 
-public class SpellType<T extends Spell<?>> {
+public class SpellType<T extends Spell> {
 
     private final SpellFactory<T> factory;
     private final int manaCost;
@@ -18,10 +18,10 @@ public class SpellType<T extends Spell<?>> {
     public static SpellType<NullSpell> NULL_SPELL = register(new Identifier("nebula", "null_spell"), Builder.create(NullSpell::new, Integer.MAX_VALUE));
      */
 
-    public static <T extends Spell<?>> SpellType<T> register(String id, Builder<T> type) {
+    public static <T extends Spell> SpellType<T> register(String id, Builder<T> type) {
         return register(Identifier.tryParse(id), type);
     }
-    public static <T extends Spell<?>> SpellType<T> register(Identifier id, Builder<T> type) {
+    public static <T extends Spell> SpellType<T> register(Identifier id, Builder<T> type) {
         return Registry.register(SPELL_TYPE, id, type.build());
     }
 
@@ -46,15 +46,15 @@ public class SpellType<T extends Spell<?>> {
     }
 
 
-    public boolean isCastable(NebulaUser player) {
+    public boolean isCastable(PlayerEntity player) {
         return player.getSpellManager().isCastable(this);
     }
 
-    public boolean hasEnoughMana(NebulaUser player) {
+    public boolean hasEnoughMana(PlayerEntity player) {
         return ((player.getManaManager().getMana() - getManaCost()) >= 0);
     }
 
-    public boolean hasLearned(NebulaUser player) {
+    public boolean hasLearned(PlayerEntity player) {
         return player.getSpellManager().hasLearned(this);
     }
 
@@ -63,11 +63,11 @@ public class SpellType<T extends Spell<?>> {
     }
 
 
-    public T create(NebulaUser caster) {
+    public T create(PlayerEntity caster) {
         return this.factory.create(this, caster);
     }
 
-    public static class Builder<T extends Spell<?>> {
+    public static class Builder<T extends Spell> {
         private final SpellFactory<T> factory;
         private final int manaCost;
 
@@ -76,7 +76,7 @@ public class SpellType<T extends Spell<?>> {
             this.manaCost = manaCost;
         }
 
-        public static <T extends Spell<?>> Builder<T> create(SpellFactory<T> factory, int manaCost) {
+        public static <T extends Spell> Builder<T> create(SpellFactory<T> factory, int manaCost) {
             return new Builder<>(factory, manaCost);
         }
 
@@ -86,7 +86,7 @@ public class SpellType<T extends Spell<?>> {
 
 
     }
-    public interface SpellFactory<T extends Spell<?>> {
-        T create(SpellType<T> spellType, NebulaUser caster);
+    public interface SpellFactory<T extends Spell> {
+        T create(SpellType<T> spellType, PlayerEntity caster);
     }
 }
