@@ -129,7 +129,7 @@ public class NebulaSpellManager implements SpellManager {
         NbtList nbtList = (NbtList) nbt.getCompound(Nebula.MOD_ID).get("Spells");
         if(nbtList == null)return;
         for (int x = 0; x < nbtList.size(); ++x) {
-            NbtCompound nbtCompound = nbtList.getCompound(0);
+            NbtCompound nbtCompound = nbtList.getCompound(x);
             Identifier spell = new Identifier(nbtCompound.getString("Spell"));
             SpellType.get(spell).ifPresent(castableSpells::add);
         }
