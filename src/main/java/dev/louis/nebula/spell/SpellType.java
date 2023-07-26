@@ -67,6 +67,11 @@ public class SpellType<T extends Spell> {
         return this.factory.create(this, caster);
     }
 
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{id=" + this.getId() + ", manaCost=" + this.getManaCost() + "}";
+    }
+
     public static class Builder<T extends Spell> {
         private final SpellFactory<T> factory;
         private final int manaCost;
