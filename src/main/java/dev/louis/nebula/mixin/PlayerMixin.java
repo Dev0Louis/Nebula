@@ -3,21 +3,25 @@ package dev.louis.nebula.mixin;
 import dev.louis.nebula.NebulaManager;
 import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.mana.manager.ManaManager;
+import dev.louis.nebula.spell.MultiTickSpell;
 import dev.louis.nebula.spell.manager.SpellManager;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import org.spongepowered.asm.mixin.Debug;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Debug(export = true)
+import java.util.ArrayList;
+import java.util.Collection;
+
 @Mixin(PlayerEntity.class)
 public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
-    private PlayerMixin() {
-        super(null, null);
+    protected PlayerMixin(EntityType<? extends LivingEntity> entityType, World world) {
+        super(entityType, world);
     }
 
 //Mana Start
@@ -51,10 +55,9 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
 // Mana End
 
     
-// Knowledge Start
+// Spell Start
 
     private SpellManager spellManager = NebulaManager.createSpellManager((PlayerEntity) (Object) this);
-
     @Inject(method = "writeCustomDataToNbt", at = @At(value = "TAIL"))
     public void addSpellsToNbt(NbtCompound nbt, CallbackInfo ci) {
         this.spellManager.writeNbt(nbt);
@@ -76,6 +79,24 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     public SpellManager setSpellManager(SpellManager spellManager) {
         return this.spellManager = spellManager;
     }
-// Knowledge End
+// Spell End
 
+// MultiTickSpell Start
+    private Collection<MultiTickSpell> multiTickSpells = new ArrayList<>();
+    @Inject(method = "tick", at = @At("HEAD"))
+    public void tickMultiTickSpells(CallbackInfo ci) {
+        multiTickSpells.removeIf(multiTickSpell -> !multiTickSpell.shouldContinue());
+        for (MultiTickSpell multiTickSpell : multiTickSpells) {
+            multiTickSpell.tick();
+        }
+    }
+
+    public Collection<MultiTickSpell> getMultiTickSpells() {
+        return this.multiTickSpells;
+    }
+
+    public Collection<MultiTickSpell> setMultiTickSpells(Collection<MultiTickSpell> multiTickSpells) {
+        return this.multiTickSpells = multiTickSpells;
+    }
+// MultiTickSpell End
 }
