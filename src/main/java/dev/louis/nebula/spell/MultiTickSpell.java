@@ -21,7 +21,7 @@ public class MultiTickSpell extends Spell {
     public void tick() {
         spellAge++;
     };
-    public void stop() {
+    public void stop(boolean fromDeath) {
         shouldRun = false;
     }
     public boolean shouldContinue() {

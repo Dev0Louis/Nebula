@@ -95,7 +95,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     @Inject(method = "onDeath", at = @At("HEAD"))
     public void stopMultiTickSpellsOnDeaths(DamageSource damageSource, CallbackInfo ci) {
         for(MultiTickSpell multiTickSpell : multiTickSpells) {
-            multiTickSpell.stop();
+            multiTickSpell.stop(true);
         }
     }
 
