@@ -4,13 +4,18 @@ import dev.louis.nebula.Nebula;
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static dev.louis.nebula.NebulaClient.runWithBuf;
 
 public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Boolean> spells) implements FabricPacket {
     public static final PacketType<UpdateSpellCastabilityS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "updatespellcastability"), UpdateSpellCastabilityS2CPacket::new);
@@ -29,9 +34,7 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
 
     public static UpdateSpellCastabilityS2CPacket create(PlayerEntity player) {
         Map<SpellType<? extends Spell>, Boolean> map = new HashMap<>();
-        Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> {
-            map.put(spellType, spellType.canCast(player));
-        });
+        Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> map.put(spellType, spellType.hasLearned(player)));
         return new UpdateSpellCastabilityS2CPacket(map);
     }
 
@@ -53,6 +56,10 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
     @Override
     public PacketType<?> getType() {
         return PACKET_TYPE;
+    }
+
+    public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        runWithBuf(client, buf, () -> client.player.getSpellManager().receiveSync(client, handler, buf, responseSender));
     }
 
     public static Identifier getID() {

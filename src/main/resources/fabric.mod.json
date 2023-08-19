@@ -5,11 +5,11 @@
   "name": "Nebula",
   "description": "Magic, Magic Spells :D",
   "authors": [
-    "D1p4k"
+    "Louis"
   ],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/Nebula/icon.png",
+  "icon": "assets/nebula/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -28,8 +28,10 @@
     "minecraft": ">=1.20"
   },
   "custom": {
-    "nebula:contains_manamanager": true,
-    "nebula:contains_spellmanager": true
-  },
-  "accessWidener": "nebula.accesswidener"
+    "nebula:contains_mana_manager": true,
+    "nebula:contains_spell_manager": true,
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1657": ["dev/louis/nebula/api/NebulaPlayer"]
+    }
+  }
 }

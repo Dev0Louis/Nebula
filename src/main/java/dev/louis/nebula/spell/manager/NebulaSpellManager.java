@@ -1,11 +1,9 @@
 package dev.louis.nebula.spell.manager;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
@@ -25,12 +23,11 @@ import java.util.Set;
 public class NebulaSpellManager implements SpellManager {
     PlayerEntity player;
 
+    private Set<SpellType<? extends Spell>> castableSpells = new HashSet<>();
 
     public NebulaSpellManager(PlayerEntity player) {
         this.player = player;
     }
-
-    private Set<SpellType<? extends Spell>> castableSpells = new HashSet<>();
 
 
     @Override
@@ -39,17 +36,20 @@ public class NebulaSpellManager implements SpellManager {
     @Override
     public boolean addSpell(SpellType<? extends Spell> spellType) {
         castableSpells.add(spellType);
+        sendSync();
         return true;
     }
 
     @Override
     public boolean removeSpell(SpellType<? extends Spell> spellType) {
         castableSpells.remove(spellType);
-        return false;
+        sendSync();
+        return true;
     }
 
     private void setCastableSpells(Set<SpellType<? extends Spell>> castableSpells) {
         this.castableSpells = castableSpells;
+        sendSync();
     }
 
     private Set<SpellType<? extends Spell>> getCastableSpells() {
@@ -61,16 +61,11 @@ public class NebulaSpellManager implements SpellManager {
                 if (knows) this.castableSpells.add(spellType);
                 else this.castableSpells.remove(spellType);
         });
-
-        if(player instanceof ServerPlayerEntity serverPlayer) {
-            var buf = PacketByteBufs.create();
-            new UpdateSpellCastabilityS2CPacket(castableSpells).write(buf);
-            ServerPlayNetworking.send(serverPlayer, UpdateSpellCastabilityS2CPacket.getID(), buf);
-        }
+        sendSync();
     }
 
     @Override
-    public void cast(PlayerEntity player, SpellType spellType) {
+    public void cast(PlayerEntity player, SpellType<? extends Spell> spellType) {
         cast(spellType.create(player));
     }
 
@@ -80,34 +75,36 @@ public class NebulaSpellManager implements SpellManager {
     }
 
     @Override
-    public void copyFrom(ServerPlayerEntity oldPlayer, boolean alive) {
+    public void copyFrom(PlayerEntity oldPlayer, boolean alive) {
         if(alive) {
-            setCastableSpells(getNebulaSpellmanager(NebulaPlayer.access(oldPlayer)).getCastableSpells());
+            setCastableSpells(getNebulaSpellmanager(oldPlayer).getCastableSpells());
         }
     }
 
+    public boolean isCastable(SpellType<? extends Spell> spellType) {
+        return hasLearned(spellType) && spellType.hasEnoughMana(this.player);
+    }
+
     @Override
-    public boolean canCast(SpellType<? extends Spell> spellType) {
+    public boolean hasLearned(SpellType<? extends Spell> spellType) {
         return castableSpells.contains(spellType);
     }
 
     @Override
     public boolean sendSync() {
-        if(!(player instanceof ServerPlayerEntity serverPlayer))return false;
-        Map<SpellType<? extends Spell>, Boolean> castableSpells = new HashMap<>();
-        Nebula.NebulaRegistries.SPELL_TYPE.forEach((spellType -> {
-            if(this.castableSpells.contains(spellType))castableSpells.put(spellType, true);
-        }));
-        var buf = PacketByteBufs.create();
-        new UpdateSpellCastabilityS2CPacket(castableSpells).write(buf);
-        ServerPlayNetworking.send(serverPlayer, UpdateSpellCastabilityS2CPacket.getID(), buf);
-        return true;
+        if(this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
+            Map<SpellType<? extends Spell>, Boolean> castableSpells = new HashMap<>();
+            Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> castableSpells.put(spellType, hasLearned(spellType)));
+            ServerPlayNetworking.send(serverPlayerEntity, new UpdateSpellCastabilityS2CPacket(castableSpells));
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         UpdateSpellCastabilityS2CPacket packet = UpdateSpellCastabilityS2CPacket.readBuf(buf);
-        MinecraftClient.getInstance().executeSync(() -> getNebulaSpellmanager(NebulaPlayer.access(player)).updateCastableSpell(packet.spells()));
+        MinecraftClient.getInstance().executeSync(() -> this.updateCastableSpell(packet.spells()));
         return true;
     }
 
@@ -116,7 +113,7 @@ public class NebulaSpellManager implements SpellManager {
         NbtList nbtList = new NbtList();
         for (SpellType<? extends Spell> spell : getCastableSpells()) {
             NbtCompound nbtCompound = new NbtCompound();
-            nbtCompound.putString("Spell", SpellType.getId(spell).toString());
+            nbtCompound.putString("Spell", spell.getId().toString());
 
             nbtList.add(nbtCompound);
         }
@@ -132,7 +129,7 @@ public class NebulaSpellManager implements SpellManager {
         NbtList nbtList = (NbtList) nbt.getCompound(Nebula.MOD_ID).get("Spells");
         if(nbtList == null)return;
         for (int x = 0; x < nbtList.size(); ++x) {
-            NbtCompound nbtCompound = nbtList.getCompound(0);
+            NbtCompound nbtCompound = nbtList.getCompound(x);
             Identifier spell = new Identifier(nbtCompound.getString("Spell"));
             SpellType.get(spell).ifPresent(castableSpells::add);
         }
@@ -143,7 +140,7 @@ public class NebulaSpellManager implements SpellManager {
      * @param player The Player you want the Spell Manager from.
      * @return The NebulaSpellManager of that Player.
      */
-    private NebulaSpellManager getNebulaSpellmanager(NebulaPlayer player) {
+    private NebulaSpellManager getNebulaSpellmanager(PlayerEntity player) {
         return (NebulaSpellManager) player.getSpellManager();
     }
 }

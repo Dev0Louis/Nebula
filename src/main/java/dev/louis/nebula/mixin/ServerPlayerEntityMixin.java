@@ -1,10 +1,7 @@
 package dev.louis.nebula.mixin;
 
 import com.mojang.authlib.GameProfile;
-import dev.louis.nebula.api.NebulaPlayer;
-import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import dev.louis.nebula.Nebula;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -22,17 +19,16 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     @Inject(method = "copyFrom", at = @At("RETURN"))
     public void copySpellAndManaManagerFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        NebulaPlayer player = NebulaPlayer.access(this);
-        player.getSpellManager().copyFrom(oldPlayer, alive);
-        player.getManaManager().copyFrom(oldPlayer, alive);
-
+        this.getSpellManager().copyFrom(oldPlayer, alive);
+        this.getManaManager().copyFrom(oldPlayer, alive);
     }
 
     @Inject(method = "onSpawn", at = @At("RETURN"))
     public void syncManaAndSpellsOnSpawn(CallbackInfo ci) {
-        var buf = PacketByteBufs.create();
-        UpdateSpellCastabilityS2CPacket.create(this).write(buf);
-        ServerPlayNetworking.send((ServerPlayerEntity) (Object) this, UpdateSpellCastabilityS2CPacket.getID(), buf);
-        NebulaPlayer.access(this).getManaManager().sendSync();
+        boolean haveSpellsSynced = this.getSpellManager().sendSync();
+        if(!haveSpellsSynced) Nebula.LOGGER.info("Spells could not be synced!");
+
+        boolean hasManaSynced = this.getManaManager().sendSync();
+        if(!hasManaSynced) Nebula.LOGGER.info("Mana could not be synced!");
     }
 }

@@ -13,8 +13,7 @@ public interface ManaManager {
     int getMana();
     void addMana(int mana);
     void drainMana(int mana);
-    int getPlayerMaxMana();
-    void setPlayerMaxMana(int mana);
+    int getMaxMana();
     boolean sendSync();
     boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
     void writeNbt(NbtCompound nbt);

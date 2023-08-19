@@ -1,6 +1,5 @@
 package dev.louis.nebula.spell;
 
-import dev.louis.nebula.api.NebulaPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -36,31 +35,8 @@ public class SpellType<T extends Spell> {
         return SPELL_TYPE.getOrEmpty(id);
     }
 
-    public static Identifier getId(SpellType<?> type) {
-        return SPELL_TYPE.getId(type);
-    }
-
-    public static boolean isCastable(PlayerEntity player, SpellType<? extends Spell> spellType) {
-        return isCastable(NebulaPlayer.access(player), spellType);
-    }
-    public static boolean isCastable(NebulaPlayer player, SpellType<? extends Spell> spellType) {
-        return spellType.isCastable(player);
-    }
-
-
-    public static boolean hasEnoughMana(PlayerEntity player, SpellType<? extends Spell> spellType) {
-        return hasEnoughMana(player, spellType);
-    }
-    public static boolean hasEnoughMana(NebulaPlayer player, SpellType<? extends Spell> spellType) {
-        return spellType.hasEnoughMana(player);
-    }
-
-
-    public static boolean canCast(PlayerEntity player, SpellType<? extends Spell> spellType) {
-        return canCast(NebulaPlayer.access(player), spellType);
-    }
-    public static boolean canCast(NebulaPlayer player, SpellType<? extends Spell> spellType) {
-        return spellType.canCast(player);
+    public Identifier getId() {
+        return SPELL_TYPE.getId(this);
     }
 
 
@@ -71,28 +47,16 @@ public class SpellType<T extends Spell> {
 
 
     public boolean isCastable(PlayerEntity player) {
-        return isCastable(NebulaPlayer.access(player));
+        return player.getSpellManager().isCastable(this);
     }
-    public boolean isCastable(NebulaPlayer player) {
-        return canCast(player) && hasEnoughMana(player);
-    }
-
 
     public boolean hasEnoughMana(PlayerEntity player) {
-        return hasEnoughMana(NebulaPlayer.access(player));
-    }
-    public boolean hasEnoughMana(NebulaPlayer player) {
         return ((player.getManaManager().getMana() - getManaCost()) >= 0);
     }
 
-
-    public boolean canCast(PlayerEntity player) {
-        return canCast(NebulaPlayer.access(player));
+    public boolean hasLearned(PlayerEntity player) {
+        return player.getSpellManager().hasLearned(this);
     }
-    public boolean canCast(NebulaPlayer player) {
-        return player.getSpellManager().canCast(this);
-    }
-
 
     public int getManaCost() {
         return manaCost;
@@ -101,6 +65,11 @@ public class SpellType<T extends Spell> {
 
     public T create(PlayerEntity caster) {
         return this.factory.create(this, caster);
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{id=" + this.getId() + ", manaCost=" + this.getManaCost() + "}";
     }
 
     public static class Builder<T extends Spell> {
@@ -113,16 +82,16 @@ public class SpellType<T extends Spell> {
         }
 
         public static <T extends Spell> Builder<T> create(SpellFactory<T> factory, int manaCost) {
-            return new Builder<T>(factory, manaCost);
+            return new Builder<>(factory, manaCost);
         }
 
         public SpellType<T> build() {
-            return new SpellType<T>(this.factory, manaCost);
+            return new SpellType<>(this.factory, manaCost);
         }
 
 
     }
-    public static interface SpellFactory<T extends Spell> {
-        public T create(SpellType<T> spellType, PlayerEntity caster);
+    public interface SpellFactory<T extends Spell> {
+        T create(SpellType<T> spellType, PlayerEntity caster);
     }
 }

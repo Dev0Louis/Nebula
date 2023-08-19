@@ -1,9 +1,7 @@
 package dev.louis.nebula.mana.manager;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.networking.SynchronizeManaAmountS2CPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
@@ -15,11 +13,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public class NebulaManaManager implements ManaManager {
     private PlayerEntity player;
-    public NebulaManaManager(PlayerEntity p) {
-        this.player = p;
+    public NebulaManaManager(PlayerEntity player) {
+        this.player = player;
     }
     private int mana = 0;
-    private int maxmana = 20;
+    //TODO: Implement this:
+    //private int lastSyncedMana = getMana();
 
 
     @Override
@@ -28,11 +27,11 @@ public class NebulaManaManager implements ManaManager {
 
     public int getMana() {
         return mana;
-
     }
-    public void setMana(int mana, boolean sendToPlayer) {
-        this.mana = Math.max(Math.min(mana, maxmana), 0);
-        if(sendToPlayer) {
+
+    public void setMana(int mana, boolean syncToClient) {
+        this.mana = Math.max(Math.min(mana, getMaxMana()), 0);
+        if(syncToClient) {
             sendSync();
         }
     }
@@ -48,32 +47,26 @@ public class NebulaManaManager implements ManaManager {
         setMana(getMana() - mana);
     }
 
-    public int getPlayerMaxMana() {
-        return maxmana;
-    }
-
-    public void setPlayerMaxMana(int max) {
-        if(max > 0)this.maxmana = max;
+    public int getMaxMana() {
+        return 20;
     }
 
     @Override
     public boolean sendSync() {
-        if(this.player.getWorld().isClient() || ((ServerPlayerEntity)player).networkHandler == null)return false;
-        var buf = PacketByteBufs.create();
-        new SynchronizeManaAmountS2CPacket((NebulaPlayer.access(player)).getManaManager().getMana()).write(buf);
-
-        ServerPlayNetworking.send(
-                (ServerPlayerEntity) this.player,
-                SynchronizeManaAmountS2CPacket.getId(),
-                buf
-        );
-        return true;
+        if(this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
+            ServerPlayNetworking.send(
+                    serverPlayerEntity,
+                    new SynchronizeManaAmountS2CPacket(player.getManaManager().getMana())
+            );
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         var packet = new SynchronizeManaAmountS2CPacket(buf);
-        NebulaPlayer.access(player).getManaManager().setMana(packet.mana());
+        player.getManaManager().setMana(packet.mana());
         return true;
     }
 
@@ -82,7 +75,6 @@ public class NebulaManaManager implements ManaManager {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
 
         nebulaNbt.putInt("Mana", this.getMana());
-        nebulaNbt.putInt("MaxMana", this.getPlayerMaxMana());
         nbt.put(Nebula.MOD_ID, nebulaNbt);
     }
 
@@ -90,19 +82,17 @@ public class NebulaManaManager implements ManaManager {
     public void readNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
         this.setMana(nebulaNbt.getInt("Mana"));
-        this.setPlayerMaxMana(nebulaNbt.getInt("MaxMana"));
     }
 
     public void copyFrom(PlayerEntity oldPlayer, boolean alive) {
         if(alive) {
-            ManaManager oldManaManager = NebulaPlayer.access(oldPlayer).getManaManager();
+            ManaManager oldManaManager = oldPlayer.getManaManager();
             this.setMana(oldManaManager.getMana());
-            this.setPlayerMaxMana(oldManaManager.getPlayerMaxMana());
         }
     }
 
-    public NebulaManaManager setPlayer(PlayerEntity p) {
-        this.player = p;
+    public NebulaManaManager setPlayer(PlayerEntity player) {
+        this.player = player;
         return this;
     }
 }

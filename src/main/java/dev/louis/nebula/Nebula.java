@@ -1,10 +1,7 @@
 package dev.louis.nebula;
 
-import dev.louis.nebula.api.NebulaPlayer;
-import dev.louis.nebula.comand.NebulaCommand;
-import dev.louis.nebula.event.SpellCastCallback;
+import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.networking.SpellCastC2SPacket;
-import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
@@ -12,9 +9,8 @@ import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.SimpleRegistry;
-import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,21 +32,17 @@ public class Nebula implements ModInitializer {
     }
 
     public void registerPacketReceivers() {
-        ServerPlayNetworking.registerGlobalReceiver(SpellCastC2SPacket.getId(), ((server, player, handler, buf, responseSender) -> {
-            Spell spell = SpellCastC2SPacket.read(player, buf).spell();
-            if (SpellCastCallback.EVENT.invoker().interact(player, spell) == ActionResult.PASS) ((NebulaPlayer)player).getSpellManager().cast(spell);
-
-        }));
+        ServerPlayNetworking.registerGlobalReceiver(SpellCastC2SPacket.getId(), SpellCastC2SPacket::receive);
     }
 
 
 
     public static class NebulaRegistries {
-        public static SimpleRegistry<SpellType<? extends Spell>> SPELL_TYPE = FabricRegistryBuilder.createSimple(NebulaRegistryKeys.SPELL_TYPE).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+        public static SimpleRegistry<SpellType<?>> SPELL_TYPE = FabricRegistryBuilder.createSimple(NebulaRegistryKeys.SPELL_TYPE).attribute(RegistryAttribute.SYNCED).buildAndRegister();
         public static void init(){}
     }
     public static class NebulaRegistryKeys {
-        public static final RegistryKey<Registry<SpellType<? extends Spell>>> SPELL_TYPE = RegistryKeys.of("spell_type");
+        public static final RegistryKey<Registry<SpellType<?>>> SPELL_TYPE = RegistryKey.ofRegistry(new Identifier("nebula","spell_type"));
     }
 }
 

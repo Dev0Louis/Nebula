@@ -1,6 +1,5 @@
 package dev.louis.nebula.spell;
 
-import dev.louis.nebula.api.NebulaPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
@@ -17,10 +16,10 @@ public abstract class Spell {
 
     public abstract void cast();
     public void drainMana() {
-        NebulaPlayer.access(getCaster()).getManaManager().drainMana(getType().getManaCost());
+        getCaster().getManaManager().drainMana(getType().getManaCost());
     }
     public Identifier getID() {
-        return SpellType.getId(spellType);
+        return getType().getId();
     }
 
     public PlayerEntity getCaster() {
@@ -28,13 +27,6 @@ public abstract class Spell {
     }
     public SpellType<? extends Spell> getType() {
         return spellType;
-    }
-    public PacketByteBuf readBuf(PacketByteBuf buf) {
-        return buf;
-    }
-
-    public PacketByteBuf writeBuf(PacketByteBuf buf) {
-        return buf;
     }
 
     public boolean isCastable() {
@@ -46,4 +38,11 @@ public abstract class Spell {
         return getClass().getSimpleName() + "[" + getID().toString() + "]";
     }
 
+    public PacketByteBuf readBuf(PacketByteBuf buf) {
+        return buf;
+    }
+
+    public PacketByteBuf writeBuf(PacketByteBuf buf) {
+        return buf;
+    }
 }

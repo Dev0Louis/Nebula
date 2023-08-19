@@ -1,7 +1,6 @@
-package dev.louis.nebula.comand;
+package dev.louis.nebula.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import dev.louis.nebula.api.NebulaPlayer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -22,11 +21,11 @@ public class NebulaCommand {
     }
 
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        var command = literal("nebula");
-        var getManaCommand = literal("getMana").executes(context -> getMana(context.getSource()));
+        var command = literal("nebula").requires(source -> source.hasPermissionLevel(4));
+        var getManaCommand = literal("getPlayerMana").executes(context -> getMana(context.getSource()));
         var getManaWithPlayerCommand = argument("player", player())
                 .executes(ctx -> getMana(ctx.getSource(), getPlayer(ctx, "player")));
-        var setManaCommand = literal("setMana")
+        var setManaCommand = literal("setPlayerMana")
                 .then(argument("player", player())
                         .then(argument("mana", integer(0))
                                 .executes(context -> setMana(context.getSource(), getPlayer(context, "player"), getInteger(context, "mana")))));
@@ -38,23 +37,22 @@ public class NebulaCommand {
     }
 
     private static int setMana(ServerCommandSource source, ServerPlayerEntity player, int mana) {
-        if(player instanceof NebulaPlayer nebulaPlayer) {
-            nebulaPlayer.getManaManager().setMana(mana);
+        if(source.getPlayer() != null) {
+            player.getManaManager().setMana(mana);
+            source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
         }
         return 1;
     }
 
     private static int getMana(ServerCommandSource source) {
-        if(source.getPlayer() instanceof NebulaPlayer nebulaPlayer) {
-            source.sendMessage(Text.of(String.valueOf(nebulaPlayer.getManaManager().getMana())));
+        if(source.getPlayer() != null) {
+            source.sendMessage(Text.of(String.valueOf(source.getPlayer().getManaManager().getMana())));
         }
         return 1;
     }
 
     private static int getMana(ServerCommandSource source, ServerPlayerEntity player) {
-        if(player instanceof NebulaPlayer nebulaPlayer) {
-            source.sendMessage(Text.of(String.valueOf(nebulaPlayer.getManaManager().getMana())));
-        }
+        source.sendMessage(Text.of(String.valueOf(player.getManaManager().getMana())));
         return 1;
     }
 }

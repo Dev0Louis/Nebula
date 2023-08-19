@@ -9,8 +9,8 @@ import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class NebulaManager {
-    private static final String JSON_KEY_CONTAINS_MANAMANAGER = "nebula:contains_manamanager";
-    private static final String JSON_KEY_CONTAINS_SPELLMANAGER = "nebula:contains_spellmanager";
+    private static final String JSON_KEY_CONTAINS_MANA_MANAGER = "nebula:contains_mana_manager";
+    private static final String JSON_KEY_CONTAINS_SPELL_MANAGER = "nebula:contains_spell_manager";
     public static final NebulaManager INSTANCE = new NebulaManager();
     private NebulaManager(){}
 
@@ -27,8 +27,10 @@ public class NebulaManager {
         FabricLoader.getInstance().getAllMods().forEach(mod -> {
             final ModMetadata metadata = mod.getMetadata();
             if(metadata.getId().equals("nebula"))return;
-            if (metadata.containsCustomValue(JSON_KEY_CONTAINS_MANAMANAGER)) loadManaManager = false;
-            if (metadata.containsCustomValue(JSON_KEY_CONTAINS_SPELLMANAGER)) loadSpellManager = false;
+            var loadManaManager = metadata.getCustomValue(JSON_KEY_CONTAINS_MANA_MANAGER);
+            if (loadManaManager != null && loadManaManager.getAsBoolean()) this.loadManaManager = false;
+            var loadSpellManager = metadata.getCustomValue(JSON_KEY_CONTAINS_SPELL_MANAGER);
+            if (loadSpellManager != null && loadSpellManager.getAsBoolean()) this.loadSpellManager = false;
         });
     }
 
