@@ -24,6 +24,9 @@ public class MultiTickSpell extends Spell {
     public void stop(boolean fromDeath) {
         shouldRun = false;
     }
+    public void stop() {
+        stop(false);
+    }
     public boolean shouldContinue() {
         return shouldRun;
     };
