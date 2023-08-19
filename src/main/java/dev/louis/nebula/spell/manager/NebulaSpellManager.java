@@ -71,7 +71,10 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public void cast(Spell spell) {
-        spell.cast();
+        if(spell.isCastable()) {
+            spell.drainMana();
+            spell.cast();
+        }
     }
 
     @Override
