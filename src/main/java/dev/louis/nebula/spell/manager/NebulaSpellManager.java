@@ -1,6 +1,7 @@
 package dev.louis.nebula.spell.manager;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.event.SpellCastCallback;
 import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
@@ -13,6 +14,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
@@ -71,6 +73,7 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public void cast(Spell spell) {
+        if(SpellCastCallback.EVENT.invoker().interact(player, spell) != ActionResult.PASS) return;
         if(spell.isCastable()) {
             spell.drainMana();
             spell.cast();
