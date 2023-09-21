@@ -1,7 +1,6 @@
 package dev.louis.nebula.networking;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.event.SpellCastCallback;
 import dev.louis.nebula.spell.Spell;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -10,7 +9,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 
 import java.util.Objects;
@@ -36,9 +34,7 @@ public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
         SpellCastC2SPacket packet = SpellCastC2SPacket.read(player, buf);
         Objects.requireNonNull(packet);
         Spell spell = packet.spell();
-        if (SpellCastCallback.EVENT.invoker().interact(player, spell) == ActionResult.PASS) {
-            player.getSpellManager().cast(spell);
-        }
+        player.getSpellManager().cast(spell);
     }
     public static Identifier getId() {
         return PACKET_TYPE.getId();
