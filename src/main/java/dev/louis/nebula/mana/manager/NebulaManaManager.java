@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
@@ -17,8 +18,7 @@ public class NebulaManaManager implements ManaManager {
         this.player = player;
     }
     private int mana = 0;
-    //TODO: Implement this:
-    //private int lastSyncedMana = getMana();
+    private int lastSyncedMana = -1;
 
 
     @Override
@@ -53,12 +53,18 @@ public class NebulaManaManager implements ManaManager {
 
     @Override
     public boolean sendSync() {
-        if(this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
-            ServerPlayNetworking.send(
-                    serverPlayerEntity,
-                    new SynchronizeManaAmountS2CPacket(player.getManaManager().getMana())
-            );
-            return true;
+        if (this.player instanceof ServerPlayerEntity serverPlayerEntity) {
+            if (serverPlayerEntity.networkHandler != null) {
+                int mana = this.player.getManaManager().getMana();
+                if (mana == this.lastSyncedMana) return true;
+                ServerPlayNetworking.send(
+                        serverPlayerEntity,
+                        new SynchronizeManaAmountS2CPacket(mana)
+                );
+                this.lastSyncedMana = mana;
+                return true;
+            }
+            Nebula.LOGGER.error("sendSync was called to early for " + serverPlayerEntity.getEntityName());
         }
         return false;
     }
@@ -89,6 +95,11 @@ public class NebulaManaManager implements ManaManager {
             ManaManager oldManaManager = oldPlayer.getManaManager();
             this.setMana(oldManaManager.getMana());
         }
+    }
+
+    @Override
+    public void onDeath(DamageSource damageSource) {
+        //Nothing here :)
     }
 
     public NebulaManaManager setPlayer(PlayerEntity player) {

@@ -1,5 +1,6 @@
 package dev.louis.nebula;
 
+import com.mojang.logging.LogUtils;
 import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.networking.SpellCastC2SPacket;
 import dev.louis.nebula.spell.SpellType;
@@ -12,17 +13,13 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Nebula implements ModInitializer {
     public static final String MOD_ID = "nebula";
-    public static final Logger LOGGER = LoggerFactory.getLogger("Nebula");
-
-    public static Nebula INSTANCE;
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     @Override
     public void onInitialize() {
-        INSTANCE = this;
         SpellType.init();
         registerPacketReceivers();
         NebulaRegistries.init();
