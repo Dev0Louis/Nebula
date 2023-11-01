@@ -3,7 +3,6 @@ package dev.louis.nebula.mixin;
 import dev.louis.nebula.NebulaManager;
 import dev.louis.nebula.api.NebulaPlayer;
 import dev.louis.nebula.mana.manager.ManaManager;
-import dev.louis.nebula.spell.MultiTickSpell;
 import dev.louis.nebula.spell.manager.SpellManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -12,15 +11,15 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 @Mixin(PlayerEntity.class)
 public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
+    @Shadow public abstract boolean shouldDamagePlayer(PlayerEntity player);
+
     protected PlayerMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -53,12 +52,18 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
         return this.manaManager = manaManager;
     }
 
+    @Inject(method = "onDeath", at = @At("HEAD"))
+    public void onDeathManaManger(DamageSource damageSource, CallbackInfo ci) {
+        this.manaManager.onDeath(damageSource);
+    }
+
 // Mana End
 
     
 // Spell Start
 
     private SpellManager spellManager = NebulaManager.createSpellManager((PlayerEntity) (Object) this);
+
     @Inject(method = "writeCustomDataToNbt", at = @At(value = "TAIL"))
     public void addSpellsToNbt(NbtCompound nbt, CallbackInfo ci) {
         this.spellManager.writeNbt(nbt);
@@ -68,43 +73,25 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     public void getSpellsFromNbt(NbtCompound nbt, CallbackInfo ci) {
         spellManager.readNbt(nbt);
     }
+
     @Inject(method = "tick", at = @At("RETURN"))
     public void tickSpellManager(CallbackInfo ci) {
         spellManager.tick();
     }
+
     @Override
     public SpellManager getSpellManager() {
         return this.spellManager;
     }
+
     @Override
     public SpellManager setSpellManager(SpellManager spellManager) {
         return this.spellManager = spellManager;
     }
-// Spell End
-
-// MultiTickSpell Start
-    private Collection<MultiTickSpell> multiTickSpells = new ArrayList<>();
-    @Inject(method = "tick", at = @At("HEAD"))
-    public void tickMultiTickSpells(CallbackInfo ci) {
-        multiTickSpells.removeIf(multiTickSpell -> !multiTickSpell.shouldContinue());
-        for (MultiTickSpell multiTickSpell : multiTickSpells) {
-            multiTickSpell.tick();
-        }
-    }
 
     @Inject(method = "onDeath", at = @At("HEAD"))
-    public void stopMultiTickSpellsOnDeaths(DamageSource damageSource, CallbackInfo ci) {
-        for(MultiTickSpell multiTickSpell : multiTickSpells) {
-            multiTickSpell.stop(true);
-        }
+    public void onDeathSpellManager(DamageSource damageSource, CallbackInfo ci) {
+        this.spellManager.onDeath(damageSource);
     }
-
-    public Collection<MultiTickSpell> getMultiTickSpells() {
-        return this.multiTickSpells;
-    }
-
-    public Collection<MultiTickSpell> setMultiTickSpells(Collection<MultiTickSpell> multiTickSpells) {
-        return this.multiTickSpells = multiTickSpells;
-    }
-// MultiTickSpell End
+// Spell End
 }
