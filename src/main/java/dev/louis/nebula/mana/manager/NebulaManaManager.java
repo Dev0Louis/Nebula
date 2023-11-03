@@ -87,7 +87,7 @@ public class NebulaManaManager implements ManaManager {
     @Override
     public void readNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
-        this.setMana(nebulaNbt.getInt("Mana"));
+        this.setMana(nebulaNbt.getInt("Mana"), false);
     }
 
     public void copyFrom(PlayerEntity oldPlayer, boolean alive) {
