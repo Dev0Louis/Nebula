@@ -17,29 +17,20 @@ import org.slf4j.Logger;
 public class Nebula implements ModInitializer {
     public static final String MOD_ID = "nebula";
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final RegistryKey<Registry<SpellType<?>>> SPELL_REGISTRY_KEY = RegistryKey.ofRegistry(new Identifier(MOD_ID, "spell_type"));
+    public static final SimpleRegistry<SpellType<?>> SPELL_REGISTRY = FabricRegistryBuilder.createSimple(SPELL_REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
 
     @Override
     public void onInitialize() {
         SpellType.init();
-        registerPacketReceivers();
-        NebulaRegistries.init();
+        this.registerPacketReceivers();
         NebulaManager.INSTANCE.init();
         NebulaCommand.init();
-        LOGGER.info("Nebula has started.");
+        LOGGER.info("Nebula has initialized.");
     }
 
     public void registerPacketReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(SpellCastC2SPacket.getId(), SpellCastC2SPacket::receive);
-    }
-
-
-
-    public static class NebulaRegistries {
-        public static SimpleRegistry<SpellType<?>> SPELL_TYPE = FabricRegistryBuilder.createSimple(NebulaRegistryKeys.SPELL_TYPE).attribute(RegistryAttribute.SYNCED).buildAndRegister();
-        public static void init(){}
-    }
-    public static class NebulaRegistryKeys {
-        public static final RegistryKey<Registry<SpellType<?>>> SPELL_TYPE = RegistryKey.ofRegistry(new Identifier("nebula","spell_type"));
     }
 }
 

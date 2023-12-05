@@ -15,27 +15,21 @@ public abstract class Spell {
     }
 
     public abstract void cast();
-    public void drainMana() {
-        getCaster().getManaManager().drainMana(getType().getManaCost());
-    }
+
     public Identifier getID() {
-        return getType().getId();
+        return this.getType().getId();
     }
 
     public PlayerEntity getCaster() {
-        return caster;
+        return this.caster;
     }
+
     public SpellType<? extends Spell> getType() {
-        return spellType;
+        return this.spellType;
     }
 
     public boolean isCastable() {
-        return getType().isCastable(caster);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + getID().toString() + "]";
+        return this.getType().isCastable(this.caster);
     }
 
     public PacketByteBuf readBuf(PacketByteBuf buf) {
@@ -44,5 +38,14 @@ public abstract class Spell {
 
     public PacketByteBuf writeBuf(PacketByteBuf buf) {
         return buf;
+    }
+
+    public void drainMana() {
+        getCaster().getManaManager().drainMana(getType().getManaCost());
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[" + this.getID().toString() + "]";
     }
 }

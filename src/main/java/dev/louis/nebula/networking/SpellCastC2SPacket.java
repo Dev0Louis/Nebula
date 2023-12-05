@@ -16,7 +16,7 @@ import java.util.Objects;
 public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
     public static final PacketType<SynchronizeManaAmountS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "spellcast"), SynchronizeManaAmountS2CPacket::new);
     public void write(PacketByteBuf buf) {
-        buf.writeRegistryValue(Nebula.NebulaRegistries.SPELL_TYPE, spell.getType());
+        buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spell.getType());
         spell.writeBuf(buf);
     }
 
@@ -26,7 +26,7 @@ public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
     }
 
     public static SpellCastC2SPacket read(ServerPlayerEntity caster, PacketByteBuf buf) {
-        Spell spell = buf.readRegistryValue(Nebula.NebulaRegistries.SPELL_TYPE).create(caster);
+        Spell spell = buf.readRegistryValue(Nebula.SPELL_REGISTRY).create(caster);
         spell.readBuf(buf);
         return new SpellCastC2SPacket(spell);
     }

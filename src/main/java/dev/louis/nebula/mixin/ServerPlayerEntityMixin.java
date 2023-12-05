@@ -19,8 +19,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     @Inject(method = "copyFrom", at = @At("RETURN"))
     public void copyNebulaStuffFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        this.getSpellManager().copyFrom(oldPlayer, alive);
-        this.getManaManager().copyFrom(oldPlayer, alive);
+        this.setSpellManager(oldPlayer.getSpellManager().setPlayer(this));
+        this.setManaManager(oldPlayer.getManaManager().setPlayer(this));
     }
 
     @Inject(method = "onSpawn", at = @At("RETURN"))

@@ -1,6 +1,7 @@
 package dev.louis.nebula.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import dev.louis.nebula.Nebula;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -33,6 +34,18 @@ public class NebulaCommand {
         getManaCommand.then(getManaWithPlayerCommand);
         command.then(getManaCommand);
         command.then(setManaCommand);
+
+
+        Nebula.SPELL_REGISTRY.forEach(spellType -> {
+            command.then(CommandManager.literal(spellType.getId().toString()).executes(context -> {
+                if(context.getSource().isExecutedByPlayer()) {
+                    context.getSource().getPlayer().getSpellManager().learnSpell(spellType);
+                }
+                return 0;
+            }));
+        });
+
+
         dispatcher.register(command);
     }
 

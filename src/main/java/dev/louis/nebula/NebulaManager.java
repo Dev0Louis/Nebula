@@ -26,7 +26,7 @@ public class NebulaManager {
     private void load() {
         FabricLoader.getInstance().getAllMods().forEach(mod -> {
             final ModMetadata metadata = mod.getMetadata();
-            if(metadata.getId().equals("nebula"))return;
+            if(metadata.getId().equals(Nebula.MOD_ID))return;
             var loadManaManager = metadata.getCustomValue(JSON_KEY_CONTAINS_MANA_MANAGER);
             if (loadManaManager != null && loadManaManager.getAsBoolean()) this.loadManaManager = false;
             var loadSpellManager = metadata.getCustomValue(JSON_KEY_CONTAINS_SPELL_MANAGER);
@@ -46,10 +46,10 @@ public class NebulaManager {
 
     public void registerSpellManagerFactory(SpellManager.Factory<?> spellKnowledgeManager) {
         if (spellKnowledgeManager == null) {
-            throw new NullPointerException("Attempt to register a NULL SpellKnowledgeManager");
+            throw new NullPointerException("Attempt to register a NULL SpellManager");
         }
         if (this.spellManagerFactory != null) {
-            throw new UnsupportedOperationException("A SpellKnowledgeManager plug-in attempted to register. Multiple SpellKnowledgeManagers are not supported.");
+            throw new UnsupportedOperationException("A SpellManager plug-in attempted to register. Multiple SpellManagers are not supported.");
         }
         this.spellManagerFactory = spellKnowledgeManager;
     }
