@@ -2,6 +2,7 @@ package dev.louis.nebula.mana.manager;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.networking.SynchronizeManaAmountS2CPacket;
+import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
@@ -13,13 +14,15 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class NebulaManaManager implements ManaManager {
+    private static final String MANA_NBT_KEY = "Mana";
+
     private PlayerEntity player;
-    public NebulaManaManager(PlayerEntity player) {
-        this.player = player;
-    }
     private int mana = 0;
     private int lastSyncedMana = -1;
 
+    public NebulaManaManager(PlayerEntity player) {
+        this.player = player;
+    }
 
     @Override
     public void tick() {
@@ -31,10 +34,9 @@ public class NebulaManaManager implements ManaManager {
 
     public void setMana(int mana, boolean syncToClient) {
         this.mana = Math.max(Math.min(mana, getMaxMana()), 0);
-        if(syncToClient) {
-            sendSync();
-        }
+        if(syncToClient) sendSync();
     }
+
     public void setMana(int mana) {
         setMana(mana, true);
     }
@@ -47,6 +49,10 @@ public class NebulaManaManager implements ManaManager {
         setMana(getMana() - mana);
     }
 
+    public void drainMana(SpellType<?> spellType) {
+        this.drainMana(spellType.getManaCost());
+    }
+
     public int getMaxMana() {
         return 20;
     }
@@ -55,24 +61,30 @@ public class NebulaManaManager implements ManaManager {
     public boolean sendSync() {
         if (this.player instanceof ServerPlayerEntity serverPlayerEntity) {
             if (serverPlayerEntity.networkHandler != null) {
-                int mana = this.player.getManaManager().getMana();
-                if (mana == this.lastSyncedMana) return true;
+                int syncMana = this.player.getManaManager().getMana();
+                if (syncMana == this.lastSyncedMana) return true;
+                this.lastSyncedMana = syncMana;
                 ServerPlayNetworking.send(
                         serverPlayerEntity,
-                        new SynchronizeManaAmountS2CPacket(mana)
+                        new SynchronizeManaAmountS2CPacket(syncMana)
                 );
-                this.lastSyncedMana = mana;
                 return true;
+            } else {
+                Nebula.LOGGER.error("sendSync was called to early for " + serverPlayerEntity.getGameProfile().getName());
+                return false;
             }
-            Nebula.LOGGER.error("sendSync was called to early for " + serverPlayerEntity.getEntityName());
         }
         return false;
     }
 
     @Override
     public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        if(this.isServer()) {
+            Nebula.LOGGER.error("Called receiveSync on server side!");
+            return false;
+        }
         var packet = new SynchronizeManaAmountS2CPacket(buf);
-        player.getManaManager().setMana(packet.mana());
+        this.player.getManaManager().setMana(packet.mana());
         return true;
     }
 
@@ -80,30 +92,28 @@ public class NebulaManaManager implements ManaManager {
     public void writeNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
 
-        nebulaNbt.putInt("Mana", this.getMana());
+        nebulaNbt.putInt(MANA_NBT_KEY, this.getMana());
         nbt.put(Nebula.MOD_ID, nebulaNbt);
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
-        this.setMana(nebulaNbt.getInt("Mana"), false);
-    }
-
-    public void copyFrom(PlayerEntity oldPlayer, boolean alive) {
-        if(alive) {
-            ManaManager oldManaManager = oldPlayer.getManaManager();
-            this.setMana(oldManaManager.getMana());
-        }
+        this.setMana(nebulaNbt.getInt(MANA_NBT_KEY), false);
     }
 
     @Override
     public void onDeath(DamageSource damageSource) {
-        //Nothing here :)
+        setMana(0);
     }
 
-    public NebulaManaManager setPlayer(PlayerEntity player) {
+    @Override
+    public ManaManager setPlayer(PlayerEntity player) {
         this.player = player;
         return this;
+    }
+
+    public boolean isServer() {
+        return !player.getWorld().isClient();
     }
 }

@@ -27,14 +27,14 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
     public void write(PacketByteBuf buf) {
         buf.writeVarInt(spells.size());
         spells.forEach((spellType, knows) -> {
-            buf.writeRegistryValue(Nebula.NebulaRegistries.SPELL_TYPE, spellType);
+            buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spellType);
             buf.writeBoolean(knows);
         });
     }
 
     public static UpdateSpellCastabilityS2CPacket create(PlayerEntity player) {
         Map<SpellType<? extends Spell>, Boolean> map = new HashMap<>();
-        Nebula.NebulaRegistries.SPELL_TYPE.forEach(spellType -> map.put(spellType, spellType.hasLearned(player)));
+        Nebula.SPELL_REGISTRY.forEach(spellType -> map.put(spellType, spellType.hasLearned(player)));
         return new UpdateSpellCastabilityS2CPacket(map);
     }
 
@@ -46,7 +46,7 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
         Map<SpellType<? extends Spell>, Boolean> spells = new HashMap<>();
         int size = buf.readVarInt();
         for (int i = 0; i < size; i++) {
-            SpellType<? extends Spell> spellType = buf.readRegistryValue(Nebula.NebulaRegistries.SPELL_TYPE);
+            SpellType<? extends Spell> spellType = buf.readRegistryValue(Nebula.SPELL_REGISTRY);
             boolean knows = buf.readBoolean();
             spells.put(spellType, knows);
         }

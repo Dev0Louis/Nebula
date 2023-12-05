@@ -11,34 +11,40 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
-import java.util.Set;
-
 public interface SpellManager {
     void tick();
 
     boolean startTickingSpell(TickingSpell tickingSpell);
 
-
     boolean stopTickingSpell(TickingSpell tickingSpell);
-    void setTickingSpells(Set<TickingSpell> tickingSpells);
-    boolean isSpellTicking(SpellType<? extends Spell> spellType);
+
+    boolean isSpellTypeTicking(SpellType<? extends TickingSpell> spellType);
+
     boolean isSpellTicking(TickingSpell tickingSpell);
 
-    boolean learnSpell(SpellType<? extends Spell> spellType);
-    boolean forgetSpell(SpellType<? extends Spell> spellType);
+    boolean learnSpell(SpellType<?> spellType);
 
-    void cast(PlayerEntity player, SpellType<? extends Spell> spellType);
+    boolean forgetSpell(SpellType<?> spellType);
+
+    void cast(SpellType<?> spellType);
 
     void cast(Spell spell);
 
-    void copyFrom(PlayerEntity oldNebulaPlayer, boolean alive);
     void onDeath(DamageSource damageSource);
-    boolean isCastable(SpellType<? extends Spell> spellType);
-    boolean hasLearned(SpellType<? extends Spell> spellType);
+
+    boolean isCastable(SpellType<?> spellType);
+
+    boolean hasLearned(SpellType<?> spellType);
+
     boolean sendSync();
+
     boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
+
     NbtCompound writeNbt(NbtCompound nbt);
+
     void readNbt(NbtCompound nbt);
+
+    SpellManager setPlayer(PlayerEntity player);
 
     @FunctionalInterface
     interface Factory<T extends SpellManager> {

@@ -21,9 +21,11 @@ public class TickingSpell extends Spell {
     public void tick() {
         spellAge++;
     }
+
     public void stop(boolean fromDeath) {
         shouldContinue = false;
     }
+
     /**
      * This method stops the spell!
      * The Spell will no longer be ticked.
@@ -33,6 +35,7 @@ public class TickingSpell extends Spell {
     public void stop() {
         stop(false);
     }
+
     public boolean shouldContinue() {
         return shouldContinue;
     }
