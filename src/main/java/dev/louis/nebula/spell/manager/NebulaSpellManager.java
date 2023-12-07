@@ -122,6 +122,8 @@ public class NebulaSpellManager implements SpellManager {
         if(this.isServer()) {
             this.tickingSpells.forEach((tickingSpell -> tickingSpell.stop(true)));
         }
+        this.tickingSpells.clear();
+        this.castableSpells.clear();
     }
 
     public boolean isCastable(SpellType<?> spellType) {
