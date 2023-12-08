@@ -27,9 +27,9 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     }
 
     @Unique
-    private ManaManager manaManager = NebulaManager.createManaManager((PlayerEntity) (Object) this);
+    private ManaManager manaManager;
     @Unique
-    private SpellManager spellManager = NebulaManager.createSpellManager((PlayerEntity) (Object) this);
+    private SpellManager spellManager;
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
     public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
@@ -39,6 +39,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
 
     @Inject(method = "readCustomDataFromNbt",at = @At("RETURN"))
     public void readManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
+        this.createManagersIfNecessary();
         this.manaManager.readNbt(nbt);
         this.spellManager.readNbt(nbt);
     }
@@ -73,5 +74,11 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     @Override
     public SpellManager setSpellManager(SpellManager spellManager) {
         return this.spellManager = spellManager;
+    }
+
+    @Override
+    public void createManagersIfNecessary() {
+        if (this.manaManager == null) this.setManaManager(NebulaManager.createManaManager((PlayerEntity) (Object) this));
+        if (this.spellManager == null) this.setSpellManager(NebulaManager.createSpellManager((PlayerEntity) (Object) this));
     }
 }
