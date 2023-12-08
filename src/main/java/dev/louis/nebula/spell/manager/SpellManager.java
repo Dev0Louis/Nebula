@@ -91,7 +91,7 @@ public interface SpellManager {
 
     /**
      * Sends the SpellManager's state to the client.
-     * @return If the state was successfully sent.
+     * @return If the state was successfully send.
      */
     boolean sendSync();
 
@@ -102,14 +102,14 @@ public interface SpellManager {
     boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
 
     /**
-     * Writes the NBT data of the SpellManager.
+     * Writes the Nbt data of the SpellManager.
      * @param nbt The nbt data that shall be written to.
      * @return The nbt data that has been written to.
      */
     NbtCompound writeNbt(NbtCompound nbt);
 
     /**
-     * Reads the NBT data of the SpellManager.
+     * Reads the Nbt data of the SpellManager.
      * @param nbt The nbt data that shall be read.
      */
     void readNbt(NbtCompound nbt);
