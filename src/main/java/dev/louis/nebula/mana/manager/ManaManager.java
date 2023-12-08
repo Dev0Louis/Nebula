@@ -24,6 +24,10 @@ public interface ManaManager {
 
     int getMaxMana();
 
+    boolean hasEnoughMana(int mana);
+
+    boolean hasEnoughMana(SpellType<?> spellType);
+
     boolean sendSync();
 
     boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
