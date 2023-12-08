@@ -30,9 +30,9 @@ public class NebulaSpellManager implements SpellManager {
     private static final String SPELL_NBT_KEY = "Spell";
     private static final String SPELLS_NBT_KEY = "Spells";
 
+    private final Set<TickingSpell> tickingSpells = new HashSet<>();
+    private final Set<SpellType<?>> castableSpells = new HashSet<>();
     private PlayerEntity player;
-    private Set<TickingSpell> tickingSpells = new HashSet<>();
-    private Set<SpellType<?>> castableSpells = new HashSet<>();
 
     public NebulaSpellManager(PlayerEntity player) {
         this.player = player;
@@ -71,20 +71,15 @@ public class NebulaSpellManager implements SpellManager {
     @Override
     public boolean learnSpell(SpellType<?> spellType) {
         this.castableSpells.add(spellType);
-        sendSync();
+        this.sendSync();
         return true;
     }
 
     @Override
     public boolean forgetSpell(SpellType<?> spellType) {
         this.castableSpells.remove(spellType);
-        sendSync();
+        this.sendSync();
         return true;
-    }
-
-    private void setCastableSpells(Set<SpellType<?>> castableSpells) {
-        this.castableSpells = castableSpells;
-        sendSync();
     }
 
     private Set<SpellType<?>> getCastableSpells() {
@@ -96,12 +91,12 @@ public class NebulaSpellManager implements SpellManager {
                 if (knows) this.castableSpells.add(spellType);
                 else this.castableSpells.remove(spellType);
         });
-        sendSync();
+        this.sendSync();
     }
 
     @Override
     public void cast(SpellType<?> spellType) {
-        cast(spellType.create(this.player));
+        this.cast(spellType.create(this.player));
     }
 
     @Override
@@ -122,8 +117,8 @@ public class NebulaSpellManager implements SpellManager {
         if(this.isServer()) {
             this.tickingSpells.forEach((tickingSpell -> tickingSpell.stop(true)));
         }
-        this.tickingSpells.clear();
         this.castableSpells.clear();
+        this.tickingSpells.clear();
     }
 
     public boolean isCastable(SpellType<?> spellType) {

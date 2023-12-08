@@ -2,6 +2,7 @@ package dev.louis.nebula.mixin;
 
 import com.mojang.authlib.GameProfile;
 import dev.louis.nebula.Nebula;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -30,5 +31,14 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
         boolean hasManaSynced = this.getManaManager().sendSync();
         if(!hasManaSynced) Nebula.LOGGER.info("Mana could not be synced!");
+    }
+
+    @Inject(
+            method = "onDeath",
+            at = @At("RETURN")
+    )
+    public void informManaAndSpellManagerOfDeath(DamageSource damageSource, CallbackInfo ci) {
+        this.getManaManager().onDeath(damageSource);
+        this.getSpellManager().onDeath(damageSource);
     }
 }
