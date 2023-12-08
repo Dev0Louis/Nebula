@@ -19,4 +19,8 @@ public interface NebulaPlayer {
     default SpellManager setSpellManager(SpellManager spellManager) {
         throw new UnsupportedOperationException("Injected Interface method was not overridden!");
     }
+
+    default void createManagersIfNecessary() {
+        throw new UnsupportedOperationException("Injected Interface method was not overridden!");
+    };
 }

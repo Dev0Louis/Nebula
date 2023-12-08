@@ -101,10 +101,24 @@ public interface SpellManager {
      */
     boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
 
+    /**
+     * Writes the NBT data of the SpellManager.
+     * @param nbt The nbt data that shall be written to.
+     * @return The nbt data that has been written to.
+     */
     NbtCompound writeNbt(NbtCompound nbt);
 
+    /**
+     * Reads the NBT data of the SpellManager.
+     * @param nbt The nbt data that shall be read.
+     */
     void readNbt(NbtCompound nbt);
 
+    /**
+     * Sets the PlayerEntity of the SpellManager.
+     * @param player The new PlayerEntity of the SpellManager.
+     * @return The SpellManager with the new PlayerEntity.
+     */
     SpellManager setPlayer(PlayerEntity player);
 
     @FunctionalInterface

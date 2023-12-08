@@ -22,6 +22,12 @@ public class TickingSpell extends Spell {
         spellAge++;
     }
 
+    /**
+     * This method stops the spell!
+     * The Spell will no longer be ticked.
+     * When overriding this method, make sure to call super.stop().
+     * @param fromDeath If the cause of stopping was the death of the Caster.
+     */
     public void stop(boolean fromDeath) {
         shouldContinue = false;
     }

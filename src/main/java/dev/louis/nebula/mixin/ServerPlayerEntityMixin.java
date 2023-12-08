@@ -26,6 +26,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     @Inject(method = "onSpawn", at = @At("RETURN"))
     public void syncManaAndSpellsOnSpawn(CallbackInfo ci) {
+        this.createManagersIfNecessary();
+
         boolean haveSpellsSynced = this.getSpellManager().sendSync();
         if(!haveSpellsSynced) Nebula.LOGGER.info("Spells could not be synced!");
 
