@@ -69,20 +69,15 @@ public class NebulaManaManager implements ManaManager {
 
     @Override
     public boolean sendSync() {
-        if (this.player instanceof ServerPlayerEntity serverPlayerEntity) {
-            if (serverPlayerEntity.networkHandler != null) {
-                int syncMana = this.getMana();
-                if (syncMana == this.lastSyncedMana) return true;
-                this.lastSyncedMana = syncMana;
-                ServerPlayNetworking.send(
-                        serverPlayerEntity,
-                        new SynchronizeManaAmountS2CPacket(syncMana)
-                );
-                return true;
-            } else {
-                Nebula.LOGGER.error("sendSync was called to early for " + serverPlayerEntity.getGameProfile().getName());
-                return false;
-            }
+        if (this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
+            int syncMana = this.getMana();
+            if (syncMana == this.lastSyncedMana) return true;
+            this.lastSyncedMana = syncMana;
+            ServerPlayNetworking.send(
+                    serverPlayerEntity,
+                    new SynchronizeManaAmountS2CPacket(syncMana)
+            );
+            return true;
         }
         return false;
     }
@@ -101,7 +96,6 @@ public class NebulaManaManager implements ManaManager {
     @Override
     public void writeNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
-
         nebulaNbt.putInt(MANA_NBT_KEY, this.getMana());
         nbt.put(Nebula.MOD_ID, nebulaNbt);
     }
