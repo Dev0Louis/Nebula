@@ -26,7 +26,7 @@ public class Nebula implements ModInitializer {
         this.registerPacketReceivers();
         NebulaManager.INSTANCE.init();
         NebulaCommand.init();
-        LOGGER.info("Nebula has initialized.");
+        LOGGER.info("Nebula has been initialized.");
 
     }
 
