@@ -29,6 +29,7 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
         NebulaManager nebulaManager = new NebulaManager();
         nebulaManager.runEntrypointsOrThrow();
         nebulaManager.lock();
+        nebulaManager.printInfo();
     }
 
     public static ManaManager.Factory<?> getManaManagerFactory() {
@@ -48,8 +49,14 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     }
 
     public void lock() {
-        if(spellManagerFactory == null) spellManagerFactory = NebulaSpellManager::new;
-        if(manaManagerFactory == null) manaManagerFactory = NebulaManaManager::new;
+        if(spellManagerFactory == null) {
+            spellManagerFactory = NebulaSpellManager::new;
+            spellManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
+        }
+        if(manaManagerFactory == null) {
+            manaManagerFactory = NebulaManaManager::new;
+            manaManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
+        }
         isLocked = true;
     }
 
@@ -106,6 +113,11 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
             spellManagerEntrypointEntrypointContainer.getEntrypoint().registerSpell(this);
             NebulaManager.spellManagerMod = spellManagerEntrypointEntrypointContainer.getProvider();
         }
+    }
+
+    private void printInfo() {
+        Nebula.LOGGER.info("ManaManager is registered by: " + NebulaManager.manaManagerMod.getMetadata().getName());
+        Nebula.LOGGER.info("SpellManager is registered by: " + NebulaManager.spellManagerMod.getMetadata().getName());
     }
 
     private static <T> T getFirstOrNull(List<T> list) {
