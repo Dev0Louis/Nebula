@@ -188,13 +188,4 @@ public class NebulaSpellManager implements SpellManager {
     public boolean isServer() {
         return !player.getWorld().isClient();
     }
-
-    /**
-     * It is safe to do this here because if code runs inside this Spell manager the Spell manager should be this one.
-     * @param player The Player you want the Spell Manager from.
-     * @return The NebulaSpellManager of that Player.
-     */
-    private NebulaSpellManager getNebulaSpellmanager(PlayerEntity player) {
-        return (NebulaSpellManager) player.getSpellManager();
-    }
 }
