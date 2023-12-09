@@ -1,6 +1,7 @@
 package dev.louis.nebula;
 
 import com.mojang.logging.LogUtils;
+import dev.louis.nebula.api.manager.registerable.SpellManagerRegistrableView;
 import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.networking.SpellCastC2SPacket;
 import dev.louis.nebula.spell.SpellType;
@@ -23,15 +24,19 @@ public class Nebula implements ModInitializer {
     @Override
     public void onInitialize() {
         SpellType.init();
-        this.registerPacketReceivers();
-        NebulaManager.INSTANCE.init();
+        NebulaManager.init();
         NebulaCommand.init();
+        this.registerPacketReceivers();
         LOGGER.info("Nebula has been initialized.");
 
     }
 
     public void registerPacketReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(SpellCastC2SPacket.getId(), SpellCastC2SPacket::receive);
+    }
+
+    void registerSpell(SpellManagerRegistrableView spellManagerRegistrableView) {
+
     }
 }
 
