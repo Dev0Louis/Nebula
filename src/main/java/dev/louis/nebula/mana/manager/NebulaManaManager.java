@@ -15,7 +15,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public class NebulaManaManager implements ManaManager {
     private static final String MANA_NBT_KEY = "Mana";
-
     private PlayerEntity player;
     private int mana = 0;
     private int lastSyncedMana = -1;
