@@ -20,6 +20,10 @@ public interface NebulaPlayer {
         throw new UnsupportedOperationException("Injected Interface method was not overridden!");
     }
 
+    /**
+     * This creates the ManaManager and the SpellManager if they are not already created.
+     * This should not be called manually, unless you know what you are doing.
+     */
     default void createManagersIfNecessary() {
         throw new UnsupportedOperationException("Injected Interface method was not overridden!");
     };
