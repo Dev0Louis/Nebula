@@ -37,7 +37,7 @@ public class NebulaManaManager implements ManaManager {
     }
 
     public void setMana(int mana) {
-        this.setMana(mana, true);
+        this.setMana(mana, this.isServer());
     }
 
     public void addMana(int mana) {
