@@ -1,5 +1,6 @@
 package dev.louis.nebula.spell;
 
+import dev.louis.nebula.spell.manager.SpellManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
@@ -14,6 +15,10 @@ public abstract class Spell {
         this.caster = caster;
     }
 
+    /**
+     * This should not be called manually.
+     * Use * {@link SpellManager#cast(Spell)} or {@link SpellManager#cast(SpellType)}
+     */
     public abstract void cast();
 
     public Identifier getID() {

@@ -35,9 +35,9 @@ public class NebulaCommand {
         command.then(getManaCommand);
         command.then(setManaCommand);
 
-
+        var learnSpellCommand = literal("learnSpell");
         Nebula.SPELL_REGISTRY.forEach(spellType -> {
-            command.then(CommandManager.literal(spellType.getId().toString()).executes(context -> {
+            learnSpellCommand.then(CommandManager.literal(spellType.getId().toString()).executes(context -> {
                 if(context.getSource().isExecutedByPlayer()) {
                     context.getSource().getPlayer().getSpellManager().learnSpell(spellType);
                 }
@@ -45,6 +45,7 @@ public class NebulaCommand {
             }));
         });
 
+        command.then(learnSpellCommand);
 
         dispatcher.register(command);
     }

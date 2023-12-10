@@ -10,12 +10,16 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Debug(
+        export = true
+)
 @Mixin(PlayerEntity.class)
 public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     protected PlayerMixin(EntityType<? extends LivingEntity> entityType, World world) {
@@ -23,9 +27,9 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     }
 
     @Unique
-    private ManaManager manaManager = NebulaManager.createManaManager((PlayerEntity) (Object) this);
+    private ManaManager manaManager;
     @Unique
-    private SpellManager spellManager = NebulaManager.createSpellManager((PlayerEntity) (Object) this);
+    private SpellManager spellManager;
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
     public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
@@ -35,6 +39,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
 
     @Inject(method = "readCustomDataFromNbt",at = @At("RETURN"))
     public void readManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
+        this.createManagersIfNecessary();
         this.manaManager.readNbt(nbt);
         this.spellManager.readNbt(nbt);
     }
@@ -45,7 +50,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
         this.spellManager.tick();
     }
 
-    @Inject(method = "onDeath", at = @At("HEAD"))
+    @Inject(method = "onDeath", at = @At("RETURN"))
     public void informManaAndSpellManagerOfDeath(DamageSource damageSource, CallbackInfo ci) {
         this.manaManager.onDeath(damageSource);
         this.spellManager.onDeath(damageSource);
@@ -69,5 +74,11 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
     @Override
     public SpellManager setSpellManager(SpellManager spellManager) {
         return this.spellManager = spellManager;
+    }
+
+    @Override
+    public void createManagersIfNecessary() {
+        if (this.manaManager == null) this.setManaManager(NebulaManager.createManaManager((PlayerEntity) (Object) this));
+        if (this.spellManager == null) this.setSpellManager(NebulaManager.createSpellManager((PlayerEntity) (Object) this));
     }
 }

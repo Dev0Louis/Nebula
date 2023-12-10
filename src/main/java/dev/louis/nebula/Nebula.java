@@ -23,10 +23,10 @@ public class Nebula implements ModInitializer {
     @Override
     public void onInitialize() {
         SpellType.init();
-        this.registerPacketReceivers();
-        NebulaManager.INSTANCE.init();
+        NebulaManager.init();
         NebulaCommand.init();
-        LOGGER.info("Nebula has initialized.");
+        this.registerPacketReceivers();
+        LOGGER.info("Nebula has been initialized.");
     }
 
     public void registerPacketReceivers() {
