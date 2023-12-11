@@ -6,6 +6,7 @@ import dev.louis.nebula.spell.TickingSpell;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -125,4 +126,96 @@ public interface SpellManager {
     interface Factory<T extends SpellManager> {
         T createSpellKnowledgeManager(PlayerEntity player);
     }
+
+    /**
+     * SpellManager indicating that no ManaManager has been constructed yet.
+     * Is also used for Player classes that never construct a SpellManager like {@link ClientPlayerEntity}.
+     * Calling methods is safe, but won't do anything.
+     */
+    SpellManager EMPTY = new SpellManager() {
+        @Override
+        public void tick() {
+
+        }
+
+        @Override
+        public boolean startTickingSpell(TickingSpell tickingSpell) {
+            return false;
+        }
+
+        @Override
+        public boolean stopTickingSpell(TickingSpell tickingSpell) {
+            return false;
+        }
+
+        @Override
+        public boolean isSpellTypeTicking(SpellType<? extends TickingSpell> spellType) {
+            return false;
+        }
+
+        @Override
+        public boolean isSpellTicking(TickingSpell tickingSpell) {
+            return false;
+        }
+
+        @Override
+        public boolean learnSpell(SpellType<?> spellType) {
+            return false;
+        }
+
+        @Override
+        public boolean forgetSpell(SpellType<?> spellType) {
+            return false;
+        }
+
+        @Override
+        public void cast(SpellType<?> spellType) {
+
+        }
+
+        @Override
+        public void cast(Spell spell) {
+
+        }
+
+        @Override
+        public void onDeath(DamageSource damageSource) {
+
+        }
+
+        @Override
+        public boolean isCastable(SpellType<?> spellType) {
+            return false;
+        }
+
+        @Override
+        public boolean hasLearned(SpellType<?> spellType) {
+            return false;
+        }
+
+        @Override
+        public boolean sendSync() {
+            return false;
+        }
+
+        @Override
+        public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+            return false;
+        }
+
+        @Override
+        public NbtCompound writeNbt(NbtCompound nbt) {
+            return null;
+        }
+
+        @Override
+        public void readNbt(NbtCompound nbt) {
+
+        }
+
+        @Override
+        public SpellManager setPlayer(PlayerEntity player) {
+            return null;
+        }
+    };
 }
