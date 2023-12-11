@@ -4,6 +4,7 @@ import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -104,4 +105,87 @@ public interface ManaManager {
     interface Factory<T extends ManaManager> {
         T createPlayerManaManager(PlayerEntity player);
     }
+
+    /**
+     * ManaManager indicating that no ManaManager has been constructed yet.
+     * Is also used for Player classes that never construct a ManaManager like {@link ClientPlayerEntity}.
+     * Calling methods is safe, but won't do anything.
+     */
+    ManaManager EMPTY = new ManaManager() {
+
+        @Override
+        public void tick() {
+
+        }
+
+        @Override
+        public void setMana(int mana) {
+
+        }
+
+        @Override
+        public int getMana() {
+            return 0;
+        }
+
+        @Override
+        public void addMana(int mana) {
+
+        }
+
+        @Override
+        public void drainMana(int mana) {
+
+        }
+
+        @Override
+        public void drainMana(SpellType<?> spellType) {
+
+        }
+
+        @Override
+        public int getMaxMana() {
+            return 0;
+        }
+
+        @Override
+        public boolean hasEnoughMana(int mana) {
+            return false;
+        }
+
+        @Override
+        public boolean hasEnoughMana(SpellType<?> spellType) {
+            return false;
+        }
+
+        @Override
+        public boolean sendSync() {
+            return false;
+        }
+
+        @Override
+        public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+            return false;
+        }
+
+        @Override
+        public void writeNbt(NbtCompound nbt) {
+
+        }
+
+        @Override
+        public void readNbt(NbtCompound nbt) {
+
+        }
+
+        @Override
+        public void onDeath(DamageSource damageSource) {
+
+        }
+
+        @Override
+        public ManaManager setPlayer(PlayerEntity player) {
+            return this;
+        }
+    };
 }
