@@ -70,15 +70,15 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public boolean learnSpell(SpellType<?> spellType) {
-        this.castableSpells.add(spellType);
-        this.sendSync();
+        boolean shouldSync = this.castableSpells.add(spellType);
+        if(shouldSync) this.sendSync();
         return true;
     }
 
     @Override
     public boolean forgetSpell(SpellType<?> spellType) {
-        this.castableSpells.remove(spellType);
-        this.sendSync();
+        boolean shouldSync = this.castableSpells.remove(spellType);
+        if(shouldSync) this.sendSync();
         return true;
     }
 
@@ -122,7 +122,7 @@ public class NebulaSpellManager implements SpellManager {
     }
 
     public boolean isCastable(SpellType<?> spellType) {
-        return hasLearned(spellType) && ((player.getManaManager().getMana() - spellType.getManaCost()) >= 0);
+        return player.getManaManager().getMana() - spellType.getManaCost() >= 0 && (!spellType.needsLearning() || this.hasLearned(spellType));
     }
 
     @Override
@@ -134,7 +134,7 @@ public class NebulaSpellManager implements SpellManager {
     public boolean sendSync() {
         if(this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
             Map<SpellType<?>, Boolean> castableSpells = new HashMap<>();
-            Nebula.SPELL_REGISTRY.forEach(spellType -> castableSpells.put(spellType, hasLearned(spellType)));
+            Nebula.SPELL_REGISTRY.forEach(spellType -> castableSpells.put(spellType, this.hasLearned(spellType)));
             ServerPlayNetworking.send(serverPlayerEntity, new UpdateSpellCastabilityS2CPacket(castableSpells));
             return true;
         }

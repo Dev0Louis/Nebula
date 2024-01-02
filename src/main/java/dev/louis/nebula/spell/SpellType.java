@@ -10,10 +10,12 @@ import java.util.Optional;
 public class SpellType<T extends Spell> {
     private final SpellFactory<T> factory;
     private final int manaCost;
+    private final boolean needLearning;
 
-    public SpellType(SpellFactory<T> factory, int manaCost) {
+    public SpellType(SpellFactory<T> factory, int manaCost, boolean needLearning) {
         this.factory = factory;
         this.manaCost = manaCost;
+        this.needLearning = needLearning;
     }
 
     public static void init() {
@@ -33,6 +35,10 @@ public class SpellType<T extends Spell> {
 
     public boolean isCastable(PlayerEntity player) {
         return player.getSpellManager().isCastable(this);
+    }
+
+    public boolean needsLearning() {
+        return needLearning;
     }
 
     public boolean hasLearned(PlayerEntity player) {
@@ -55,6 +61,7 @@ public class SpellType<T extends Spell> {
     public static class Builder<T extends Spell> {
         private final SpellFactory<T> factory;
         private final int manaCost;
+        private boolean needsLearning = true;
 
         private Builder(SpellFactory<T> factory, int manaCost) {
             this.factory = factory;
@@ -65,8 +72,13 @@ public class SpellType<T extends Spell> {
             return new Builder<>(factory, manaCost);
         }
 
+        public Builder<T> needsLearning(boolean needsLearning) {
+            this.needsLearning = needsLearning;
+            return this;
+        }
+
         public SpellType<T> build() {
-            return new SpellType<>(this.factory, manaCost);
+            return new SpellType<>(this.factory, manaCost, needsLearning);
         }
     }
 
