@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dev.louis.nebula.NebulaClient.runWithBuf;
+import static dev.louis.nebula.NebulaClient.runSyncWithBuf;
 
 public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Boolean> spells) implements FabricPacket {
     public static final PacketType<UpdateSpellCastabilityS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "updatespellcastability"), UpdateSpellCastabilityS2CPacket::new);
@@ -59,7 +59,7 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
     }
 
     public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        runWithBuf(client, buf, () -> client.player.getSpellManager().receiveSync(client, handler, buf, responseSender));
+        runSyncWithBuf(client, buf, () -> client.player.getSpellManager().receiveSync(client, handler, buf, responseSender));
     }
 
     public static Identifier getID() {

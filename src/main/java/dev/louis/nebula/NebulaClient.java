@@ -29,7 +29,7 @@ public class NebulaClient implements ClientModInitializer {
         registerReceiver(SynchronizeManaAmountS2CPacket.getId(), SynchronizeManaAmountS2CPacket::receive);
     }
 
-    public static void runWithBuf(MinecraftClient client, PacketByteBuf buf, Runnable runnable) {
+    public static void runSyncWithBuf(MinecraftClient client, PacketByteBuf buf, Runnable runnable) {
         retainer.accept(buf);
         client.executeSync(() -> {
             runnable.run();
