@@ -40,9 +40,9 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public void tick() {
-        this.tickingSpells.removeIf(multiTickSpell -> {
-            boolean willBeRemoved = !multiTickSpell.shouldContinue();
-            if(willBeRemoved) multiTickSpell.stop();
+        this.tickingSpells.removeIf(tickingSpell -> {
+            boolean willBeRemoved = !tickingSpell.shouldContinue();
+            if(willBeRemoved) tickingSpell.stop();
             return willBeRemoved;
         });
         for (TickingSpell tickingSpell : this.tickingSpells) {
