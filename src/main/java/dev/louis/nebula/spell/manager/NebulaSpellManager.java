@@ -27,12 +27,12 @@ import java.util.Map;
 import java.util.Set;
 
 public class NebulaSpellManager implements SpellManager {
-    private static final String SPELL_NBT_KEY = "Spell";
-    private static final String SPELLS_NBT_KEY = "Spells";
+    protected static final String SPELL_NBT_KEY = "Spell";
+    protected static final String SPELLS_NBT_KEY = "Spells";
 
-    private final Set<TickingSpell> tickingSpells = new HashSet<>();
-    private final Set<SpellType<?>> castableSpells = new HashSet<>();
-    private PlayerEntity player;
+    protected final Set<TickingSpell> tickingSpells = new HashSet<>();
+    protected final Set<SpellType<?>> castableSpells = new HashSet<>();
+    protected PlayerEntity player;
 
     public NebulaSpellManager(PlayerEntity player) {
         this.player = player;
@@ -82,11 +82,11 @@ public class NebulaSpellManager implements SpellManager {
         return true;
     }
 
-    private Set<SpellType<?>> getCastableSpells() {
+    protected Set<SpellType<?>> getCastableSpells() {
         return castableSpells;
     }
 
-    private void updateCastableSpell(Map<SpellType<?>, Boolean> castableSpells) {
+    protected void updateCastableSpell(Map<SpellType<?>, Boolean> castableSpells) {
         castableSpells.forEach((spellType, knows) -> {
                 if (knows) this.castableSpells.add(spellType);
                 else this.castableSpells.remove(spellType);

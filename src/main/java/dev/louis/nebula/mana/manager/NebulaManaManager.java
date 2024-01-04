@@ -14,10 +14,10 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class NebulaManaManager implements ManaManager {
-    private static final String MANA_NBT_KEY = "Mana";
-    private PlayerEntity player;
-    private int mana = 0;
-    private int lastSyncedMana = -1;
+    protected static final String MANA_NBT_KEY = "Mana";
+    protected PlayerEntity player;
+    protected int mana = 0;
+    protected int lastSyncedMana = -1;
 
     public NebulaManaManager(PlayerEntity player) {
         this.player = player;
