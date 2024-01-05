@@ -158,7 +158,7 @@ public class NebulaSpellManager implements SpellManager {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         NbtList nbtList = new NbtList();
         for (SpellType<?> spell : getCastableSpells()) {
             NbtCompound nbtCompound = new NbtCompound();
@@ -169,8 +169,6 @@ public class NebulaSpellManager implements SpellManager {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
         nebulaNbt.put(SPELLS_NBT_KEY, nbtList);
         nbt.put(Nebula.MOD_ID, nebulaNbt);
-        return nbt;
-
     }
 
     @Override

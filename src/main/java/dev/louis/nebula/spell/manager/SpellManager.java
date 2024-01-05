@@ -107,7 +107,7 @@ public interface SpellManager {
      * @param nbt The nbt data that shall be written to.
      * @return The nbt data that has been written to.
      */
-    NbtCompound writeNbt(NbtCompound nbt);
+    void writeNbt(NbtCompound nbt);
 
     /**
      * Reads the Nbt data of the SpellManager.
@@ -204,8 +204,8 @@ public interface SpellManager {
         }
 
         @Override
-        public NbtCompound writeNbt(NbtCompound nbt) {
-            return null;
+        public void writeNbt(NbtCompound nbt) {
+
         }
 
         @Override
@@ -215,7 +215,7 @@ public interface SpellManager {
 
         @Override
         public SpellManager setPlayer(PlayerEntity player) {
-            return null;
+            return this;
         }
     };
 }
