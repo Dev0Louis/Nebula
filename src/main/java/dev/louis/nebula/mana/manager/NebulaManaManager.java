@@ -27,8 +27,14 @@ public class NebulaManaManager implements ManaManager {
     public void tick() {
     }
 
+    @Override
     public int getMana() {
         return mana;
+    }
+
+    @Override
+    public void setMana(int mana) {
+        this.setMana(mana, this.isServer());
     }
 
     public void setMana(int mana, boolean syncToClient) {
@@ -36,22 +42,22 @@ public class NebulaManaManager implements ManaManager {
         if(syncToClient) this.sendSync();
     }
 
-    public void setMana(int mana) {
-        this.setMana(mana, this.isServer());
-    }
-
+    @Override
     public void addMana(int mana) {
         this.setMana(this.getMana() + mana);
     }
 
+    @Override
     public void drainMana(int mana) {
         this.setMana(this.getMana() - mana);
     }
 
+    @Override
     public void drainMana(SpellType<?> spellType) {
         this.drainMana(spellType.getManaCost());
     }
 
+    @Override
     public int getMaxMana() {
         return 20;
     }
