@@ -2,7 +2,12 @@ package dev.louis.nebula.api;
 
 import dev.louis.nebula.mana.manager.ManaManager;
 import dev.louis.nebula.spell.manager.SpellManager;
+import net.minecraft.entity.player.PlayerEntity;
 
+/**
+ * This interface will be injected into {@link PlayerEntity}.
+ *
+ */
 public interface NebulaPlayer {
     default ManaManager getManaManager() {
         throw new UnsupportedOperationException("Injected Interface method was not overridden!");
