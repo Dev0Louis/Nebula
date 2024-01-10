@@ -8,13 +8,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 public class NebulaClient implements ClientModInitializer {
-    public static final Consumer<PacketByteBuf> retainer = getConsumer("retain", () -> PacketByteBuf::retain);
-    public static final Consumer<PacketByteBuf> releaser = getConsumer("release", () -> PacketByteBuf::release);
 
     @Override
     public void onInitializeClient() {
@@ -30,32 +24,14 @@ public class NebulaClient implements ClientModInitializer {
     }
 
     public static void runSyncWithBuf(MinecraftClient client, PacketByteBuf buf, Runnable runnable) {
-        retainer.accept(buf);
+        buf.retain();
         client.executeSync(() -> {
             runnable.run();
-            releaser.accept(buf);
+            buf.release();
         });
     }
 
     private void registerReceiver(Identifier id, ClientPlayNetworking.PlayChannelHandler playChannelHandler) {
         ClientPlayNetworking.registerGlobalReceiver(id, playChannelHandler);
-    }
-
-    private static Consumer<PacketByteBuf> getConsumer(String methodName, Supplier<Consumer<PacketByteBuf>> defaultConsumer) {
-        try {
-            //Needed to throw NoSuchMethodException if the method doesn't exist.
-            PacketByteBuf.class.getMethod(methodName);
-            return buf -> invoke(buf, methodName);
-        } catch (NoSuchMethodException e) {
-            return defaultConsumer.get();
-        }
-    }
-
-    private static void invoke(PacketByteBuf buf, String methodName) {
-        try {
-            PacketByteBuf.class.getMethod(methodName).invoke(buf);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

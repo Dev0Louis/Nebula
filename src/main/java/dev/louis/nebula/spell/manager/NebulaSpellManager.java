@@ -50,19 +50,23 @@ public class NebulaSpellManager implements SpellManager {
         }
     }
 
+    @Override
     public boolean startTickingSpell(TickingSpell tickingSpell) {
         return this.tickingSpells.add(tickingSpell);
     }
 
+    @Override
     public boolean stopTickingSpell(TickingSpell tickingSpell) {
         tickingSpell.stop(false);
         return this.tickingSpells.remove(tickingSpell);
     }
 
+    @Override
     public boolean isSpellTypeTicking(SpellType<? extends TickingSpell> spellType) {
         return this.tickingSpells.stream().anyMatch(tickingSpell -> tickingSpell.getType().equals(spellType));
     }
 
+    @Override
     public boolean isSpellTicking(TickingSpell tickingSpell) {
         return this.tickingSpells.contains(tickingSpell);
     }
@@ -121,6 +125,7 @@ public class NebulaSpellManager implements SpellManager {
         this.tickingSpells.clear();
     }
 
+    @Override
     public boolean isCastable(SpellType<?> spellType) {
         return player.getManaManager().getMana() - spellType.getManaCost() >= 0 && (!spellType.needsLearning() || this.hasLearned(spellType));
     }
@@ -153,7 +158,7 @@ public class NebulaSpellManager implements SpellManager {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         NbtList nbtList = new NbtList();
         for (SpellType<?> spell : getCastableSpells()) {
             NbtCompound nbtCompound = new NbtCompound();
@@ -164,8 +169,6 @@ public class NebulaSpellManager implements SpellManager {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
         nebulaNbt.put(SPELLS_NBT_KEY, nbtList);
         nbt.put(Nebula.MOD_ID, nebulaNbt);
-        return nbt;
-
     }
 
     @Override
