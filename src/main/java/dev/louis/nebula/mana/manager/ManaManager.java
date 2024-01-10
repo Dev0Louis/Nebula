@@ -101,6 +101,10 @@ public interface ManaManager {
      */
     ManaManager setPlayer(PlayerEntity player);
 
+    default boolean isEmpty() {
+        return false;
+    }
+
     @FunctionalInterface
     interface Factory<T extends ManaManager> {
         T createPlayerManaManager(PlayerEntity player);
@@ -186,6 +190,11 @@ public interface ManaManager {
         @Override
         public ManaManager setPlayer(PlayerEntity player) {
             return this;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return true;
         }
     };
 }

@@ -108,7 +108,7 @@ public class NebulaSpellManager implements SpellManager {
         if(SpellCastCallback.EVENT.invoker().interact(this.player, spell) != ActionResult.PASS) return;
         if(spell.isCastable()) {
             if(this.isServer()) {
-                spell.drainMana();
+                spell.applyCost();
                 spell.cast();
             } else {
                 ClientPlayNetworking.send(new SpellCastC2SPacket(spell));
@@ -152,7 +152,7 @@ public class NebulaSpellManager implements SpellManager {
             Nebula.LOGGER.error("Called receiveSync on server side!");
             return false;
         }
-        UpdateSpellCastabilityS2CPacket packet = UpdateSpellCastabilityS2CPacket.readBuf(buf);
+        UpdateSpellCastabilityS2CPacket packet = UpdateSpellCastabilityS2CPacket.read(buf);
         MinecraftClient.getInstance().executeSync(() -> this.updateCastableSpell(packet.spells()));
         return true;
     }

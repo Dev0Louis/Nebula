@@ -20,9 +20,8 @@ public abstract class Spell {
 
     /**
      * Is called after {@link Spell#isCastable()} if the return of the method is true.
-     *
      * This should not be called manually.
-     * Use * {@link SpellManager#cast(Spell)} or {@link SpellManager#cast(SpellType)}
+     * Use {@link SpellManager#cast(Spell)} or {@link SpellManager#cast(SpellType)}
      */
     public abstract void cast();
 
@@ -39,7 +38,7 @@ public abstract class Spell {
     }
 
     /**
-     * If true {@link Spell#cast()} and {@link Spell#drainMana()} will be called in that order. <br>
+     * If true {@link Spell#applyCost()} and {@link Spell#cast()}  will be called in that order. <br>
      * If false nothing will be called.
      */
     public boolean isCastable() {
@@ -47,29 +46,45 @@ public abstract class Spell {
     }
 
     /**
-     * Called on server.<br>
-     * Read additional data about the spell from the buf.
+     * Read additional casting data about the spell from the buf.
      * @param buf The buf to be read from.
      * @return The buf after being read from.
      */
-    public PacketByteBuf readBuf(PacketByteBuf buf) {
+    public PacketByteBuf readCastBuf(PacketByteBuf buf) {
         return buf;
     }
 
     /**
-     * Called on client.<br>
-     * Write additional data about the spell to the buf.
+     * Write additional casting data about the spell to the buf.
      * @param buf The buf to be written to.
      * @return The buf after being written to.
      */
-    public PacketByteBuf writeBuf(PacketByteBuf buf) {
+    public PacketByteBuf writeCastBuf(PacketByteBuf buf) {
         return buf;
     }
 
     /**
-     * Drains the amount of Mana required by the SpellType.
+     * Read additional response data about the spell from the buf.
+     * @param buf The buf to be read from.
+     * @return The buf after being read from.
      */
-    public void drainMana() {
+    public PacketByteBuf readResponseBuf(PacketByteBuf buf) {
+        return readCastBuf(buf);
+    }
+
+    /**
+     * Write additional response data about the spell to the buf.
+     * @param buf The buf to be written to.
+     * @return The buf after being written to.
+     */
+    public PacketByteBuf writeResponseBuf(PacketByteBuf buf) {
+        return writeCastBuf(buf);
+    }
+
+    /**
+     * Remove the Cost required by the SpellType.
+     */
+    public void applyCost() {
         getCaster().getManaManager().drainMana(getType().getManaCost());
     }
 

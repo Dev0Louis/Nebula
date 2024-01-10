@@ -122,6 +122,10 @@ public interface SpellManager {
      */
     SpellManager setPlayer(PlayerEntity player);
 
+    default boolean isEmpty() {
+        return false;
+    }
+
     @FunctionalInterface
     interface Factory<T extends SpellManager> {
         T createSpellKnowledgeManager(PlayerEntity player);
@@ -216,6 +220,11 @@ public interface SpellManager {
         @Override
         public SpellManager setPlayer(PlayerEntity player) {
             return this;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return true;
         }
     };
 }

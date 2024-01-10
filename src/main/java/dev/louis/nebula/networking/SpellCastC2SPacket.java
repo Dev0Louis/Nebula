@@ -15,9 +15,10 @@ import java.util.Objects;
 
 public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
     public static final PacketType<SynchronizeManaAmountS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "spellcast"), SynchronizeManaAmountS2CPacket::new);
+
     public void write(PacketByteBuf buf) {
         buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spell.getType());
-        spell.writeBuf(buf);
+        spell.writeCastBuf(buf);
     }
 
     @Override
@@ -27,15 +28,17 @@ public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
 
     public static SpellCastC2SPacket read(ServerPlayerEntity caster, PacketByteBuf buf) {
         Spell spell = buf.readRegistryValue(Nebula.SPELL_REGISTRY).create(caster);
-        spell.readBuf(buf);
+        spell.readCastBuf(buf);
         return new SpellCastC2SPacket(spell);
     }
+
     public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         SpellCastC2SPacket packet = SpellCastC2SPacket.read(player, buf);
         Objects.requireNonNull(packet);
         Spell spell = packet.spell();
         player.getSpellManager().cast(spell);
     }
+
     public static Identifier getId() {
         return PACKET_TYPE.getId();
     }

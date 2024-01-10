@@ -24,33 +24,34 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
         this(readMapFromBuf(buf));
     }
 
+    public static void writeSpellType(PacketByteBuf buf, SpellType<?> spellType) {
+        buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spellType);
+    }
+
+    private static SpellType<?> readSpellType(PacketByteBuf buf) {
+        return buf.readRegistryValue(Nebula.SPELL_REGISTRY);
+    }
+
+    private static Map<SpellType<? extends Spell>, Boolean> readMapFromBuf(PacketByteBuf buf) {
+        return buf.readMap(HashMap::new, UpdateSpellCastabilityS2CPacket::readSpellType, PacketByteBuf::readBoolean);
+    }
+
+    public static UpdateSpellCastabilityS2CPacket read(PacketByteBuf buf) {
+        return new UpdateSpellCastabilityS2CPacket(buf);
+    }
+
     public void write(PacketByteBuf buf) {
-        buf.writeVarInt(spells.size());
-        spells.forEach((spellType, knows) -> {
-            buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spellType);
-            buf.writeBoolean(knows);
-        });
+        buf.writeMap(
+                spells,
+                UpdateSpellCastabilityS2CPacket::writeSpellType,
+                PacketByteBuf::writeBoolean
+        );
     }
 
     public static UpdateSpellCastabilityS2CPacket create(PlayerEntity player) {
         Map<SpellType<? extends Spell>, Boolean> map = new HashMap<>();
         Nebula.SPELL_REGISTRY.forEach(spellType -> map.put(spellType, spellType.hasLearned(player)));
         return new UpdateSpellCastabilityS2CPacket(map);
-    }
-
-    public static UpdateSpellCastabilityS2CPacket readBuf(PacketByteBuf buf) {
-        return new UpdateSpellCastabilityS2CPacket(readMapFromBuf(buf));
-    }
-
-    private static Map<SpellType<? extends Spell>, Boolean> readMapFromBuf(PacketByteBuf buf) {
-        Map<SpellType<? extends Spell>, Boolean> spells = new HashMap<>();
-        int size = buf.readVarInt();
-        for (int i = 0; i < size; i++) {
-            SpellType<? extends Spell> spellType = buf.readRegistryValue(Nebula.SPELL_REGISTRY);
-            boolean knows = buf.readBoolean();
-            spells.put(spellType, knows);
-        }
-        return spells;
     }
 
     @Override
