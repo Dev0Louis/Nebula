@@ -6,10 +6,7 @@ import dev.louis.nebula.networking.SpellCastC2SPacket;
 import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
-import dev.louis.nebula.spell.TickingSpell;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.damage.DamageSource;
@@ -20,6 +17,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +28,6 @@ public class NebulaSpellManager implements SpellManager {
     protected static final String SPELL_NBT_KEY = "Spell";
     protected static final String SPELLS_NBT_KEY = "Spells";
 
-    protected final Set<TickingSpell> tickingSpells = new HashSet<>();
     protected final Set<SpellType<?>> castableSpells = new HashSet<>();
     protected PlayerEntity player;
 
@@ -40,6 +37,8 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public void tick() {
+        //TODO: Adapt to real spells.
+        /*
         this.tickingSpells.removeIf(tickingSpell -> {
             boolean willBeRemoved = !tickingSpell.shouldContinue();
             if(willBeRemoved) tickingSpell.stop();
@@ -48,29 +47,8 @@ public class NebulaSpellManager implements SpellManager {
         for (TickingSpell tickingSpell : this.tickingSpells) {
             tickingSpell.tick();
         }
+        */
     }
-
-    @Override
-    public boolean startTickingSpell(TickingSpell tickingSpell) {
-        return this.tickingSpells.add(tickingSpell);
-    }
-
-    @Override
-    public boolean stopTickingSpell(TickingSpell tickingSpell) {
-        tickingSpell.stop(false);
-        return this.tickingSpells.remove(tickingSpell);
-    }
-
-    @Override
-    public boolean isSpellTypeTicking(SpellType<? extends TickingSpell> spellType) {
-        return this.tickingSpells.stream().anyMatch(tickingSpell -> tickingSpell.getType().equals(spellType));
-    }
-
-    @Override
-    public boolean isSpellTicking(TickingSpell tickingSpell) {
-        return this.tickingSpells.contains(tickingSpell);
-    }
-
 
     @Override
     public boolean learnSpell(SpellType<?> spellType) {
@@ -100,7 +78,12 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public void cast(SpellType<?> spellType) {
-        this.cast(spellType.create(this.player));
+        this.cast(spellType, this.player.getPos());
+    }
+
+    @Override
+    public void cast(SpellType<?> spellType, Vec3d pos) {
+        this.cast(spellType.create(this.player, pos));
     }
 
     @Override
@@ -111,7 +94,8 @@ public class NebulaSpellManager implements SpellManager {
                 spell.applyCost();
                 spell.cast();
             } else {
-                ClientPlayNetworking.send(new SpellCastC2SPacket(spell));
+                new SpellCastC2SPacket(spell).sendToServer();
+                //ClientPlayNetworking.send(SpellCastC2SPacket.getId(), new SpellCastC2SPacket(spell).write());
             }
         }
     }
@@ -119,15 +103,17 @@ public class NebulaSpellManager implements SpellManager {
     @Override
     public void onDeath(DamageSource damageSource) {
         if(this.isServer()) {
-            this.tickingSpells.forEach((tickingSpell -> tickingSpell.stop(true)));
+            //TODO: Adapt to spells.
+            //this.tickingSpells.forEach((tickingSpell -> tickingSpell.stop(true)));
         }
         this.castableSpells.clear();
-        this.tickingSpells.clear();
+        //TODO: Adapt to spells.
+        //this.tickingSpells.clear();
     }
 
     @Override
     public boolean isCastable(SpellType<?> spellType) {
-        return player.getManaManager().getMana() - spellType.getManaCost() >= 0 && (!spellType.needsLearning() || this.hasLearned(spellType));
+        return  !spellType.needsLearning() || this.hasLearned(spellType);
     }
 
     @Override
@@ -140,7 +126,7 @@ public class NebulaSpellManager implements SpellManager {
         if(this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
             Map<SpellType<?>, Boolean> castableSpells = new HashMap<>();
             Nebula.SPELL_REGISTRY.forEach(spellType -> castableSpells.put(spellType, this.hasLearned(spellType)));
-            ServerPlayNetworking.send(serverPlayerEntity, new UpdateSpellCastabilityS2CPacket(castableSpells));
+            new UpdateSpellCastabilityS2CPacket(castableSpells).sendToPlayer(serverPlayerEntity);
             return true;
         }
         return false;

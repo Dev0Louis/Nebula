@@ -2,28 +2,23 @@ package dev.louis.nebula.networking;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.spell.Spell;
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-import java.util.Objects;
+/**
+ * Not a FabricPacket because of Restriction in the api.
+ */
+public record SpellCastC2SPacket(Spell spell) implements NebulaPacket {
+    public static final Identifier ID = new Identifier(Nebula.MOD_ID, "spellcast");
 
-public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
-    public static final PacketType<SynchronizeManaAmountS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "spellcast"), SynchronizeManaAmountS2CPacket::new);
-
-    public void write(PacketByteBuf buf) {
+    public PacketByteBuf write(PacketByteBuf buf) {
         buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spell.getType());
         spell.writeCastBuf(buf);
-    }
-
-    @Override
-    public PacketType<?> getType() {
-        return PACKET_TYPE;
+        return buf;
     }
 
     public static SpellCastC2SPacket read(ServerPlayerEntity caster, PacketByteBuf buf) {
@@ -33,13 +28,17 @@ public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
     }
 
     public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        SpellCastC2SPacket packet = SpellCastC2SPacket.read(player, buf);
-        Objects.requireNonNull(packet);
-        Spell spell = packet.spell();
-        player.getSpellManager().cast(spell);
+        Nebula.runSyncWithBuf(
+                server,
+                buf,
+                () -> {
+                    SpellCastC2SPacket packet = SpellCastC2SPacket.read(player, buf);
+                    player.getSpellManager().cast(packet.spell());
+                }
+        );
     }
 
-    public static Identifier getId() {
-        return PACKET_TYPE.getId();
+    public Identifier getId() {
+        return ID;
     }
 }

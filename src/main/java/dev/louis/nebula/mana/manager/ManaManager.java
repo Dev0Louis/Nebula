@@ -61,7 +61,7 @@ public interface ManaManager {
      * @param spellType The SpellType which should be checked.
      * @return If enough mana is available for the specified SpellType.
      */
-    boolean hasEnoughMana(SpellType<?> spellType);
+    boolean isCastable(SpellType<?> spellType);
 
     /**
      * Sends the ManaManager's state to the client.
@@ -158,7 +158,7 @@ public interface ManaManager {
         }
 
         @Override
-        public boolean hasEnoughMana(SpellType<?> spellType) {
+        public boolean isCastable(SpellType<?> spellType) {
             return false;
         }
 

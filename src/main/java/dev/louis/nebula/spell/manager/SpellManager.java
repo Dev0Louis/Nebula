@@ -2,7 +2,6 @@ package dev.louis.nebula.spell.manager;
 
 import dev.louis.nebula.spell.Spell;
 import dev.louis.nebula.spell.SpellType;
-import dev.louis.nebula.spell.TickingSpell;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -11,38 +10,10 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.math.Vec3d;
 
 public interface SpellManager {
     void tick();
-
-    /**
-     * This shouldn't be called directly, it is called by {@link TickingSpell#cast()}
-     * @param tickingSpell The TickingSpell which should start ticking.
-     * @return If the TickingSpell was successfully added.
-     */
-    boolean startTickingSpell(TickingSpell tickingSpell);
-
-    /**
-     * Stops the TickingSpell from ticking.
-     * {@link TickingSpell#stop()} will be called when this is called.
-     * @param tickingSpell The TickingSpell which should be stopped.
-     * @return If the TickingSpell was successfully stopped.
-     */
-    boolean stopTickingSpell(TickingSpell tickingSpell);
-
-    /**
-     * Checks if a TickingSpell of the specified SpellType is currently ticking.
-     * @param spellType The SpellType which should be checked.
-     * @return If a TickingSpell with the specified SpellType is currently ticking.
-     */
-    boolean isSpellTypeTicking(SpellType<? extends TickingSpell> spellType);
-
-    /**
-     * Checks if a TickingSpell is currently ticking.
-     * @param tickingSpell The TickingSpell which should be checked.
-     * @return If the TickingSpell is currently ticking.
-     */
-    boolean isSpellTicking(TickingSpell tickingSpell);
 
     /**
      * Learns the specified SpellType.
@@ -65,8 +36,15 @@ public interface SpellManager {
     void cast(SpellType<?> spellType);
 
     /**
+     * Casts a Spell of the specified SpellType. The Spell may not cast if it is not castable, cancelled by {@link dev.louis.nebula.event.SpellCastCallback} or other reasons.
+     * @param spellType The SpellType which should be cast.
+     * @param pos The Position the spell should be cast at.
+     */
+    void cast(SpellType<?> spellType, Vec3d pos);
+
+    /**
      * Casts a Spell. The Spell may not cast if it is not castable, cancelled by {@link dev.louis.nebula.event.SpellCastCallback} or other reasons.
-     * @param spell The Spell which should be casted.
+     * @param spell The Spell which should be cast.
      */
     void cast(Spell spell);
 
@@ -143,26 +121,6 @@ public interface SpellManager {
         }
 
         @Override
-        public boolean startTickingSpell(TickingSpell tickingSpell) {
-            return false;
-        }
-
-        @Override
-        public boolean stopTickingSpell(TickingSpell tickingSpell) {
-            return false;
-        }
-
-        @Override
-        public boolean isSpellTypeTicking(SpellType<? extends TickingSpell> spellType) {
-            return false;
-        }
-
-        @Override
-        public boolean isSpellTicking(TickingSpell tickingSpell) {
-            return false;
-        }
-
-        @Override
         public boolean learnSpell(SpellType<?> spellType) {
             return false;
         }
@@ -174,6 +132,11 @@ public interface SpellManager {
 
         @Override
         public void cast(SpellType<?> spellType) {
+
+        }
+
+        @Override
+        public void cast(SpellType<?> spellType, Vec3d pos) {
 
         }
 

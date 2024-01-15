@@ -4,7 +4,6 @@ import dev.louis.nebula.Nebula;
 import dev.louis.nebula.networking.SynchronizeManaAmountS2CPacket;
 import dev.louis.nebula.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.damage.DamageSource;
@@ -68,7 +67,7 @@ public class NebulaManaManager implements ManaManager {
     }
 
     @Override
-    public boolean hasEnoughMana(SpellType<?> spellType) {
+    public boolean isCastable(SpellType<?> spellType) {
         return this.hasEnoughMana(spellType.getManaCost());
     }
 
@@ -78,10 +77,7 @@ public class NebulaManaManager implements ManaManager {
             int syncMana = this.getMana();
             if (syncMana == this.lastSyncedMana) return true;
             this.lastSyncedMana = syncMana;
-            ServerPlayNetworking.send(
-                    serverPlayerEntity,
-                    new SynchronizeManaAmountS2CPacket(syncMana)
-            );
+            new SynchronizeManaAmountS2CPacket(syncMana).sendToPlayer(serverPlayerEntity);
             return true;
         }
         return false;
@@ -93,7 +89,7 @@ public class NebulaManaManager implements ManaManager {
             Nebula.LOGGER.error("Called receiveSync on server side!");
             return false;
         }
-        var packet = new SynchronizeManaAmountS2CPacket(buf);
+        var packet = SynchronizeManaAmountS2CPacket.read(buf);
         this.player.getManaManager().setMana(packet.mana());
         return true;
     }

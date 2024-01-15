@@ -4,18 +4,41 @@ import dev.louis.nebula.spell.manager.SpellManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class represents an attempt to cast a spell. It holds a reference to the caster of the Spell.
+ * And the location it was cast at.
  */
 public abstract class Spell {
-    private final SpellType<? extends Spell> spellType;
+    private static final AtomicInteger CURRENT_ID = new AtomicInteger();
+
+    private final int id = CURRENT_ID.incrementAndGet();
+
+
+    private final SpellType<?> spellType;
     private final PlayerEntity caster;
 
 
-    public Spell(SpellType<? extends Spell> spellType, PlayerEntity caster) {
+
+    private final World world;
+    private final Vec3d pos;
+    private float yaw;
+    private float pitch;
+
+    protected int spellAge = 0;
+    protected boolean stopped;
+    protected boolean wasInterrupted;
+
+
+    public Spell(SpellType<?> spellType, PlayerEntity caster, World world, Vec3d pos) {
         this.spellType = spellType;
         this.caster = caster;
+        this.world = world;
+        this.pos = pos;
     }
 
     /**
@@ -25,6 +48,10 @@ public abstract class Spell {
      */
     public abstract void cast();
 
+    public void tick() {
+        spellAge++;
+    }
+
     public Identifier getID() {
         return this.getType().getId();
     }
@@ -33,16 +60,52 @@ public abstract class Spell {
         return this.caster;
     }
 
+    public Vec3d getPos() {
+        return pos;
+    }
+
     public SpellType<? extends Spell> getType() {
         return this.spellType;
+    }
+
+    protected boolean shouldContinue() {
+        return spellAge >= this.getMaxAge();
+    }
+
+    public final boolean shouldStop() {
+        return stopped && !shouldContinue();
+    }
+
+    public void interrupt() {
+        wasInterrupted = true;
+        stop();
+    }
+
+    public void stop() {
+        stopped = true;
+    }
+
+    public int getMaxAge() {
+        return 20 * 3;
     }
 
     /**
      * If true {@link Spell#applyCost()} and {@link Spell#cast()}  will be called in that order. <br>
      * If false nothing will be called.
      */
-    public boolean isCastable() {
+    public final boolean isCastable() {
         return this.getType().isCastable(this.caster);
+    }
+
+    /**
+     * Remove the Cost required by the SpellType.
+     */
+    public void applyCost() {
+        this.getCaster().getManaManager().drainMana(getType().getManaCost());
+    }
+
+    public boolean isClient() {
+        return world.isClient();
     }
 
     /**
@@ -79,13 +142,6 @@ public abstract class Spell {
      */
     public PacketByteBuf writeResponseBuf(PacketByteBuf buf) {
         return writeCastBuf(buf);
-    }
-
-    /**
-     * Remove the Cost required by the SpellType.
-     */
-    public void applyCost() {
-        getCaster().getManaManager().drainMana(getType().getManaCost());
     }
 
     @Override

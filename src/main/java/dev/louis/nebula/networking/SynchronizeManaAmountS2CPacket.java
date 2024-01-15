@@ -1,37 +1,34 @@
 package dev.louis.nebula.networking;
 
 import dev.louis.nebula.Nebula;
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-import static dev.louis.nebula.NebulaClient.runSyncWithBuf;
+import static dev.louis.nebula.Nebula.runSyncWithBuf;
 
-public record SynchronizeManaAmountS2CPacket(int mana) implements FabricPacket {
-    public static final PacketType<SynchronizeManaAmountS2CPacket> PACKET_TYPE = PacketType.create(new Identifier(Nebula.MOD_ID, "synchronizemana"), SynchronizeManaAmountS2CPacket::new);
+public record SynchronizeManaAmountS2CPacket(int mana) implements NebulaPacket {
+    public static final Identifier ID = new Identifier(Nebula.MOD_ID, "synchronizemana");
 
-    public SynchronizeManaAmountS2CPacket(PacketByteBuf buf) {
-        this(buf.readVarInt());
-    }
-    @Override
-    public void write(PacketByteBuf buf) {
-        buf.writeVarInt(mana);
+    public PacketByteBuf write(PacketByteBuf buf) {
+        return buf.writeVarInt(mana);
     }
 
-    @Override
-    public PacketType<?> getType() {
-        return PACKET_TYPE;
+    public static SynchronizeManaAmountS2CPacket read(PacketByteBuf buf) {
+        return new SynchronizeManaAmountS2CPacket(buf.readVarInt());
     }
 
     public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        runSyncWithBuf(client, buf, () -> client.player.getManaManager().receiveSync(client, handler, buf, responseSender));
+        runSyncWithBuf(
+                client,
+                buf,
+                () -> client.player.getManaManager().receiveSync(client, handler, buf, responseSender)
+        );
     }
 
-    public static Identifier getId() {
-        return PACKET_TYPE.getId();
+    public Identifier getId() {
+        return ID;
     }
 }
