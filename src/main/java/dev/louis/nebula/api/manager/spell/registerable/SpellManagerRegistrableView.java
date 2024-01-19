@@ -1,6 +1,6 @@
-package dev.louis.nebula.api.manager.registerable;
+package dev.louis.nebula.api.manager.spell.registerable;
 
-import dev.louis.nebula.spell.manager.SpellManager;
+import dev.louis.nebula.api.manager.spell.SpellManager;
 
 public interface SpellManagerRegistrableView {
         void registerSpellManagerFactory(SpellManager.Factory<?> manaManagerFactory);

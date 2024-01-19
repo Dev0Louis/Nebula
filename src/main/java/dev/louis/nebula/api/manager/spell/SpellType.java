@@ -1,10 +1,9 @@
-package dev.louis.nebula.spell;
+package dev.louis.nebula.api.manager.spell;
 
 import dev.louis.nebula.Nebula;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.Optional;
 
@@ -12,11 +11,13 @@ public class SpellType<T extends Spell> {
     private final SpellFactory<T> factory;
     private final int manaCost;
     private final boolean needLearning;
+    private final SpellCastingValidator castabilityFunction;
 
-    public SpellType(SpellFactory<T> factory, int manaCost, boolean needLearning) {
+    public SpellType(SpellFactory<T> factory, int manaCost, boolean needLearning, SpellCastingValidator castabilityFunction) {
         this.factory = factory;
         this.manaCost = manaCost;
         this.needLearning = needLearning;
+        this.castabilityFunction = castabilityFunction;
     }
 
     public static void init() {
@@ -35,7 +36,7 @@ public class SpellType<T extends Spell> {
     }
 
     public boolean isCastable(PlayerEntity player) {
-        return player.getManaManager().isCastable(this) && player.getSpellManager().isCastable(this);
+        return castabilityFunction.isCastable(player, this); 
     }
 
     public boolean needsLearning() {
@@ -50,12 +51,8 @@ public class SpellType<T extends Spell> {
         return manaCost;
     }
 
-    public T create(PlayerEntity caster) {
-        return this.create(caster, caster.getPos());
-    }
-
-    public T create(PlayerEntity caster, Vec3d pos) {
-        return this.factory.create(this, caster, pos);
+    public T create() {
+        return this.factory.create(this);
     }
 
     @Override
@@ -83,14 +80,19 @@ public class SpellType<T extends Spell> {
             return this;
         }
 
+        public Builder<T> castabilityFunction(SpellCastingValidator castabilityFunction) {
+            this.castabilityFunction = castabilityFunction;
+            return this;
+        }
+
         public SpellType<T> build() {
-            return new SpellType<>(this.factory, manaCost, needsLearning);
+            return new SpellType<>(this.factory, manaCost, needsLearning, castabilityFunction);
         }
     }
 
     @FunctionalInterface
     public interface SpellFactory<T extends Spell> {
-        T create(SpellType<T> spellType, PlayerEntity caster, Vec3d pos);
+        T create(SpellType<T> spellType);
     }
 
     @FunctionalInterface

@@ -1,23 +1,22 @@
-package dev.louis.nebula.spell.manager;
+package dev.louis.nebula.manager.spell;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.event.SpellCastCallback;
-import dev.louis.nebula.networking.SpellCastC2SPacket;
-import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
-import dev.louis.nebula.spell.Spell;
-import dev.louis.nebula.spell.SpellType;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import dev.louis.nebula.api.event.SpellCastCallback;
+import dev.louis.nebula.api.manager.spell.Spell;
+import dev.louis.nebula.api.manager.spell.SpellManager;
+import dev.louis.nebula.api.manager.spell.SpellType;
+import dev.louis.nebula.api.networking.SpellCastC2SPacket;
+import dev.louis.nebula.api.networking.UpdateSpellCastabilityS2CPacket;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,24 +77,21 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public void cast(SpellType<?> spellType) {
-        this.cast(spellType, this.player.getPos());
-    }
-
-    @Override
-    public void cast(SpellType<?> spellType, Vec3d pos) {
-        this.cast(spellType.create(this.player, pos));
+        var spell = spellType.create();
+        spell.setCaster(this.player);
+        this.cast(spell);
     }
 
     @Override
     public void cast(Spell spell) {
+        this.ensurePlayerEqualsCaster(spell);
         if(SpellCastCallback.EVENT.invoker().interact(this.player, spell) != ActionResult.PASS) return;
         if(spell.isCastable()) {
             if(this.isServer()) {
                 spell.applyCost();
                 spell.cast();
             } else {
-                new SpellCastC2SPacket(spell).sendToServer();
-                //ClientPlayNetworking.send(SpellCastC2SPacket.getId(), new SpellCastC2SPacket(spell).write());
+                ClientPlayNetworking.send(new SpellCastC2SPacket(spell));
             }
         }
     }
@@ -113,7 +109,7 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public boolean isCastable(SpellType<?> spellType) {
-        return  !spellType.needsLearning() || this.hasLearned(spellType);
+        return !spellType.needsLearning() || this.hasLearned(spellType);
     }
 
     @Override
@@ -126,19 +122,18 @@ public class NebulaSpellManager implements SpellManager {
         if(this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
             Map<SpellType<?>, Boolean> castableSpells = new HashMap<>();
             Nebula.SPELL_REGISTRY.forEach(spellType -> castableSpells.put(spellType, this.hasLearned(spellType)));
-            new UpdateSpellCastabilityS2CPacket(castableSpells).sendToPlayer(serverPlayerEntity);
+            ServerPlayNetworking.send(serverPlayerEntity, new UpdateSpellCastabilityS2CPacket(castableSpells));
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+    public boolean receiveSync(UpdateSpellCastabilityS2CPacket packet) {
         if(this.isServer()) {
             Nebula.LOGGER.error("Called receiveSync on server side!");
             return false;
         }
-        UpdateSpellCastabilityS2CPacket packet = UpdateSpellCastabilityS2CPacket.read(buf);
         MinecraftClient.getInstance().executeSync(() -> this.updateCastableSpell(packet.spells()));
         return true;
     }
@@ -172,6 +167,12 @@ public class NebulaSpellManager implements SpellManager {
     public SpellManager setPlayer(PlayerEntity player) {
         this.player = player;
         return this;
+    }
+
+    protected void ensurePlayerEqualsCaster(Spell spell) {
+        if(spell.getCaster() != this.player) {
+            throw new IllegalStateException("Spell " + spell.getType() + " was casted by " + spell.getCaster() + " but expected " + this.player);
+        }
     }
 
     public boolean isServer() {

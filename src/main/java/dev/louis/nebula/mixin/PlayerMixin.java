@@ -2,8 +2,8 @@ package dev.louis.nebula.mixin;
 
 import dev.louis.nebula.NebulaManager;
 import dev.louis.nebula.api.NebulaPlayer;
-import dev.louis.nebula.mana.manager.ManaManager;
-import dev.louis.nebula.spell.manager.SpellManager;
+import dev.louis.nebula.api.manager.mana.ManaManager;
+import dev.louis.nebula.api.manager.spell.SpellManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;

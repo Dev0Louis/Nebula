@@ -1,16 +1,11 @@
-package dev.louis.nebula.spell.manager;
+package dev.louis.nebula.api.manager.spell;
 
-import dev.louis.nebula.spell.Spell;
-import dev.louis.nebula.spell.SpellType;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import dev.louis.nebula.api.event.SpellCastCallback;
+import dev.louis.nebula.api.networking.UpdateSpellCastabilityS2CPacket;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.Vec3d;
 
 public interface SpellManager {
     void tick();
@@ -30,20 +25,13 @@ public interface SpellManager {
     boolean forgetSpell(SpellType<?> spellType);
 
     /**
-     * Casts a Spell of the specified SpellType. The Spell may not cast if it is not castable, cancelled by {@link dev.louis.nebula.event.SpellCastCallback} or other reasons.
+     * Casts a Spell of the specified SpellType. The Spell may not cast if it is not castable, cancelled by {@link SpellCastCallback} or other reasons.
      * @param spellType The SpellType which should be cast.
      */
     void cast(SpellType<?> spellType);
 
     /**
-     * Casts a Spell of the specified SpellType. The Spell may not cast if it is not castable, cancelled by {@link dev.louis.nebula.event.SpellCastCallback} or other reasons.
-     * @param spellType The SpellType which should be cast.
-     * @param pos The Position the spell should be cast at.
-     */
-    void cast(SpellType<?> spellType, Vec3d pos);
-
-    /**
-     * Casts a Spell. The Spell may not cast if it is not castable, cancelled by {@link dev.louis.nebula.event.SpellCastCallback} or other reasons.
+     * Casts a Spell. The Spell may not cast if it is not castable, cancelled by {@link SpellCastCallback} or other reasons.
      * @param spell The Spell which should be cast.
      */
     void cast(Spell spell);
@@ -78,7 +66,7 @@ public interface SpellManager {
      * Receives the SpellManager's state for the client. This shall never be called by the server.
      * @return If the state was successfully received.
      */
-    boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
+    boolean receiveSync(UpdateSpellCastabilityS2CPacket packet);
 
     /**
      * Writes the Nbt data of the SpellManager.
@@ -136,11 +124,6 @@ public interface SpellManager {
         }
 
         @Override
-        public void cast(SpellType<?> spellType, Vec3d pos) {
-
-        }
-
-        @Override
         public void cast(Spell spell) {
 
         }
@@ -166,7 +149,7 @@ public interface SpellManager {
         }
 
         @Override
-        public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        public boolean receiveSync(UpdateSpellCastabilityS2CPacket packet) {
             return false;
         }
 

@@ -35,6 +35,9 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
         if(!hasManaSynced) Nebula.LOGGER.info("Mana could not be synced!");
     }
 
+    /**
+     * Needed as ServerPlayerEntity#onDeath does not call PlayerEntity#onDeath
+     **/
     @Inject(
             method = "onDeath",
             at = @At("RETURN")

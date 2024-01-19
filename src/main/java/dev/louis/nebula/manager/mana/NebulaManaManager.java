@@ -1,15 +1,13 @@
-package dev.louis.nebula.mana.manager;
+package dev.louis.nebula.manager.mana;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.networking.SynchronizeManaAmountS2CPacket;
-import dev.louis.nebula.spell.SpellType;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import dev.louis.nebula.api.manager.mana.ManaManager;
+import dev.louis.nebula.api.manager.spell.SpellType;
+import dev.louis.nebula.api.networking.SyncManaS2CPacket;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class NebulaManaManager implements ManaManager {
@@ -77,19 +75,18 @@ public class NebulaManaManager implements ManaManager {
             int syncMana = this.getMana();
             if (syncMana == this.lastSyncedMana) return true;
             this.lastSyncedMana = syncMana;
-            new SynchronizeManaAmountS2CPacket(syncMana).sendToPlayer(serverPlayerEntity);
+            ServerPlayNetworking.send(serverPlayerEntity, new SyncManaS2CPacket(syncMana));
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+    public boolean receiveSync(SyncManaS2CPacket packet) {
         if(this.isServer()) {
             Nebula.LOGGER.error("Called receiveSync on server side!");
             return false;
         }
-        var packet = SynchronizeManaAmountS2CPacket.read(buf);
         this.player.getManaManager().setMana(packet.mana());
         return true;
     }

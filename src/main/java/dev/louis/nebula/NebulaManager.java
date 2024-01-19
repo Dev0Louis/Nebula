@@ -1,20 +1,22 @@
 package dev.louis.nebula;
 
-import dev.louis.nebula.api.manager.entrypoint.RegisterManaManagerEntrypoint;
-import dev.louis.nebula.api.manager.entrypoint.RegisterSpellManagerEntrypoint;
-import dev.louis.nebula.api.manager.registerable.ManaManagerRegistrableView;
-import dev.louis.nebula.api.manager.registerable.SpellManagerRegistrableView;
-import dev.louis.nebula.mana.manager.ManaManager;
-import dev.louis.nebula.mana.manager.NebulaManaManager;
-import dev.louis.nebula.spell.manager.NebulaSpellManager;
-import dev.louis.nebula.spell.manager.SpellManager;
+import dev.louis.nebula.api.manager.mana.ManaManager;
+import dev.louis.nebula.api.manager.mana.entrypoint.RegisterManaManagerEntrypoint;
+import dev.louis.nebula.api.manager.mana.registerable.ManaManagerRegistrableView;
+import dev.louis.nebula.api.manager.spell.SpellManager;
+import dev.louis.nebula.api.manager.spell.entrypoint.RegisterSpellManagerEntrypoint;
+import dev.louis.nebula.api.manager.spell.registerable.SpellManagerRegistrableView;
+import dev.louis.nebula.manager.mana.NebulaManaManager;
+import dev.louis.nebula.manager.spell.NebulaSpellManager;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 import net.minecraft.entity.player.PlayerEntity;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 
+@ApiStatus.Internal
 public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRegistrableView {
     private static ModContainer manaManagerMod;
     private static ManaManager.Factory<?> manaManagerFactory;

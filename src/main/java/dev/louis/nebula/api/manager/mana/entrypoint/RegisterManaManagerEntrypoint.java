@@ -1,6 +1,6 @@
-package dev.louis.nebula.api.manager.entrypoint;
+package dev.louis.nebula.api.manager.mana.entrypoint;
 
-import dev.louis.nebula.api.manager.registerable.ManaManagerRegistrableView;
+import dev.louis.nebula.api.manager.mana.registerable.ManaManagerRegistrableView;
 
 /**
  * The entrypoint for registering a custom mana manager.

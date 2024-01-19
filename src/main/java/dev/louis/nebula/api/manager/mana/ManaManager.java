@@ -1,14 +1,11 @@
-package dev.louis.nebula.mana.manager;
+package dev.louis.nebula.api.manager.mana;
 
-import dev.louis.nebula.spell.SpellType;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import dev.louis.nebula.api.manager.spell.SpellType;
+import dev.louis.nebula.api.networking.SyncManaS2CPacket;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 
 public interface ManaManager {
     /**
@@ -73,7 +70,7 @@ public interface ManaManager {
      * Receives the ManaManager's state for the client. This shall never be called by the server.
      * @return If the state was successfully received.
      */
-    boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender);
+    boolean receiveSync(SyncManaS2CPacket packet);
 
     /**
      * Writes the Nbt data of the SpellManager.
@@ -168,7 +165,7 @@ public interface ManaManager {
         }
 
         @Override
-        public boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        public boolean receiveSync(SyncManaS2CPacket packet) {
             return false;
         }
 

@@ -1,44 +1,47 @@
-package dev.louis.nebula.spell;
+package dev.louis.nebula.api.manager.spell;
 
-import dev.louis.nebula.spell.manager.SpellManager;
+import dev.louis.nebula.Nebula;
+import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Optional;
 
 /**
  * This class represents an attempt to cast a spell. It holds a reference to the caster of the Spell.
  * And the location it was cast at.
  */
 public abstract class Spell {
-    private static final AtomicInteger CURRENT_ID = new AtomicInteger();
+    public static final TrackedDataHandler<Optional<Spell>> OPTIONAL_SPELL = new TrackedDataHandler.ImmutableHandler<>() {
+        public void write(PacketByteBuf buf, Optional<Spell> optionalSpell) {
+            buf.writeBoolean(optionalSpell.isPresent());
+            optionalSpell.ifPresent(spell -> {
+                buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spell.getType());
+                spell.writeBuf(buf);
+            });
+        }
 
-    private final int id = CURRENT_ID.incrementAndGet();
+        public Optional<Spell> read(PacketByteBuf buf) {
+            if(!buf.readBoolean()) return Optional.empty();
+            SpellType<?> spellType = buf.readRegistryValue(Nebula.SPELL_REGISTRY);
+            if(spellType == null) throw new IllegalStateException("Spell type not found in registry");
+            var spell = spellType.create();
+            spell.readBuf(buf);
+            return Optional.of(spell);
+        }
+    };
 
 
     private final SpellType<?> spellType;
-    private final PlayerEntity caster;
-
-
-
-    private final World world;
-    private final Vec3d pos;
-    private float yaw;
-    private float pitch;
+    private PlayerEntity caster;
 
     protected int spellAge = 0;
     protected boolean stopped;
     protected boolean wasInterrupted;
 
-
-    public Spell(SpellType<?> spellType, PlayerEntity caster, World world, Vec3d pos) {
+    public Spell(SpellType<?> spellType) {
         this.spellType = spellType;
-        this.caster = caster;
-        this.world = world;
-        this.pos = pos;
     }
 
     /**
@@ -60,33 +63,33 @@ public abstract class Spell {
         return this.caster;
     }
 
-    public Vec3d getPos() {
-        return pos;
-    }
-
     public SpellType<? extends Spell> getType() {
         return this.spellType;
     }
 
+    public int getMaxAge() {
+        return 20 * 3;
+    }
+
     protected boolean shouldContinue() {
-        return spellAge >= this.getMaxAge();
+        return this.spellAge >= this.getMaxAge();
+    }
+
+    public void setCaster(PlayerEntity caster) {
+        this.caster = caster;
     }
 
     public final boolean shouldStop() {
-        return stopped && !shouldContinue();
-    }
-
-    public void interrupt() {
-        wasInterrupted = true;
-        stop();
+        return this.stopped && !shouldContinue();
     }
 
     public void stop() {
-        stopped = true;
+        this.stopped = true;
     }
 
-    public int getMaxAge() {
-        return 20 * 3;
+    public void interrupt() {
+        this.wasInterrupted = true;
+        stop();
     }
 
     /**
@@ -105,7 +108,15 @@ public abstract class Spell {
     }
 
     public boolean isClient() {
-        return world.isClient();
+        return this.getCaster().getWorld().isClient();
+    }
+
+    public boolean wasInterrupted() {
+        return this.wasInterrupted;
+    }
+
+    public boolean wasStopped() {
+        return this.stopped;
     }
 
     /**
@@ -113,7 +124,7 @@ public abstract class Spell {
      * @param buf The buf to be read from.
      * @return The buf after being read from.
      */
-    public PacketByteBuf readCastBuf(PacketByteBuf buf) {
+    public PacketByteBuf readBuf(PacketByteBuf buf) {
         return buf;
     }
 
@@ -122,27 +133,10 @@ public abstract class Spell {
      * @param buf The buf to be written to.
      * @return The buf after being written to.
      */
-    public PacketByteBuf writeCastBuf(PacketByteBuf buf) {
+    public PacketByteBuf writeBuf(PacketByteBuf buf) {
         return buf;
     }
 
-    /**
-     * Read additional response data about the spell from the buf.
-     * @param buf The buf to be read from.
-     * @return The buf after being read from.
-     */
-    public PacketByteBuf readResponseBuf(PacketByteBuf buf) {
-        return readCastBuf(buf);
-    }
-
-    /**
-     * Write additional response data about the spell to the buf.
-     * @param buf The buf to be written to.
-     * @return The buf after being written to.
-     */
-    public PacketByteBuf writeResponseBuf(PacketByteBuf buf) {
-        return writeCastBuf(buf);
-    }
 
     @Override
     public String toString() {

@@ -1,6 +1,6 @@
-package dev.louis.nebula.api.manager.entrypoint;
+package dev.louis.nebula.api.manager.spell.entrypoint;
 
-import dev.louis.nebula.api.manager.registerable.SpellManagerRegistrableView;
+import dev.louis.nebula.api.manager.spell.registerable.SpellManagerRegistrableView;
 
 /**
  * The entrypoint for registering a custom spell manager.
