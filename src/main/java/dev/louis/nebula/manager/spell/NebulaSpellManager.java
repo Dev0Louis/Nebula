@@ -23,11 +23,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Extending this class is okay, but be aware this implementation!
+ */
 public class NebulaSpellManager implements SpellManager {
     protected static final String SPELL_NBT_KEY = "Spell";
     protected static final String SPELLS_NBT_KEY = "Spells";
 
     protected final Set<SpellType<?>> castableSpells = new HashSet<>();
+    protected final Set<Spell> activeSpells = new HashMap<>();
     protected PlayerEntity player;
 
     public NebulaSpellManager(PlayerEntity player) {
@@ -37,10 +41,9 @@ public class NebulaSpellManager implements SpellManager {
     @Override
     public void tick() {
         //TODO: Adapt to real spells.
-        /*
-        this.tickingSpells.removeIf(tickingSpell -> {
-            boolean willBeRemoved = !tickingSpell.shouldContinue();
-            if(willBeRemoved) tickingSpell.stop();
+        this.activeSpells.removeIf(spell -> {
+            boolean willBeRemoved = spell.shouldStop();
+            if(willBeRemoved) spell.stop();
             return willBeRemoved;
         });
         for (TickingSpell tickingSpell : this.tickingSpells) {

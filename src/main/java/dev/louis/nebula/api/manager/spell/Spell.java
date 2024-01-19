@@ -71,25 +71,28 @@ public abstract class Spell {
         return 20 * 3;
     }
 
-    protected boolean shouldContinue() {
-        return this.spellAge >= this.getMaxAge();
-    }
-
     public void setCaster(PlayerEntity caster) {
         this.caster = caster;
     }
 
-    public final boolean shouldStop() {
-        return this.stopped && !shouldContinue();
+    /**
+     * This Method should be used to check if the spell should be stopped.
+     * To add
+     */
+    public boolean shouldStop() {
+        return this.wasInterrupted || this.spellAge > this.getMaxAge();
     }
 
-    public void stop() {
+    public boolean hasStopped() {
+        return this.stopped;
+    }
+
+    public void end() {
         this.stopped = true;
     }
 
     public void interrupt() {
         this.wasInterrupted = true;
-        stop();
     }
 
     /**

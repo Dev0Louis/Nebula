@@ -10,6 +10,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+/**
+ * Extending this class is okay, but be aware this implementation!
+ */
 public class NebulaManaManager implements ManaManager {
     protected static final String MANA_NBT_KEY = "Mana";
     protected PlayerEntity player;
