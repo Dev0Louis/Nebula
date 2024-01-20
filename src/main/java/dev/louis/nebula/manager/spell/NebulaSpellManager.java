@@ -31,7 +31,7 @@ public class NebulaSpellManager implements SpellManager {
     protected static final String SPELLS_NBT_KEY = "Spells";
 
     protected final Set<SpellType<?>> castableSpells = new HashSet<>();
-    protected final Set<Spell> activeSpells = new HashMap<>();
+    protected final Set<Spell> activeSpells = new HashSet<>();
     protected PlayerEntity player;
 
     public NebulaSpellManager(PlayerEntity player) {
@@ -40,16 +40,16 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public void tick() {
-        //TODO: Adapt to real spells.
         this.activeSpells.removeIf(spell -> {
             boolean willBeRemoved = spell.shouldStop();
-            if(willBeRemoved) spell.stop();
+            if(willBeRemoved) spell.onEnd();
             return willBeRemoved;
         });
-        for (TickingSpell tickingSpell : this.tickingSpells) {
+
+        for (Spell tickingSpell : this.activeSpells) {
             tickingSpell.tick();
         }
-        */
+
     }
 
     @Override
@@ -101,10 +101,11 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public void onDeath(DamageSource damageSource) {
-        if(this.isServer()) {
-            //TODO: Adapt to spells.
-            //this.tickingSpells.forEach((tickingSpell -> tickingSpell.stop(true)));
-        }
+        this.activeSpells.forEach(spell -> {
+            spell.interrupt();
+            spell.onEnd();
+        });
+        this.activeSpells.clear();
         this.castableSpells.clear();
         //TODO: Adapt to spells.
         //this.tickingSpells.clear();
@@ -112,8 +113,18 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public boolean isCastable(SpellType<?> spellType) {
-        return !spellType.needsLearning() || this.hasLearned(spellType);
+        return (!spellType.needsLearning() || this.hasLearned(spellType)) && isSpellTypeActive(spellType);
     }
+
+    @Override
+    public boolean isSpellTypeActive(SpellType<?> spellType) {
+        return this.activeSpells.stream().anyMatch(spell -> spell.getType().equals(spellType));
+    };
+
+    @Override
+    public boolean isSpellActive(Spell spell) {
+        return this.activeSpells.contains(spell);
+    };
 
     @Override
     public boolean hasLearned(SpellType<?> spellType) {

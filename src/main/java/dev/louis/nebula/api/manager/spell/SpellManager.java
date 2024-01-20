@@ -50,6 +50,20 @@ public interface SpellManager {
     boolean isCastable(SpellType<?> spellType);
 
     /**
+     * Checks if the specified SpellType is currently active.
+     * @param spellType The SpellType which should be checked.
+     * @return If the SpellType is currently active.
+     */
+    boolean isSpellTypeActive(SpellType<?> spellType);
+
+    /**
+     * Checks if the specified Spell is currently active.
+     * @param spell The Spell which should be checked.
+     * @return If the Spell is currently active.
+     */
+    boolean isSpellActive(Spell spell);
+
+    /**
      * Checks if the specified has been learned.
      * @param spellType The SpellType which should be checked.
      * @return If the SpellType has been learned.
@@ -137,6 +151,16 @@ public interface SpellManager {
         public boolean isCastable(SpellType<?> spellType) {
             return false;
         }
+
+        @Override
+        public boolean isSpellTypeActive(SpellType<?> spellType) {
+            return false;
+        };
+
+        @Override
+        public boolean isSpellActive(Spell spell) {
+            return false;
+        };
 
         @Override
         public boolean hasLearned(SpellType<?> spellType) {

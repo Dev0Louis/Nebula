@@ -10,7 +10,7 @@ import java.util.Optional;
 
 /**
  * This class represents an attempt to cast a spell. It holds a reference to the caster of the Spell.
- * And the location it was cast at.
+ *
  */
 public abstract class Spell {
     public static final TrackedDataHandler<Optional<Spell>> OPTIONAL_SPELL = new TrackedDataHandler.ImmutableHandler<>() {
@@ -32,13 +32,13 @@ public abstract class Spell {
         }
     };
 
-
     private final SpellType<?> spellType;
     private PlayerEntity caster;
 
     protected int spellAge = 0;
-    protected boolean stopped;
     protected boolean wasInterrupted;
+    protected boolean hasEnded;
+    protected boolean stopped;
 
     public Spell(SpellType<?> spellType) {
         this.spellType = spellType;
@@ -51,11 +51,18 @@ public abstract class Spell {
      */
     public abstract void cast();
 
+    /**
+     * Remove the Cost required by the SpellType.
+     */
+    public void applyCost() {
+        this.getCaster().getManaManager().drainMana(getType().getManaCost());
+    }
+
     public void tick() {
         spellAge++;
     }
 
-    public Identifier getID() {
+    public Identifier getId() {
         return this.getType().getId();
     }
 
@@ -67,8 +74,21 @@ public abstract class Spell {
         return this.spellType;
     }
 
+    public int getSpellAge() {
+        return this.spellAge;
+    }
+
     public int getMaxAge() {
         return 20 * 3;
+    }
+
+    /**
+     * This method is called if the spell ends.<br>
+     * After this method is called {@link Spell#tick()} will not be called anymore.<br>
+     * Use this to finish all remaining logic of the spell.
+     */
+    public void onEnd() {
+        this.hasEnded = true;
     }
 
     public void setCaster(PlayerEntity caster) {
@@ -76,23 +96,32 @@ public abstract class Spell {
     }
 
     /**
-     * This Method should be used to check if the spell should be stopped.
-     * To add
+     * Used to check if the spell should be stopped. <br>
+     * It is important to check super or check if the spell was interrupted {@link Spell#wasInterrupted()}. <br>
      */
     public boolean shouldStop() {
-        return this.wasInterrupted || this.spellAge > this.getMaxAge();
+        return this.stopped || this.spellAge > this.getMaxAge();
     }
 
-    public boolean hasStopped() {
-        return this.stopped;
-    }
-
-    public void end() {
-        this.stopped = true;
-    }
-
-    public void interrupt() {
+    /**
+     * Interrupts the spell.<br>
+     * This method is final as no Spell is immune to being interrupted<br>
+     * <br>
+     * If you want to show to the player that the spell was interrupted check {@link Spell#wasInterrupted()} in {@link Spell#onEnd()} as it is called after this.
+     */
+    public final void interrupt() {
         this.wasInterrupted = true;
+        stop();
+    }
+
+    /**
+     * Stop the spell.<br>
+     * This method is final as post-spell action shall be handled in {@link Spell#onEnd()}<br>
+     * <br>
+     * Unlike {@link Spell#interrupt()} if you call this method it is expected that the spell has finished execution.<br>
+     */
+    public final void stop() {
+        this.stopped = true;
     }
 
     /**
@@ -103,13 +132,6 @@ public abstract class Spell {
         return this.getType().isCastable(this.caster);
     }
 
-    /**
-     * Remove the Cost required by the SpellType.
-     */
-    public void applyCost() {
-        this.getCaster().getManaManager().drainMana(getType().getManaCost());
-    }
-
     public boolean isClient() {
         return this.getCaster().getWorld().isClient();
     }
@@ -118,8 +140,8 @@ public abstract class Spell {
         return this.wasInterrupted;
     }
 
-    public boolean wasStopped() {
-        return this.stopped;
+    public boolean hasEnded() {
+        return this.hasEnded;
     }
 
     /**
@@ -143,6 +165,10 @@ public abstract class Spell {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + this.getID().toString() + "]";
+        return this.getClass().getSimpleName() +
+                "[spellType=" + this.spellType +
+                ", caster=" + this.caster +
+                ", spellAge=" + this.spellAge +
+                ", wasInterrupted=" + this.wasInterrupted + "]";
     }
 }
