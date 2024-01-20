@@ -1,6 +1,8 @@
 package dev.louis.nebula.api.manager.spell;
 
 import dev.louis.nebula.api.event.SpellCastCallback;
+import dev.louis.nebula.api.spell.Spell;
+import dev.louis.nebula.api.spell.SpellType;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;

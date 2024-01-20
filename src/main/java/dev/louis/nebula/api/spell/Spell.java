@@ -1,6 +1,7 @@
-package dev.louis.nebula.api.manager.spell;
+package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.manager.spell.SpellManager;
 import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;

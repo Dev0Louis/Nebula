@@ -1,4 +1,4 @@
-package dev.louis.nebula.api.manager.spell;
+package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.Nebula;
 import net.minecraft.entity.player.PlayerEntity;

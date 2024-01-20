@@ -1,8 +1,8 @@
 package dev.louis.nebula.networking;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.manager.spell.Spell;
-import dev.louis.nebula.api.manager.spell.SpellType;
+import dev.louis.nebula.api.spell.Spell;
+import dev.louis.nebula.api.spell.SpellType;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.PacketByteBuf;

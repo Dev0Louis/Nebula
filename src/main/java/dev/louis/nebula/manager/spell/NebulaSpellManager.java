@@ -2,10 +2,10 @@ package dev.louis.nebula.manager.spell;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.event.SpellCastCallback;
-import dev.louis.nebula.api.manager.spell.Spell;
 import dev.louis.nebula.api.manager.spell.SpellManager;
-import dev.louis.nebula.api.manager.spell.SpellType;
-import dev.louis.nebula.api.networking.SpellCastC2SPacket;
+import dev.louis.nebula.api.spell.Spell;
+import dev.louis.nebula.api.spell.SpellType;
+import dev.louis.nebula.networking.SpellCastC2SPacket;
 import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;

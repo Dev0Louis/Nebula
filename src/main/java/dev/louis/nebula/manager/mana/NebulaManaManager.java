@@ -2,7 +2,7 @@ package dev.louis.nebula.manager.mana;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.manager.mana.ManaManager;
-import dev.louis.nebula.api.manager.spell.SpellType;
+import dev.louis.nebula.api.spell.SpellType;
 import dev.louis.nebula.networking.SyncManaS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

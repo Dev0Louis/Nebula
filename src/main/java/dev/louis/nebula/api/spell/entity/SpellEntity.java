@@ -1,6 +1,6 @@
-package dev.louis.nebula.api.manager.spell.entity;
+package dev.louis.nebula.api.spell.entity;
 
-import dev.louis.nebula.api.manager.spell.Spell;
+import dev.louis.nebula.api.spell.Spell;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;

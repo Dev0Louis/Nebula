@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.event;
 
-import dev.louis.nebula.api.manager.spell.Spell;
+import dev.louis.nebula.api.spell.Spell;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.player.PlayerEntity;

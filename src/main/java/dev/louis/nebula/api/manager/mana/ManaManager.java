@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.manager.mana;
 
-import dev.louis.nebula.api.manager.spell.SpellType;
+import dev.louis.nebula.api.spell.SpellType;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
