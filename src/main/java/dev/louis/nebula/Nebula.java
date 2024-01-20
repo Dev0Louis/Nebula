@@ -8,12 +8,10 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.thread.ThreadExecutor;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
@@ -35,14 +33,6 @@ public class Nebula implements ModInitializer {
 
     public void registerPacketReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(SpellCastC2SPacket.TYPE, SpellCastC2SPacket::receive);
-    }
-
-    public static void runSyncWithBuf(ThreadExecutor<?> threadExecutor, PacketByteBuf buf, Runnable runnable) {
-        buf.retain();
-        threadExecutor.executeSync(() -> {
-            runnable.run();
-            buf.release();
-        });
     }
 }
 
