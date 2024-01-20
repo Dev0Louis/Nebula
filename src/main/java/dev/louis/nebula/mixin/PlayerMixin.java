@@ -74,7 +74,7 @@ public abstract class PlayerMixin extends LivingEntity implements NebulaPlayer {
 
     @Override
     public void createManagersIfNecessary() {
-        if (this.manaManager == ManaManager.EMPTY) this.setManaManager(NebulaManager.createManaManager((PlayerEntity) (Object) this));
-        if (this.spellManager == SpellManager.EMPTY) this.setSpellManager(NebulaManager.createSpellManager((PlayerEntity) (Object) this));
+        if (this.manaManager.isEmpty()) this.setManaManager(NebulaManager.createManaManager((PlayerEntity) (Object) this));
+        if (this.spellManager.isEmpty()) this.setSpellManager(NebulaManager.createSpellManager((PlayerEntity) (Object) this));
     }
 }
