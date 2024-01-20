@@ -33,7 +33,7 @@ public abstract class SpellEntity<T extends Spell> extends Entity {
 
     @Override
     public void baseTick() {
-        if(this.getSpell().isEmpty() || this.getSpell().get().hasEnded()) {
+        if(shouldDiscardWithSpell() && (this.getSpell().isEmpty() || this.getSpell().get().hasEnded())) {
             this.remove(RemovalReason.DISCARDED);
             return;
         }
@@ -61,6 +61,10 @@ public abstract class SpellEntity<T extends Spell> extends Entity {
     public Optional<T> getSpell() {
         //noinspection unchecked
         return (Optional<T>) this.dataTracker.get(SPELL);
+    }
+
+    public boolean shouldDiscardWithSpell() {
+        return true;
     }
 
     /**

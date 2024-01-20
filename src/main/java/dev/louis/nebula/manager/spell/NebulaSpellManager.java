@@ -107,8 +107,6 @@ public class NebulaSpellManager implements SpellManager {
         });
         this.activeSpells.clear();
         this.castableSpells.clear();
-        //TODO: Adapt to spells.
-        //this.tickingSpells.clear();
     }
 
     @Override
