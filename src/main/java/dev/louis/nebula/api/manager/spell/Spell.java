@@ -111,7 +111,7 @@ public abstract class Spell {
      */
     public final void interrupt() {
         this.wasInterrupted = true;
-        stop();
+        this.stop();
     }
 
     /**

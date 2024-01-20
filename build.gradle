@@ -4,8 +4,17 @@ plugins {
     id 'idea'
 }
 
-version = project.mod_version
+version = project.mod_version + "+" + project.minecraft_version
+supported_version = project.supported_version
 group = project.maven_group
+
+processResources {
+    inputs.properties("supported_version": supported_version, "version": project.version)
+
+    filesMatching("fabric.mod.json") {
+        expand "supported_version": supported_version, "version": project.version
+    }
+}
 
 repositories {
     // Add repositories to retrieve artifacts from in here.
