@@ -1,7 +1,6 @@
 package dev.louis.nebula.api.manager.spell;
 
 import dev.louis.nebula.api.event.SpellCastCallback;
-import dev.louis.nebula.api.networking.UpdateSpellCastabilityS2CPacket;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -75,12 +74,6 @@ public interface SpellManager {
      * @return If the state was successfully send.
      */
     boolean sendSync();
-
-    /**
-     * Receives the SpellManager's state for the client. This shall never be called by the server.
-     * @return If the state was successfully received.
-     */
-    boolean receiveSync(UpdateSpellCastabilityS2CPacket packet);
 
     /**
      * Writes the Nbt data of the SpellManager.
@@ -169,11 +162,6 @@ public interface SpellManager {
 
         @Override
         public boolean sendSync() {
-            return false;
-        }
-
-        @Override
-        public boolean receiveSync(UpdateSpellCastabilityS2CPacket packet) {
             return false;
         }
 

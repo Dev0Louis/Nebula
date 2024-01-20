@@ -3,11 +3,15 @@ package dev.louis.nebula.manager.mana;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.manager.mana.ManaManager;
 import dev.louis.nebula.api.manager.spell.SpellType;
-import dev.louis.nebula.api.networking.SyncManaS2CPacket;
+import dev.louis.nebula.networking.SyncManaS2CPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 /**
@@ -18,6 +22,7 @@ public class NebulaManaManager implements ManaManager {
     protected PlayerEntity player;
     protected int mana = 0;
     protected int lastSyncedMana = -1;
+    private boolean dirty;
 
     public NebulaManaManager(PlayerEntity player) {
         this.player = player;
@@ -25,6 +30,10 @@ public class NebulaManaManager implements ManaManager {
 
     @Override
     public void tick() {
+        if(this.dirty) {
+            this.sendSync();
+            this.dirty = false;
+        }
     }
 
     @Override
@@ -39,7 +48,7 @@ public class NebulaManaManager implements ManaManager {
 
     public void setMana(int mana, boolean syncToClient) {
         this.mana = Math.max(Math.min(mana, this.getMaxMana()), 0);
-        if(syncToClient) this.sendSync();
+        if(syncToClient) this.markDirty();
     }
 
     @Override
@@ -72,6 +81,10 @@ public class NebulaManaManager implements ManaManager {
         return this.hasEnoughMana(spellType.getManaCost());
     }
 
+    public void markDirty() {
+        this.dirty = true;
+    }
+
     @Override
     public boolean sendSync() {
         if (this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
@@ -84,13 +97,9 @@ public class NebulaManaManager implements ManaManager {
         return false;
     }
 
-    @Override
-    public boolean receiveSync(SyncManaS2CPacket packet) {
-        if(this.isServer()) {
-            Nebula.LOGGER.error("Called receiveSync on server side!");
-            return false;
-        }
-        this.player.getManaManager().setMana(packet.mana());
+    public static boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        var packet = SyncManaS2CPacket.read(buf);
+        client.executeSync(() -> client.player.getManaManager().setMana(packet.mana()));
         return true;
     }
 

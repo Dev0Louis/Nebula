@@ -1,13 +1,10 @@
-package dev.louis.nebula.api.networking;
+package dev.louis.nebula.networking;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.manager.spell.Spell;
 import dev.louis.nebula.api.manager.spell.SpellType;
-import dev.louis.nebula.mixin.ClientPlayerEntityAccessor;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
@@ -15,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Boolean> spells) implements FabricPacket {
-    private static final Identifier ID = new Identifier(Nebula.MOD_ID, "updatespellcastability");
+    public static final Identifier ID = new Identifier(Nebula.MOD_ID, "updatespellcastability");
     public static final PacketType<UpdateSpellCastabilityS2CPacket> TYPE = PacketType.create(ID, UpdateSpellCastabilityS2CPacket::read);
 
     public static UpdateSpellCastabilityS2CPacket read(PacketByteBuf buf) {
@@ -45,9 +42,5 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
     @Override
     public PacketType<?> getType() {
         return TYPE;
-    }
-
-    public static void receive(UpdateSpellCastabilityS2CPacket packet, ClientPlayerEntity player, PacketSender responseSender) {
-        ((ClientPlayerEntityAccessor)player).getClient().executeSync(() -> player.getSpellManager().receiveSync(packet));
     }
 }

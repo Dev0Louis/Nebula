@@ -1,7 +1,6 @@
 package dev.louis.nebula.api.manager.mana;
 
 import dev.louis.nebula.api.manager.spell.SpellType;
-import dev.louis.nebula.api.networking.SyncManaS2CPacket;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -65,12 +64,6 @@ public interface ManaManager {
      * @return If the state was successfully send.
      */
     boolean sendSync();
-
-    /**
-     * Receives the ManaManager's state for the client. This shall never be called by the server.
-     * @return If the state was successfully received.
-     */
-    boolean receiveSync(SyncManaS2CPacket packet);
 
     /**
      * Writes the Nbt data of the SpellManager.
@@ -161,11 +154,6 @@ public interface ManaManager {
 
         @Override
         public boolean sendSync() {
-            return false;
-        }
-
-        @Override
-        public boolean receiveSync(SyncManaS2CPacket packet) {
             return false;
         }
 

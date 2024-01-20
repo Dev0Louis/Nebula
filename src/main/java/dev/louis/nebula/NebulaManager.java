@@ -8,10 +8,16 @@ import dev.louis.nebula.api.manager.spell.entrypoint.RegisterSpellManagerEntrypo
 import dev.louis.nebula.api.manager.spell.registerable.SpellManagerRegistrableView;
 import dev.louis.nebula.manager.mana.NebulaManaManager;
 import dev.louis.nebula.manager.spell.NebulaSpellManager;
+import dev.louis.nebula.networking.SyncManaS2CPacket;
+import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
@@ -23,6 +29,10 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     private static ModContainer spellManagerMod;
     private static SpellManager.Factory<?> spellManagerFactory;
     private static boolean isLocked = false;
+    private static ClientPlayNetworking.PlayChannelHandler spellPlayChannelHandler;
+    private static ClientPlayNetworking.PlayChannelHandler manaPlayChannelHandler;
+    private static Identifier manaPacketId;
+    private static Identifier spellPacketId;
 
     private NebulaManager() {}
 
@@ -52,24 +62,36 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
 
     public void lock() {
         if(spellManagerFactory == null) {
-            spellManagerFactory = NebulaSpellManager::new;
+            registerSpellManagerFactory(NebulaSpellManager::new, UpdateSpellCastabilityS2CPacket.ID, NebulaSpellManager::receiveSync);
             spellManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
         }
         if(manaManagerFactory == null) {
-            manaManagerFactory = NebulaManaManager::new;
+            registerManaManagerFactory(NebulaManaManager::new, SyncManaS2CPacket.ID, NebulaManaManager::receiveSync);
             manaManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
         }
         isLocked = true;
     }
 
     @Override
-    public void registerManaManagerFactory(ManaManager.Factory<?> manaManagerFactory) {
+    public void registerManaManagerFactory(
+            ManaManager.Factory<?> manaManagerFactory,
+            Identifier packetId,
+            ClientPlayNetworking.PlayChannelHandler manaChannelHandler
+    ) {
         NebulaManager.manaManagerFactory = manaManagerFactory;
+        NebulaManager.manaPacketId = packetId;
+        NebulaManager.manaPlayChannelHandler = manaChannelHandler;
     }
 
     @Override
-    public void registerSpellManagerFactory(SpellManager.Factory<?> spellManagerFactory) {
+    public void registerSpellManagerFactory(
+            SpellManager.Factory<?> spellManagerFactory,
+            Identifier packetId,
+            ClientPlayNetworking.PlayChannelHandler spellChannelHandler
+    ) {
         NebulaManager.spellManagerFactory = spellManagerFactory;
+        NebulaManager.spellPacketId = packetId;
+        NebulaManager.spellPlayChannelHandler = spellChannelHandler;
     }
 
     /**
@@ -124,5 +146,16 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
 
     private static <T> T getFirstOrNull(List<T> list) {
         return list.isEmpty() ? null : list.get(0);
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static void registerPacketReceivers() {
+        if(!NebulaManager.isLocked) {
+            throw new IllegalStateException("NebulaManager is not locked yet!");
+        }
+        ClientPlayNetworking.registerGlobalReceiver(NebulaManager.manaPacketId, NebulaManager.manaPlayChannelHandler);
+        Nebula.LOGGER.info("Registered ManaManager Packet Receiver with id: " + NebulaManager.manaPacketId);
+        ClientPlayNetworking.registerGlobalReceiver(NebulaManager.spellPacketId, NebulaManager.spellPlayChannelHandler);
+        Nebula.LOGGER.info("Registered SpellManager Packet Receiver with id: " + NebulaManager.spellPacketId);
     }
 }

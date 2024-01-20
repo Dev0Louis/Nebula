@@ -6,14 +6,17 @@ import dev.louis.nebula.api.manager.spell.Spell;
 import dev.louis.nebula.api.manager.spell.SpellManager;
 import dev.louis.nebula.api.manager.spell.SpellType;
 import dev.louis.nebula.api.networking.SpellCastC2SPacket;
-import dev.louis.nebula.api.networking.UpdateSpellCastabilityS2CPacket;
+import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
@@ -33,6 +36,7 @@ public class NebulaSpellManager implements SpellManager {
     protected final Set<SpellType<?>> castableSpells = new HashSet<>();
     protected final Set<Spell> activeSpells = new HashSet<>();
     protected PlayerEntity player;
+    private boolean dirty;
 
     public NebulaSpellManager(PlayerEntity player) {
         this.player = player;
@@ -49,33 +53,27 @@ public class NebulaSpellManager implements SpellManager {
         for (Spell tickingSpell : this.activeSpells) {
             tickingSpell.tick();
         }
-
+        if(dirty) {
+            sendSync();
+        }
     }
 
     @Override
     public boolean learnSpell(SpellType<?> spellType) {
         boolean shouldSync = this.castableSpells.add(spellType);
-        if(shouldSync) this.sendSync();
+        if(shouldSync) this.markDirty();
         return true;
     }
 
     @Override
     public boolean forgetSpell(SpellType<?> spellType) {
         boolean shouldSync = this.castableSpells.remove(spellType);
-        if(shouldSync) this.sendSync();
+        if(shouldSync) this.markDirty();
         return true;
     }
 
     protected Set<SpellType<?>> getCastableSpells() {
         return castableSpells;
-    }
-
-    protected void updateCastableSpell(Map<SpellType<?>, Boolean> castableSpells) {
-        castableSpells.forEach((spellType, knows) -> {
-                if (knows) this.castableSpells.add(spellType);
-                else this.castableSpells.remove(spellType);
-        });
-        this.sendSync();
     }
 
     @Override
@@ -114,6 +112,10 @@ public class NebulaSpellManager implements SpellManager {
         return (!spellType.needsLearning() || this.hasLearned(spellType)) && isSpellTypeActive(spellType);
     }
 
+    public void markDirty() {
+        this.dirty = true;
+    }
+
     @Override
     public boolean isSpellTypeActive(SpellType<?> spellType) {
         return this.activeSpells.stream().anyMatch(spell -> spell.getType().equals(spellType));
@@ -135,18 +137,22 @@ public class NebulaSpellManager implements SpellManager {
             Map<SpellType<?>, Boolean> castableSpells = new HashMap<>();
             Nebula.SPELL_REGISTRY.forEach(spellType -> castableSpells.put(spellType, this.hasLearned(spellType)));
             ServerPlayNetworking.send(serverPlayerEntity, new UpdateSpellCastabilityS2CPacket(castableSpells));
+            dirty = false;
             return true;
         }
         return false;
     }
 
-    @Override
-    public boolean receiveSync(UpdateSpellCastabilityS2CPacket packet) {
-        if(this.isServer()) {
-            Nebula.LOGGER.error("Called receiveSync on server side!");
-            return false;
-        }
-        MinecraftClient.getInstance().executeSync(() -> this.updateCastableSpell(packet.spells()));
+
+    public static boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        UpdateSpellCastabilityS2CPacket packet = UpdateSpellCastabilityS2CPacket.read(buf);
+        MinecraftClient.getInstance().executeSync(() -> {
+            var spellManager = client.player.getSpellManager();
+            packet.spells().forEach((spellType, learned) -> {
+                if (learned) spellManager.learnSpell(spellType);
+                else spellManager.forgetSpell(spellType);
+            });
+        });
         return true;
     }
 
@@ -180,6 +186,7 @@ public class NebulaSpellManager implements SpellManager {
         this.player = player;
         return this;
     }
+
 
     protected void ensurePlayerEqualsCaster(Spell spell) {
         if(spell.getCaster() != this.player) {

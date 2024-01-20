@@ -36,7 +36,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     }
 
     /**
-     * Needed as ServerPlayerEntity#onDeath does not call PlayerEntity#onDeath
+     * Needed as {@link ServerPlayerEntity#onDeath} does not call {@link PlayerEntity#onDeath}
      **/
     @Inject(
             method = "onDeath",
