@@ -1,6 +1,5 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.manager.spell.SpellManager;
 import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,14 +17,14 @@ public abstract class Spell {
         public void write(PacketByteBuf buf, Optional<Spell> optionalSpell) {
             buf.writeBoolean(optionalSpell.isPresent());
             optionalSpell.ifPresent(spell -> {
-                buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spell.getType());
+                buf.writeRegistryValue(SpellType.REGISTRY, spell.getType());
                 spell.writeBuf(buf);
             });
         }
 
         public Optional<Spell> read(PacketByteBuf buf) {
             if(!buf.readBoolean()) return Optional.empty();
-            SpellType<?> spellType = buf.readRegistryValue(Nebula.SPELL_REGISTRY);
+            SpellType<?> spellType = buf.readRegistryValue(SpellType.REGISTRY);
             if(spellType == null) throw new IllegalStateException("Spell type not found in registry");
             var spell = spellType.create();
             spell.readBuf(buf);

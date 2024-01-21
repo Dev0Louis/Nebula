@@ -24,7 +24,7 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
     }
 
     private static SpellType<?> readSpellType(PacketByteBuf buf) {
-        return buf.readRegistryValue(Nebula.SPELL_REGISTRY);
+        return buf.readRegistryValue(SpellType.REGISTRY);
     }
 
     public void write(PacketByteBuf buf) {
@@ -36,7 +36,7 @@ public record UpdateSpellCastabilityS2CPacket(Map<SpellType<? extends Spell>, Bo
     }
 
     public void writeSpellType(PacketByteBuf buf, SpellType<?> spellType) {
-        buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spellType);
+        buf.writeRegistryValue(SpellType.REGISTRY, spellType);
     }
 
     @Override

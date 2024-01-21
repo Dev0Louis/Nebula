@@ -18,7 +18,7 @@ public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
     public static final PacketType<SpellCastC2SPacket> TYPE = PacketType.create(ID, SpellCastC2SPacket::read);
 
     public static SpellCastC2SPacket read(PacketByteBuf buf) {
-        SpellType<?> spellType = buf.readRegistryValue(Nebula.SPELL_REGISTRY);
+        SpellType<?> spellType = buf.readRegistryValue(SpellType.REGISTRY);
         if(spellType == null) throw new IllegalStateException("Spell type not found in registry");
         Spell spell = spellType.create();
         spell.readBuf(buf);
@@ -26,7 +26,7 @@ public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
     }
 
     public void write(PacketByteBuf buf) {
-        buf.writeRegistryValue(Nebula.SPELL_REGISTRY, spell.getType());
+        buf.writeRegistryValue(SpellType.REGISTRY, spell.getType());
         spell.writeBuf(buf);
     }
 

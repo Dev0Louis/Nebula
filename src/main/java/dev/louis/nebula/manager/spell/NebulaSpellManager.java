@@ -135,7 +135,7 @@ public class NebulaSpellManager implements SpellManager {
     public boolean sendSync() {
         if(this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
             Map<SpellType<?>, Boolean> castableSpells = new HashMap<>();
-            Nebula.SPELL_REGISTRY.forEach(spellType -> castableSpells.put(spellType, this.hasLearned(spellType)));
+            SpellType.REGISTRY.forEach(spellType -> castableSpells.put(spellType, this.hasLearned(spellType)));
             ServerPlayNetworking.send(serverPlayerEntity, new UpdateSpellCastabilityS2CPacket(castableSpells));
             dirty = false;
             return true;

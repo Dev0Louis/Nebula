@@ -1,13 +1,22 @@
 package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.Nebula;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.util.Identifier;
 
 import java.util.Optional;
 
 public class SpellType<T extends Spell> {
+    private static final RegistryKey<Registry<SpellType<?>>> REGISTRY_KEY =
+            RegistryKey.ofRegistry(new Identifier(Nebula.MOD_ID, "spell_type"));
+    public static final SimpleRegistry<SpellType<?>> REGISTRY =
+            FabricRegistryBuilder.createSimple(REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+
     private final SpellFactory<T> factory;
     private final int manaCost;
     private final boolean needLearning;
@@ -24,15 +33,15 @@ public class SpellType<T extends Spell> {
     }
 
     public static <T extends Spell> SpellType<T> register(Identifier id, Builder<T> type) {
-        return Registry.register(Nebula.SPELL_REGISTRY, id, type.build());
+        return Registry.register(REGISTRY, id, type.build());
     }
 
     public static Optional<SpellType<?>> get(Identifier id) {
-        return Nebula.SPELL_REGISTRY.getOrEmpty(id);
+        return REGISTRY.getOrEmpty(id);
     }
 
     public Identifier getId() {
-        return Nebula.SPELL_REGISTRY.getId(this);
+        return REGISTRY.getId(this);
     }
 
     public boolean isCastable(PlayerEntity player) {
