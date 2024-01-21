@@ -8,8 +8,13 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 
+import java.util.Collection;
+import java.util.List;
+
 public interface SpellManager {
     void tick();
+
+    Collection<SpellType<?>> getLearnedSpells();
 
     /**
      * Learns the specified SpellType.
@@ -29,13 +34,13 @@ public interface SpellManager {
      * Casts a Spell of the specified SpellType. The Spell may not cast if it is not castable, cancelled by {@link SpellCastCallback} or other reasons.
      * @param spellType The SpellType which should be cast.
      */
-    void cast(SpellType<?> spellType);
+    boolean cast(SpellType<?> spellType);
 
     /**
      * Casts a Spell. The Spell may not cast if it is not castable, cancelled by {@link SpellCastCallback} or other reasons.
      * @param spell The Spell which should be cast.
      */
-    void cast(Spell spell);
+    boolean cast(Spell spell);
 
     /**
      * This is called when the Caster dies.
@@ -49,6 +54,11 @@ public interface SpellManager {
      * @return If the SpellType is castable.
      */
     boolean isCastable(SpellType<?> spellType);
+
+    /**
+     * @return All active Spells. Do not modify.
+     */
+    Collection<Spell> getActiveSpells();
 
     /**
      * Checks if the specified SpellType is currently active.
@@ -118,6 +128,11 @@ public interface SpellManager {
         }
 
         @Override
+        public Collection<SpellType<?>> getLearnedSpells() {
+            return List.of();
+        }
+
+        @Override
         public boolean learnSpell(SpellType<?> spellType) {
             return false;
         }
@@ -128,13 +143,13 @@ public interface SpellManager {
         }
 
         @Override
-        public void cast(SpellType<?> spellType) {
-
+        public boolean cast(SpellType<?> spellType) {
+            return false;
         }
 
         @Override
-        public void cast(Spell spell) {
-
+        public boolean cast(Spell spell) {
+            return false;
         }
 
         @Override
@@ -145,6 +160,11 @@ public interface SpellManager {
         @Override
         public boolean isCastable(SpellType<?> spellType) {
             return false;
+        }
+
+        @Override
+        public Collection<Spell> getActiveSpells() {
+            return List.of();
         }
 
         @Override

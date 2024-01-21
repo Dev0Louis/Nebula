@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.util.Identifier;
 
 public interface SpellManagerRegistrableView {
-        void registerSpellManagerFactory(
+        void registerSpellManager(
                 SpellManager.Factory<?> manaManagerFactory,
                 Identifier packetId,
                 ClientPlayNetworking.PlayChannelHandler playChannelHandler

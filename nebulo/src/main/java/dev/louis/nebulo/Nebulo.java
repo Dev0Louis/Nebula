@@ -12,6 +12,5 @@ public class Nebulo implements ModInitializer {
     public void onInitialize() {
         NebuloSpells.init();
         LOGGER.info("Nebulo has been initialized.");
-
     }
 }

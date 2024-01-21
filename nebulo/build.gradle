@@ -1,0 +1,12 @@
+plugins {
+    id 'fabric-loom' version '1.5-SNAPSHOT' apply false
+}
+
+archivesBaseName = "nebulo"
+version '1.0'
+
+dependencies {
+    implementation(project(path: ":", configuration: "namedElements")) {
+        exclude group: "net.fabricmc", module: "fabric-loader"
+    }
+}

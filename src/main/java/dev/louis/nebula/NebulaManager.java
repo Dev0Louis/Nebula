@@ -62,18 +62,18 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
 
     public void lock() {
         if(spellManagerFactory == null) {
-            registerSpellManagerFactory(NebulaSpellManager::new, UpdateSpellCastabilityS2CPacket.ID, NebulaSpellManager::receiveSync);
+            registerSpellManager(NebulaSpellManager::new, UpdateSpellCastabilityS2CPacket.ID, NebulaSpellManager::receiveSync);
             spellManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
         }
         if(manaManagerFactory == null) {
-            registerManaManagerFactory(NebulaManaManager::new, SyncManaS2CPacket.ID, NebulaManaManager::receiveSync);
+            registerManaManager(NebulaManaManager::new, SyncManaS2CPacket.ID, NebulaManaManager::receiveSync);
             manaManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
         }
         isLocked = true;
     }
 
     @Override
-    public void registerManaManagerFactory(
+    public void registerManaManager(
             ManaManager.Factory<?> manaManagerFactory,
             Identifier packetId,
             ClientPlayNetworking.PlayChannelHandler manaChannelHandler
@@ -84,7 +84,7 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     }
 
     @Override
-    public void registerSpellManagerFactory(
+    public void registerSpellManager(
             SpellManager.Factory<?> spellManagerFactory,
             Identifier packetId,
             ClientPlayNetworking.PlayChannelHandler spellChannelHandler

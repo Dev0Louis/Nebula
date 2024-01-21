@@ -31,6 +31,7 @@ public abstract class Spell {
             return Optional.of(spell);
         }
     };
+    private static final int DEFAULT_SPELL_AGE = 3 * 20;
 
     private final SpellType<?> spellType;
     private PlayerEntity caster;
@@ -58,8 +59,12 @@ public abstract class Spell {
         this.getCaster().getManaManager().drainMana(getType().getManaCost());
     }
 
-    public void tick() {
+    public final void baseTick() {
         spellAge++;
+        this.tick();
+    }
+
+    public void tick() {
     }
 
     public Identifier getId() {
@@ -74,12 +79,12 @@ public abstract class Spell {
         return this.spellType;
     }
 
-    public int getSpellAge() {
+    public int getAge() {
         return this.spellAge;
     }
 
-    public int getMaxAge() {
-        return 20 * 3;
+    public int getDuration() {
+        return DEFAULT_SPELL_AGE;
     }
 
     /**
@@ -100,7 +105,7 @@ public abstract class Spell {
      * It is important to check super or check if the spell was interrupted {@link Spell#wasInterrupted()}. <br>
      */
     public boolean shouldStop() {
-        return this.stopped || this.spellAge > this.getMaxAge();
+        return this.stopped || this.spellAge > this.getDuration();
     }
 
     /**

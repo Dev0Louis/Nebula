@@ -9,14 +9,19 @@
   ],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/nebulo/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
       "dev.louis.nebulo.Nebulo"
     ],
     "client": [
-      "dev.louis.nebulo.NebuloClient"
+      "dev.louis.nebulo.client.NebuloClient"
+    ],
+    "registerManaManager": [
+      "dev.louis.nebulo.manager.ManagerRegisterer"
+    ],
+    "registerSpellManager": [
+      "dev.louis.nebulo.manager.ManagerRegisterer"
     ]
   },
   "mixins": [
@@ -26,11 +31,6 @@
     "fabricloader": ">=0.15.3",
     "nebula": ">=5.0.0-",
     "fabric": "*",
-    "minecraft": "${supported_version}"
-  },
-  "custom": {
-    "loom:injected_interfaces": {
-      "net/minecraft/class_1657": ["dev/louis/nebula/api/NebulaPlayer"]
-    }
+    "minecraft": "*"
   }
 }

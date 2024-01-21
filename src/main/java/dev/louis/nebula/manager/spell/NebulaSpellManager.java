@@ -21,10 +21,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Extending this class is okay, but be aware this implementation!
@@ -33,7 +30,8 @@ public class NebulaSpellManager implements SpellManager {
     protected static final String SPELL_NBT_KEY = "Spell";
     protected static final String SPELLS_NBT_KEY = "Spells";
 
-    protected final Set<SpellType<?>> castableSpells = new HashSet<>();
+    protected final Set<SpellType<?>> learnedSpells = new HashSet<>();
+    //Note: Not yet synced to client.
     protected final Set<Spell> activeSpells = new HashSet<>();
     protected PlayerEntity player;
     private boolean dirty;
@@ -45,75 +43,90 @@ public class NebulaSpellManager implements SpellManager {
     @Override
     public void tick() {
         this.activeSpells.removeIf(spell -> {
-            boolean willBeRemoved = spell.shouldStop();
-            if(willBeRemoved) spell.onEnd();
-            return willBeRemoved;
+            boolean shouldStop = spell.shouldStop();
+            if(shouldStop) spell.onEnd();
+            return shouldStop;
         });
 
         for (Spell tickingSpell : this.activeSpells) {
-            tickingSpell.tick();
+            tickingSpell.baseTick();
         }
-        if(dirty) {
-            sendSync();
-        }
+        if(dirty) this.sendSync();
+    }
+
+    @Override
+    public Collection<SpellType<?>> getLearnedSpells() {
+        return List.copyOf(this.learnedSpells);
     }
 
     @Override
     public boolean learnSpell(SpellType<?> spellType) {
-        boolean shouldSync = this.castableSpells.add(spellType);
+        boolean shouldSync = this.learnedSpells.add(spellType);
         if(shouldSync) this.markDirty();
         return true;
     }
 
     @Override
     public boolean forgetSpell(SpellType<?> spellType) {
-        boolean shouldSync = this.castableSpells.remove(spellType);
+        boolean shouldSync = this.learnedSpells.remove(spellType);
         if(shouldSync) this.markDirty();
         return true;
     }
 
+    /**
+     * This Method does not return an unmodifiable set.
+     * So that it could theoretically be modified.
+     */
     protected Set<SpellType<?>> getCastableSpells() {
-        return castableSpells;
+        return learnedSpells;
     }
 
     @Override
-    public void cast(SpellType<?> spellType) {
+    public boolean cast(SpellType<?> spellType) {
         var spell = spellType.create();
         spell.setCaster(this.player);
-        this.cast(spell);
+        return this.cast(spell);
     }
 
     @Override
-    public void cast(Spell spell) {
+    public boolean cast(Spell spell) {
         this.ensurePlayerEqualsCaster(spell);
-        if(SpellCastCallback.EVENT.invoker().interact(this.player, spell) != ActionResult.PASS) return;
+        this.ensureSpellIsNotAlreadyActive(spell);
+        if(SpellCastCallback.EVENT.invoker().interact(this.player, spell) != ActionResult.PASS) return false;
         if(spell.isCastable()) {
             if(this.isServer()) {
                 spell.applyCost();
                 spell.cast();
+                this.activeSpells.add(spell);
             } else {
                 ClientPlayNetworking.send(new SpellCastC2SPacket(spell));
             }
+            return true;
         }
+        return false;
     }
 
     @Override
     public void onDeath(DamageSource damageSource) {
-        this.activeSpells.forEach(spell -> {
-            spell.interrupt();
-            spell.onEnd();
-        });
-        this.activeSpells.clear();
-        this.castableSpells.clear();
+        //We don't clear the spells here because that could cause and ConcurrentModificationException if the player gets killed while the spells ends.
+        //Spell#interrupt is designed to cancel the spell no matter what, so it's fine cause the active spells are cleared next tick.
+        this.activeSpells.forEach(Spell::interrupt);
+        this.learnedSpells.clear();
+        this.markDirty();
     }
 
     @Override
     public boolean isCastable(SpellType<?> spellType) {
-        return (!spellType.needsLearning() || this.hasLearned(spellType)) && isSpellTypeActive(spellType);
+        return this.player.isAlive() && (!spellType.needsLearning() || this.hasLearned(spellType)) && (spellType.allowsMultipleCasts() || !player.getSpellManager().isSpellTypeActive(spellType));
     }
 
     public void markDirty() {
         this.dirty = true;
+    }
+
+    @Override
+    public Collection<Spell> getActiveSpells() {
+        return List.copyOf(activeSpells);
     }
 
     @Override
@@ -128,7 +141,7 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public boolean hasLearned(SpellType<?> spellType) {
-        return this.castableSpells.contains(spellType);
+        return this.learnedSpells.contains(spellType);
     }
 
     @Override
@@ -177,7 +190,7 @@ public class NebulaSpellManager implements SpellManager {
         for (int x = 0; x < nbtList.size(); ++x) {
             NbtCompound nbtCompound = nbtList.getCompound(x);
             Identifier spell = new Identifier(nbtCompound.getString(SPELL_NBT_KEY));
-            SpellType.get(spell).ifPresent(castableSpells::add);
+            SpellType.get(spell).ifPresent(learnedSpells::add);
         }
     }
 
@@ -187,6 +200,12 @@ public class NebulaSpellManager implements SpellManager {
         return this;
     }
 
+
+    private void ensureSpellIsNotAlreadyActive(Spell spell) {
+        if(this.activeSpells.contains(spell)) {
+            throw new IllegalStateException("Spell " + spell.getType() + " is already ticking!");
+        }
+    }
 
     protected void ensurePlayerEqualsCaster(Spell spell) {
         if(spell.getCaster() != this.player) {

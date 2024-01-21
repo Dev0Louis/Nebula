@@ -8,6 +8,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
 
@@ -19,12 +20,15 @@ public class SpellType<T extends Spell> {
 
     private final SpellFactory<T> factory;
     private final int manaCost;
+    private final boolean allowsMultipleCasts;
     private final boolean needLearning;
     private final SpellCastingValidator castabilityFunction;
 
-    public SpellType(SpellFactory<T> factory, int manaCost, boolean needLearning, SpellCastingValidator castabilityFunction) {
+    @ApiStatus.Internal
+    public SpellType(SpellFactory<T> factory, int manaCost, boolean allowsMultipleCasts, boolean needLearning, SpellCastingValidator castabilityFunction) {
         this.factory = factory;
         this.manaCost = manaCost;
+        this.allowsMultipleCasts = allowsMultipleCasts;
         this.needLearning = needLearning;
         this.castabilityFunction = castabilityFunction;
     }
@@ -45,7 +49,11 @@ public class SpellType<T extends Spell> {
     }
 
     public boolean isCastable(PlayerEntity player) {
-        return castabilityFunction.isCastable(player, this); 
+        return castabilityFunction.isCastable(this, player);
+    }
+
+    public boolean allowsMultipleCasts() {
+        return allowsMultipleCasts;
     }
 
     public boolean needsLearning() {
@@ -72,6 +80,7 @@ public class SpellType<T extends Spell> {
     public static class Builder<T extends Spell> {
         private final SpellFactory<T> factory;
         private final int manaCost;
+        private boolean allowsMultipleCasts;
         private boolean needsLearning = true;
         private SpellCastingValidator castabilityFunction = SpellCastingValidator.DEFAULT;
 
@@ -82,6 +91,15 @@ public class SpellType<T extends Spell> {
 
         public static <T extends Spell> Builder<T> create(SpellFactory<T> factory, int manaCost) {
             return new Builder<>(factory, manaCost);
+        }
+
+        /**
+         * Allows players to cast a spell multiple times at the same time. <br>
+         * That means that a spell could be cast while it is already ticking
+         */
+        public Builder<T> allowMultipleCasts() {
+            this.allowsMultipleCasts = true;
+            return this;
         }
 
         public Builder<T> needsLearning(boolean needsLearning) {
@@ -95,7 +113,7 @@ public class SpellType<T extends Spell> {
         }
 
         public SpellType<T> build() {
-            return new SpellType<>(this.factory, manaCost, needsLearning, castabilityFunction);
+            return new SpellType<>(this.factory, manaCost, allowsMultipleCasts, needsLearning, castabilityFunction);
         }
     }
 
@@ -106,18 +124,18 @@ public class SpellType<T extends Spell> {
 
     @FunctionalInterface
     public interface SpellCastingValidator {
-        SpellCastingValidator ALWAYS_CASTABLE = (player, spellType) -> true;
-        SpellCastingValidator DEFAULT = (player, spellType) -> player.getManaManager().isCastable(spellType) && player.getSpellManager().isCastable(spellType);
-        SpellCastingValidator NEVER_CASTABLE = (player, spellType) -> false;
+        SpellCastingValidator ALWAYS_CASTABLE = (spellType, player) -> true;
+        SpellCastingValidator DEFAULT = (spellType, player) -> player.getManaManager().isCastable(spellType) && player.getSpellManager().isCastable(spellType);
+        SpellCastingValidator NEVER_CASTABLE = (spellType, player) -> false;
 
-        boolean isCastable(PlayerEntity player, SpellType<?> spellType);
+        boolean isCastable(SpellType<?> spellType, PlayerEntity player);
 
         default SpellCastingValidator and(SpellCastingValidator other) {
-            return (player, spellType) -> this.isCastable(player, spellType) && other.isCastable(player, spellType);
+            return (spellType, player) -> this.isCastable(spellType, player) && other.isCastable(spellType, player);
         }
 
         default SpellCastingValidator or(SpellCastingValidator other) {
-            return (player, spellType) -> this.isCastable(player, spellType) || other.isCastable(player, spellType);
+            return (spellType, player) -> this.isCastable(spellType, player) || other.isCastable(spellType, player);
         }
     }
 }
