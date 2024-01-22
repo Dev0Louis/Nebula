@@ -1,7 +1,7 @@
 package dev.louis.nebula.api;
 
-import dev.louis.nebula.mana.manager.ManaManager;
-import dev.louis.nebula.spell.manager.SpellManager;
+import dev.louis.nebula.api.manager.mana.ManaManager;
+import dev.louis.nebula.api.manager.spell.SpellManager;
 import net.minecraft.entity.player.PlayerEntity;
 
 /**

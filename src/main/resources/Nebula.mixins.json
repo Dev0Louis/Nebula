@@ -8,6 +8,7 @@
     "ServerPlayerEntityMixin"
   ],
   "client": [
+    "ClientPlayerEntityAccessor",
     "ClientPlayerEntityMixin",
     "ClientPlayNetworkHandlerMixin"
   ],

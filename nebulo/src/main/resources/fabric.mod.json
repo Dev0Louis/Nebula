@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "nebulo",
+  "version": "${version}",
+  "name": "Nebulo",
+  "description": "Nebulo is the Test Mod for Nebula.",
+  "authors": [
+    "Louis"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.louis.nebulo.Nebulo"
+    ],
+    "client": [
+      "dev.louis.nebulo.client.NebuloClient"
+    ],
+    "registerManaManager": [
+      "dev.louis.nebulo.manager.ManagerRegisterer"
+    ],
+    "registerSpellManager": [
+      "dev.louis.nebulo.manager.ManagerRegisterer"
+    ]
+  },
+  "mixins": [
+    "Nebulo.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.3",
+    "nebula": ">=5.0.0-",
+    "fabric": "*",
+    "minecraft": "${supported_version}"
+  }
+}

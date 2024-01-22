@@ -1,7 +1,7 @@
 package dev.louis.nebula.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.spell.SpellType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -36,7 +36,7 @@ public class NebulaCommand {
         command.then(setManaCommand);
 
         var learnSpellCommand = literal("learnSpell");
-        Nebula.SPELL_REGISTRY.forEach(spellType -> {
+        SpellType.REGISTRY.forEach(spellType -> {
             learnSpellCommand.then(CommandManager.literal(spellType.getId().toString()).executes(context -> {
                 if(context.getSource().isExecutedByPlayer()) {
                     context.getSource().getPlayer().getSpellManager().learnSpell(spellType);
