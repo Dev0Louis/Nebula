@@ -1,11 +1,11 @@
 package dev.louis.nebulo;
 
 import dev.louis.nebula.api.spell.SpellType;
-import dev.louis.nebulo.spell.ExampleSpell;
+import dev.louis.nebulo.spell.CloudJumpSpell;
 import net.minecraft.util.Identifier;
 
 public class NebuloSpells {
-    public static final SpellType<?> EXAMPLE_SPELL = SpellType.register(new Identifier(Nebulo.MOD_ID, "example"), SpellType.Builder.create(ExampleSpell::new, 2));
+    public static final SpellType<?> CLOUD_JUMP = SpellType.register(new Identifier(Nebulo.MOD_ID, "cloud_jump"), SpellType.Builder.create(CloudJumpSpell::new, 2));
     public static void init() {
 
     }

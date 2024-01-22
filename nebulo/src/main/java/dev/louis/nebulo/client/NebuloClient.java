@@ -30,7 +30,7 @@ public class NebuloClient implements ClientModInitializer {
                 "key.categories.nebulo"
         );
         KeyBindingHelper.registerKeyBinding(keyBind);
-        SpellKeybindManager.addSpellKeyBinding(NebuloSpells.EXAMPLE_SPELL, keyBind);
+        SpellKeybindManager.addSpellKeyBinding(NebuloSpells.CLOUD_JUMP, keyBind);
     }
 
     private void registerKeybindCallback() {
@@ -61,14 +61,16 @@ public class NebuloClient implements ClientModInitializer {
             var manaManager = player.getManaManager();
             var spellManager = player.getSpellManager();
             var mana = String.valueOf(manaManager.getMana());
+            var maxMana = String.valueOf(manaManager.getMaxMana());
             drawContext.drawText(
                     MinecraftClient.getInstance().textRenderer,
-                    mana,
+                    "Mana: " + mana + "/" + maxMana,
                     10,
                     10,
                     0x0000FF,
-                    true
+                    false
             );
+
             drawContext.drawText(
                     MinecraftClient.getInstance().textRenderer,
                     "Learned Spells:",

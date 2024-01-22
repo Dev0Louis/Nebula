@@ -31,6 +31,6 @@
     "fabricloader": ">=0.15.3",
     "nebula": ">=5.0.0-",
     "fabric": "*",
-    "minecraft": "*"
+    "minecraft": "${supported_version}"
   }
 }
