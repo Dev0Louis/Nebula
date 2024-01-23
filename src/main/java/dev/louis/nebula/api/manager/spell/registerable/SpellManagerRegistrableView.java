@@ -8,6 +8,6 @@ public interface SpellManagerRegistrableView {
         void registerSpellManager(
                 SpellManager.Factory<?> manaManagerFactory,
                 Identifier packetId,
-                ClientPlayNetworking.PlayChannelHandler playChannelHandler
+                ClientPlayNetworking.PlayChannelHandler channelHandler
         );
 }

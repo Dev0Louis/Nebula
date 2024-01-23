@@ -8,6 +8,6 @@ public interface ManaManagerRegistrableView {
         void registerManaManager(
                 ManaManager.Factory<?> manaManagerFactory,
                 Identifier packetId,
-                ClientPlayNetworking.PlayChannelHandler playChannelHandler
+                ClientPlayNetworking.PlayChannelHandler channelHandler
         );
 }
