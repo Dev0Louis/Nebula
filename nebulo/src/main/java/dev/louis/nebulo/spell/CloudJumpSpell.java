@@ -24,7 +24,7 @@ public class CloudJumpSpell extends Spell {
         var world = this.getCaster().getWorld();
         if(!world.isClient()) {
             var serverPlayer = (ServerPlayerEntity) this.getCaster();
-            serverPlayer.getServerWorld().spawnParticles(
+            serverPlayer.getWorld().spawnParticles(
                     serverPlayer,
                     ParticleTypes.CLOUD,
                     false,
@@ -52,7 +52,7 @@ public class CloudJumpSpell extends Spell {
         if(!this.getCaster().getWorld().isClient()) {
             var serverPlayer = (ServerPlayerEntity) this.getCaster();
             serverPlayer.playSound(SoundEvents.ENTITY_CAMEL_DASH, SoundCategory.PLAYERS, 2f, -1f);
-            serverPlayer.getServerWorld().spawnParticles(
+            serverPlayer.getWorld().spawnParticles(
                     serverPlayer,
                     ParticleTypes.SMOKE,
                     false,

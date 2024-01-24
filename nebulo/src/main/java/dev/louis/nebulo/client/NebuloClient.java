@@ -55,41 +55,39 @@ public class NebuloClient implements ClientModInitializer {
     }
 
     private void registerRenderCallback() {
-        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+        HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> {
             var player = MinecraftClient.getInstance().player;
             if(player == null)return;
             var manaManager = player.getManaManager();
             var spellManager = player.getSpellManager();
             var mana = String.valueOf(manaManager.getMana());
             var maxMana = String.valueOf(manaManager.getMaxMana());
-            drawContext.drawText(
-                    MinecraftClient.getInstance().textRenderer,
+            var textRenderer = MinecraftClient.getInstance().textRenderer;
+            textRenderer.draw(
+                    matrixStack,
                     "Mana: " + mana + "/" + maxMana,
                     10,
                     10,
-                    0x0000FF,
-                    false
+                    0x0000FF
             );
 
-            drawContext.drawText(
-                    MinecraftClient.getInstance().textRenderer,
+            textRenderer.drawWithShadow(
+                    matrixStack,
                     "Learned Spells:",
                     10,
                     20,
-                    0x00FFFF,
-                    true
+                    0x00FFFF
             );
 
             var spells = spellManager.getLearnedSpells();
             AtomicInteger y = new AtomicInteger(30);
             spells.forEach(spellType -> {
-                drawContext.drawText(
-                        MinecraftClient.getInstance().textRenderer,
+                textRenderer.drawWithShadow(
+                        matrixStack,
                         spellType.getId().toString(),
                         10,
                         y.get(),
-                        0x03F6FF,
-                        true
+                        0x03F6FF
                 );
                 y.addAndGet(10);
             });
