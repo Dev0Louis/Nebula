@@ -1,13 +1,14 @@
 package dev.louis.nebula.api.manager.mana.registerable;
 
 import dev.louis.nebula.api.manager.mana.ManaManager;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.util.Identifier;
+
+import java.util.function.Consumer;
 
 public interface ManaManagerRegistrableView {
         void registerManaManager(
                 ManaManager.Factory<?> manaManagerFactory,
-                Identifier packetId,
-                ClientPlayNetworking.PlayChannelHandler channelHandler
+                Identifier manaPacketId,
+                Consumer<Identifier> manaPacketRegisterer
         );
 }
