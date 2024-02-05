@@ -6,7 +6,9 @@ import dev.louis.nebula.api.manager.spell.registerable.SpellManagerRegistrableVi
  * The entrypoint for registering a custom spell manager.
  */
 public interface RegisterSpellManagerEntrypoint {
-    void registerSpell(SpellManagerRegistrableView spellManagerRegistrableView);
+    void registerSpellManager(SpellManagerRegistrableView spellManagerRegistrableView);
+
+    void registerSpellPacketReceiver();
 
     default boolean shouldRegister() {
         return true;
