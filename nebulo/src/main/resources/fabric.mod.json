@@ -29,7 +29,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.15.3",
-    "nebula": ">=5.0.0-",
+    "nebula": ">=5.2.0-",
     "fabric": "*",
     "minecraft": "${supported_version}"
   }

@@ -6,7 +6,9 @@ import dev.louis.nebula.api.manager.mana.registerable.ManaManagerRegistrableView
  * The entrypoint for registering a custom mana manager.
  */
 public interface RegisterManaManagerEntrypoint {
-    void registerSpell(ManaManagerRegistrableView manaManagerRegistrableView);
+    void registerManaManager(ManaManagerRegistrableView manaManagerRegistrableView);
+
+    void registerManaPacketReceiver();
 
     default boolean shouldRegister() {
         return true;
