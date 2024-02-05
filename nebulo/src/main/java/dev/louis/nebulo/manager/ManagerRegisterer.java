@@ -14,21 +14,23 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 public class ManagerRegisterer implements RegisterManaManagerEntrypoint, RegisterSpellManagerEntrypoint {
     @Override
-    public void registerSpell(ManaManagerRegistrableView manaManagerRegistrableView) {
-        manaManagerRegistrableView.registerManaManager(
-                NebuloManaManager::new,
-                SyncManaS2CPacket.ID,
-                (packetId) -> ClientPlayNetworking.registerGlobalReceiver(packetId, NebulaManaManager::receiveSync)
-        );
+    public void registerManaManager(ManaManagerRegistrableView manaManagerRegistrableView) {
+        manaManagerRegistrableView.registerManaManager(NebuloManaManager::new);
     }
 
     @Override
-    public void registerSpell(SpellManagerRegistrableView spellManagerRegistrableView) {
-        spellManagerRegistrableView.registerSpellManager(
-                NebuloSpellManager::new,
-                UpdateSpellCastabilityS2CPacket.ID,
-                (packetId) -> ClientPlayNetworking.registerGlobalReceiver(packetId, NebulaSpellManager::receiveSync)
-        );
+    public void registerManaPacketReceiver() {
+        ClientPlayNetworking.registerGlobalReceiver(SyncManaS2CPacket.TYPE, NebulaManaManager::receiveSync);
+    }
+
+    @Override
+    public void registerSpellManager(SpellManagerRegistrableView spellManagerRegistrableView) {
+        spellManagerRegistrableView.registerSpellManager(NebuloSpellManager::new);
+    }
+
+    @Override
+    public void registerSpellPacketReceiver() {
+    ClientPlayNetworking.registerGlobalReceiver(UpdateSpellCastabilityS2CPacket.TYPE, NebulaSpellManager::receiveSync);
     }
 
     @Override

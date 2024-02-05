@@ -5,18 +5,17 @@ import dev.louis.nebula.api.event.SpellCastCallback;
 import dev.louis.nebula.api.manager.spell.SpellManager;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellType;
+import dev.louis.nebula.mixin.ClientPlayerEntityAccessor;
 import dev.louis.nebula.networking.SpellCastC2SPacket;
 import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
@@ -157,10 +156,9 @@ public class NebulaSpellManager implements SpellManager {
     }
 
 
-    public static boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        UpdateSpellCastabilityS2CPacket packet = UpdateSpellCastabilityS2CPacket.read(buf);
-        MinecraftClient.getInstance().executeSync(() -> {
-            var spellManager = client.player.getSpellManager();
+    public static boolean receiveSync(UpdateSpellCastabilityS2CPacket packet, ClientPlayerEntity player, PacketSender responseSender) {
+        ((ClientPlayerEntityAccessor)player).getClient().executeSync(() -> {
+            SpellManager spellManager = player.getSpellManager();
             packet.spells().forEach((spellType, learned) -> {
                 if (learned) spellManager.learnSpell(spellType);
                 else spellManager.forgetSpell(spellType);

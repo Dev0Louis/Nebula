@@ -3,15 +3,14 @@ package dev.louis.nebula.manager.mana;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.manager.mana.ManaManager;
 import dev.louis.nebula.api.spell.SpellType;
+import dev.louis.nebula.mixin.ClientPlayerEntityAccessor;
 import dev.louis.nebula.networking.SyncManaS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 /**
@@ -97,9 +96,8 @@ public class NebulaManaManager implements ManaManager {
         return false;
     }
 
-    public static boolean receiveSync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        var packet = SyncManaS2CPacket.read(buf);
-        client.executeSync(() -> client.player.getManaManager().setMana(packet.mana()));
+    public static boolean receiveSync(SyncManaS2CPacket packet, ClientPlayerEntity player, PacketSender responseSender) {
+        ((ClientPlayerEntityAccessor)player).getClient().executeSync(() -> player.getManaManager().setMana(packet.mana()));
         return true;
     }
 
