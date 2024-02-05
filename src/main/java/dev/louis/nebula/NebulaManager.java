@@ -17,7 +17,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
@@ -29,16 +28,14 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     private static RegisterManaManagerEntrypoint manaManagerEntrypoint;
     private static ModContainer manaManagerMod;
     private static ManaManager.Factory<?> manaManagerFactory;
+    private static Runnable manaPacketRegisterer = () -> manaManagerEntrypoint.registerManaPacketReceiver();
 
     private static RegisterSpellManagerEntrypoint spellManagerEntrypoint;
     private static ModContainer spellManagerMod;
     private static SpellManager.Factory<?> spellManagerFactory;
-
-    private static Identifier manaPacketId;
-    private static Runnable manaPacketRegisterer = () -> manaManagerEntrypoint.registerManaPacketReceiver();
-
-    private static Identifier spellPacketId;
     private static Runnable spellPacketRegisterer = () -> spellManagerEntrypoint.registerSpellPacketReceiver();
+
+
 
     private NebulaManager() {}
 
