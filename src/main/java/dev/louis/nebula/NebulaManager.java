@@ -40,7 +40,7 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     private NebulaManager() {}
 
     public static void init() {
-        if(NebulaManager.isLocked) throw new IllegalStateException("Registration of Managers is locked!");
+        if (NebulaManager.isLocked) throw new IllegalStateException("Registration of Managers is locked!");
         NebulaManager nebulaManager = new NebulaManager();
         nebulaManager.runEntrypointsOrThrow();
         nebulaManager.lock();
@@ -64,14 +64,14 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     }
 
     public void lock() {
-        if(spellManagerFactory == null) {
+        if (spellManagerFactory == null) {
             registerSpellManager(NebulaSpellManager::new);
 
             spellManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
             spellPacketRegisterer = () ->
                     ClientPlayNetworking.registerGlobalReceiver(SyncManaS2CPacket.TYPE, NebulaManaManager::receiveSync);
         }
-        if(manaManagerFactory == null) {
+        if (manaManagerFactory == null) {
             registerManaManager(NebulaManaManager::new);
             manaPacketRegisterer = () ->
                     ClientPlayNetworking.registerGlobalReceiver(UpdateSpellCastabilityS2CPacket.TYPE, NebulaSpellManager::receiveSync);

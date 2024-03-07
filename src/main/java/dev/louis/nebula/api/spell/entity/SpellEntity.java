@@ -14,7 +14,7 @@ import java.util.Optional;
  * An Entity that holds a Spell. Saving is disabled by default.
  * This class can be extended to implement complex Logic for spells.
  * <br><br>
- * The Entity will <b>not</b> be removed when the spell is stopped. <br>
+ * The Entity will be removed when the spell is stopped. <br>
  * This needs to be done by the spell a good place to do this is {@link Spell#onEnd()}
  * <br><br>
  * @param <T> The Spell that is being represented.

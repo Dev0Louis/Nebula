@@ -116,7 +116,7 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public boolean isCastable(SpellType<?> spellType) {
-        return this.player.isAlive() && (!spellType.needsLearning() || this.hasLearned(spellType)) && (spellType.allowsMultipleCasts() || !player.getSpellManager().isSpellTypeActive(spellType));
+        return this.player.isAlive() && player.getManaManager().hasEnoughMana(spellType) && (!spellType.needsLearning() || this.hasLearned(spellType)) && (spellType.allowsMultipleCasts() || !player.getSpellManager().isSpellTypeActive(spellType));
     }
 
     public void markDirty() {

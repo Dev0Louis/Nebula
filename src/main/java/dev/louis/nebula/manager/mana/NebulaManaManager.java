@@ -61,11 +61,6 @@ public class NebulaManaManager implements ManaManager {
     }
 
     @Override
-    public void drainMana(SpellType<?> spellType) {
-        this.drainMana(spellType.getManaCost());
-    }
-
-    @Override
     public int getMaxMana() {
         return 20;
     }
@@ -76,7 +71,7 @@ public class NebulaManaManager implements ManaManager {
     }
 
     @Override
-    public boolean isCastable(SpellType<?> spellType) {
+    public boolean hasEnoughMana(SpellType<?> spellType) {
         return this.hasEnoughMana(spellType.getManaCost());
     }
 

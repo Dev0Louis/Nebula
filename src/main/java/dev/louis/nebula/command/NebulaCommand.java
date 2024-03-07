@@ -22,28 +22,31 @@ public class NebulaCommand {
     }
 
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        var command = literal("nebula").requires(source -> source.hasPermissionLevel(4));
-        var getManaCommand = literal("getPlayerMana").executes(context -> getMana(context.getSource()));
-        var getManaWithPlayerCommand = argument("player", player())
-                .executes(ctx -> getMana(ctx.getSource(), getPlayer(ctx, "player")));
-        var setManaCommand = literal("setPlayerMana")
-                .then(argument("player", player())
-                        .then(argument("mana", integer(0))
-                                .executes(context -> setMana(context.getSource(), getPlayer(context, "player"), getInteger(context, "mana")))));
-
-        getManaCommand.then(getManaWithPlayerCommand);
-        command.then(getManaCommand);
-        command.then(setManaCommand);
 
         var learnSpellCommand = literal("learnSpell");
         SpellType.REGISTRY.forEach(spellType -> {
+            if (!spellType.needsLearning()) return;
             learnSpellCommand.then(CommandManager.literal(spellType.getId().toString()).executes(context -> {
                 if(context.getSource().isExecutedByPlayer()) {
-                    context.getSource().getPlayer().getSpellManager().learnSpell(spellType);
+                    learnSpell(context.getSource(), spellType);
                 }
                 return 0;
             }));
         });
+
+        var command = literal("nebula").requires(source -> source.hasPermissionLevel(4))
+                .then(literal("getMana")
+                        .executes(context -> getMana(context.getSource()))
+                        .then(argument("player", player())
+                                .executes(context -> getMana(context.getSource(), getPlayer(context, "player")))))
+                .then(literal("setMana")
+                        .then(argument("player", player())
+                                .then(argument("mana", integer(0))
+                                        .executes(context -> setMana(
+                                                context.getSource(),
+                                                getPlayer(context, "player"),
+                                                getInteger(context, "mana"))))))
+                .then(learnSpellCommand);
 
         command.then(learnSpellCommand);
 
@@ -60,13 +63,20 @@ public class NebulaCommand {
 
     private static int getMana(ServerCommandSource source) {
         if(source.getPlayer() != null) {
-            source.sendMessage(Text.of(String.valueOf(source.getPlayer().getManaManager().getMana())));
+            return getMana(source, source.getPlayer());
         }
-        return 1;
+        return 0;
     }
 
     private static int getMana(ServerCommandSource source, ServerPlayerEntity player) {
-        source.sendMessage(Text.of(String.valueOf(player.getManaManager().getMana())));
+        source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
+        return 1;
+    }
+
+    private static int learnSpell(ServerCommandSource source, SpellType<?> spellType) {
+        if(source.getPlayer() != null) {
+            source.sendMessage(Text.of("Learned spell " + spellType.getId()));
+        }
         return 1;
     }
 }

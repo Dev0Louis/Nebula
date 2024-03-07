@@ -37,12 +37,6 @@ public interface ManaManager {
     void drainMana(int mana);
 
     /**
-     * Drains amount of mana from {@link SpellType#getManaCost()}
-     * @param spellType The SpellType where the amount of mana to drain is got from.
-     */
-    void drainMana(SpellType<?> spellType);
-
-    /**
      * @return The maximum amount of mana that can be stored.
      */
     int getMaxMana();
@@ -53,11 +47,13 @@ public interface ManaManager {
      */
     boolean hasEnoughMana(int mana);
 
+    //Thinking about removal as it would isolate the ManaManager from anything Spell related :)
+    @Deprecated
     /**
      * @param spellType The SpellType which should be checked.
      * @return If enough mana is available for the specified SpellType.
      */
-    boolean isCastable(SpellType<?> spellType);
+    boolean hasEnoughMana(SpellType<?> spellType);
 
     /**
      * Sends the ManaManager's state to the client.
@@ -133,11 +129,6 @@ public interface ManaManager {
         }
 
         @Override
-        public void drainMana(SpellType<?> spellType) {
-
-        }
-
-        @Override
         public int getMaxMana() {
             return 0;
         }
@@ -148,7 +139,7 @@ public interface ManaManager {
         }
 
         @Override
-        public boolean isCastable(SpellType<?> spellType) {
+        public boolean hasEnoughMana(SpellType<?> spellType) {
             return false;
         }
 

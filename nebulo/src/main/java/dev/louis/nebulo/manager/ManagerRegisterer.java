@@ -30,7 +30,7 @@ public class ManagerRegisterer implements RegisterManaManagerEntrypoint, Registe
 
     @Override
     public void registerSpellPacketReceiver() {
-    ClientPlayNetworking.registerGlobalReceiver(UpdateSpellCastabilityS2CPacket.TYPE, NebulaSpellManager::receiveSync);
+        ClientPlayNetworking.registerGlobalReceiver(UpdateSpellCastabilityS2CPacket.TYPE, NebulaSpellManager::receiveSync);
     }
 
     @Override

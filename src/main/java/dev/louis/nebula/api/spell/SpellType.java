@@ -18,21 +18,22 @@ public class SpellType<T extends Spell> {
     public static final SimpleRegistry<SpellType<?>> REGISTRY =
             FabricRegistryBuilder.createSimple(REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
 
-    private final SpellFactory<T> factory;
+    private final SpellFactory<T> spellFactory;
     private final int manaCost;
     private final boolean allowsMultipleCasts;
     private final boolean needLearning;
     private final Castability castability;
 
     @ApiStatus.Internal
-    public SpellType(SpellFactory<T> factory, int manaCost, boolean allowsMultipleCasts, boolean needLearning, Castability castability) {
-        this.factory = factory;
+    public SpellType(SpellFactory<T> spellFactory, int manaCost, boolean allowsMultipleCasts, boolean needLearning, Castability castability) {
+        this.spellFactory = spellFactory;
         this.manaCost = manaCost;
         this.allowsMultipleCasts = allowsMultipleCasts;
         this.needLearning = needLearning;
         this.castability = castability;
     }
 
+    @ApiStatus.Internal
     public static void init() {
     }
 
@@ -63,21 +64,23 @@ public class SpellType<T extends Spell> {
         return needLearning;
     }
 
-    public boolean hasLearned(PlayerEntity player) {
-        return player.getSpellManager().hasLearned(this);
-    }
-
     public int getManaCost() {
         return manaCost;
     }
 
     public T create() {
-        return this.factory.create(this);
+        return this.spellFactory.create(this);
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "{id=" + this.getId() + ", manaCost=" + this.getManaCost() + "}";
+        return "SpellType{" +
+                "spellFactory=" + spellFactory +
+                ", manaCost=" + manaCost +
+                ", allowsMultipleCasts=" + allowsMultipleCasts +
+                ", needLearning=" + needLearning +
+                ", castability=" + castability +
+                '}';
     }
 
     public static class Builder<T extends Spell> {
@@ -137,7 +140,7 @@ public class SpellType<T extends Spell> {
     @FunctionalInterface
     public interface Castability {
         Castability ALWAYS = (spellType, player) -> true;
-        Castability DEFAULT = (spellType, player) -> player.getManaManager().isCastable(spellType) && player.getSpellManager().isCastable(spellType);
+        Castability DEFAULT = (spellType, player) -> player.getSpellManager().isCastable(spellType);
         Castability NEVER = (spellType, player) -> false;
 
         boolean isCastable(SpellType<?> spellType, PlayerEntity player);
