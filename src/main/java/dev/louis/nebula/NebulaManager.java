@@ -8,11 +8,6 @@ import dev.louis.nebula.api.manager.spell.entrypoint.RegisterSpellManagerEntrypo
 import dev.louis.nebula.api.manager.spell.registerable.SpellManagerRegistrableView;
 import dev.louis.nebula.manager.mana.NebulaManaManager;
 import dev.louis.nebula.manager.spell.NebulaSpellManager;
-import dev.louis.nebula.networking.SyncManaS2CPacket;
-import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
@@ -28,12 +23,10 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     private static RegisterManaManagerEntrypoint manaManagerEntrypoint;
     private static ModContainer manaManagerMod;
     private static ManaManager.Factory<?> manaManagerFactory;
-    private static Runnable manaPacketRegisterer = () -> manaManagerEntrypoint.registerManaPacketReceiver();
 
     private static RegisterSpellManagerEntrypoint spellManagerEntrypoint;
     private static ModContainer spellManagerMod;
     private static SpellManager.Factory<?> spellManagerFactory;
-    private static Runnable spellPacketRegisterer = () -> spellManagerEntrypoint.registerSpellPacketReceiver();
 
 
 
@@ -68,13 +61,9 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
             registerSpellManager(NebulaSpellManager::new);
 
             spellManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
-            spellPacketRegisterer = () ->
-                    ClientPlayNetworking.registerGlobalReceiver(SyncManaS2CPacket.TYPE, NebulaManaManager::receiveSync);
         }
         if (manaManagerFactory == null) {
             registerManaManager(NebulaManaManager::new);
-            manaPacketRegisterer = () ->
-                    ClientPlayNetworking.registerGlobalReceiver(UpdateSpellCastabilityS2CPacket.TYPE, NebulaSpellManager::receiveSync);
 
             manaManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
         }
@@ -149,15 +138,5 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
 
     private static <T> T getFirstOrNull(List<T> list) {
         return list.isEmpty() ? null : list.get(0);
-    }
-
-    @Environment(EnvType.CLIENT)
-    public static void registerPacketReceivers() {
-        if(!NebulaManager.isLocked) {
-            throw new IllegalStateException("NebulaManager is not locked yet!");
-        }
-        NebulaManager.manaPacketRegisterer.run();
-        NebulaManager.spellPacketRegisterer.run();
-
     }
 }

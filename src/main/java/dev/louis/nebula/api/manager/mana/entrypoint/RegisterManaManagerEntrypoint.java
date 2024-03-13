@@ -8,8 +8,6 @@ import dev.louis.nebula.api.manager.mana.registerable.ManaManagerRegistrableView
 public interface RegisterManaManagerEntrypoint {
     void registerManaManager(ManaManagerRegistrableView manaManagerRegistrableView);
 
-    void registerManaPacketReceiver();
-
     default boolean shouldRegister() {
         return true;
     };

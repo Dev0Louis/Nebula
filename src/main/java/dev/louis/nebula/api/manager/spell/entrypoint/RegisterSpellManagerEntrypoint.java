@@ -8,8 +8,6 @@ import dev.louis.nebula.api.manager.spell.registerable.SpellManagerRegistrableVi
 public interface RegisterSpellManagerEntrypoint {
     void registerSpellManager(SpellManagerRegistrableView spellManagerRegistrableView);
 
-    void registerSpellPacketReceiver();
-
     default boolean shouldRegister() {
         return true;
     };
