@@ -1,36 +1,15 @@
 package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.api.manager.spell.SpellManager;
-import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-
-import java.util.Optional;
 
 /**
  * This class represents an attempt to cast a spell. It holds a reference to the caster of the Spell.
  *
  */
 public abstract class Spell {
-    public static final TrackedDataHandler<Optional<Spell>> OPTIONAL_SPELL = new TrackedDataHandler.ImmutableHandler<>() {
-        public void write(PacketByteBuf buf, Optional<Spell> optionalSpell) {
-            buf.writeBoolean(optionalSpell.isPresent());
-            optionalSpell.ifPresent(spell -> {
-                buf.writeRegistryValue(SpellType.REGISTRY, spell.getType());
-                spell.writeBuf(buf);
-            });
-        }
-
-        public Optional<Spell> read(PacketByteBuf buf) {
-            if(!buf.readBoolean()) return Optional.empty();
-            SpellType<?> spellType = buf.readRegistryValue(SpellType.REGISTRY);
-            if(spellType == null) throw new IllegalStateException("Spell type not found in registry");
-            var spell = spellType.create();
-            spell.readBuf(buf);
-            return Optional.of(spell);
-        }
-    };
     private static final int DEFAULT_SPELL_AGE = 3 * 20;
 
     private final SpellType<?> spellType;
@@ -119,7 +98,9 @@ public abstract class Spell {
      * <br>
      * Unlike {@link Spell#interrupt()} if you call this method it is expected that the spell has finished execution.<br>
      */
-    public final void stop() {
+    //Thinking about possible change.
+    @Deprecated
+    protected final void stop() {
         this.stopped = true;
     }
 
@@ -138,15 +119,6 @@ public abstract class Spell {
 
     public boolean wasInterrupted() {
         return this.wasInterrupted;
-    }
-
-    /**
-     * Read additional casting data about the spell from the buf.
-     * @param buf The buf to be read from.
-     * @return The buf after being read from.
-     */
-    public PacketByteBuf readBuf(PacketByteBuf buf) {
-        return buf;
     }
 
     /**

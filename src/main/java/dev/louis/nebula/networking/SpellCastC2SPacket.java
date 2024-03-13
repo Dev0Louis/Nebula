@@ -21,13 +21,11 @@ public record SpellCastC2SPacket(Spell spell) implements FabricPacket {
         SpellType<?> spellType = buf.readRegistryValue(SpellType.REGISTRY);
         if(spellType == null) throw new IllegalStateException("Spell type not found in registry");
         Spell spell = spellType.create();
-        spell.readBuf(buf);
         return new SpellCastC2SPacket(spell);
     }
 
     public void write(PacketByteBuf buf) {
         buf.writeRegistryValue(SpellType.REGISTRY, spell.getType());
-        spell.writeBuf(buf);
     }
 
     @Override
