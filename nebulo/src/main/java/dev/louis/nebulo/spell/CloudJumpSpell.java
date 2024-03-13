@@ -48,7 +48,7 @@ public class CloudJumpSpell extends Spell {
     }
 
     @Override
-    public void onEnd() {
+    public void finish() {
         if(!this.getCaster().getWorld().isClient()) {
             var serverPlayer = (ServerPlayerEntity) this.getCaster();
             serverPlayer.playSound(SoundEvents.ENTITY_CAMEL_DASH, SoundCategory.PLAYERS, 2f, -1f);

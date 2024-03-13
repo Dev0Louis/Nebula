@@ -36,10 +36,10 @@ public abstract class Spell {
     private final SpellType<?> spellType;
     private PlayerEntity caster;
 
-    protected int spellAge = 0;
     protected boolean wasInterrupted;
-    protected boolean hasEnded;
     protected boolean stopped;
+
+    public int age = 0;
 
     public Spell(SpellType<?> spellType) {
         this.spellType = spellType;
@@ -59,11 +59,6 @@ public abstract class Spell {
         this.getCaster().getManaManager().drainMana(getType().getManaCost());
     }
 
-    public final void baseTick() {
-        spellAge++;
-        this.tick();
-    }
-
     public void tick() {
     }
 
@@ -80,7 +75,7 @@ public abstract class Spell {
     }
 
     public int getAge() {
-        return this.spellAge;
+        return this.age;
     }
 
     public int getDuration() {
@@ -92,8 +87,7 @@ public abstract class Spell {
      * After this method is called {@link Spell#tick()} will not be called anymore.<br>
      * Use this to finish all remaining logic of the spell.
      */
-    public void onEnd() {
-        this.hasEnded = true;
+    public void finish() {
     }
 
     public void setCaster(PlayerEntity caster) {
@@ -105,14 +99,14 @@ public abstract class Spell {
      * It is important to check super or check if the spell was interrupted {@link Spell#wasInterrupted()}. <br>
      */
     public boolean shouldStop() {
-        return this.stopped || this.spellAge > this.getDuration();
+        return this.stopped || this.age > this.getDuration();
     }
 
     /**
      * Interrupts the spell.<br>
      * This method is final as no Spell is immune to being interrupted<br>
      * <br>
-     * If you want to show to the player that the spell was interrupted check {@link Spell#wasInterrupted()} in {@link Spell#onEnd()} as it is called after this.
+     * If you want to show to the player that the spell was interrupted check {@link Spell#wasInterrupted()} in {@link Spell#finish()} as it is called after this.
      */
     public final void interrupt() {
         this.wasInterrupted = true;
@@ -121,7 +115,7 @@ public abstract class Spell {
 
     /**
      * Stop the spell.<br>
-     * This method is final as post-spell action shall be handled in {@link Spell#onEnd()}<br>
+     * This method is final as post-spell action shall be handled in {@link Spell#finish()}<br>
      * <br>
      * Unlike {@link Spell#interrupt()} if you call this method it is expected that the spell has finished execution.<br>
      */
@@ -144,10 +138,6 @@ public abstract class Spell {
 
     public boolean wasInterrupted() {
         return this.wasInterrupted;
-    }
-
-    public boolean hasEnded() {
-        return this.hasEnded;
     }
 
     /**
@@ -174,7 +164,7 @@ public abstract class Spell {
         return this.getClass().getSimpleName() +
                 "[spellType=" + this.spellType +
                 ", caster=" + this.caster +
-                ", spellAge=" + this.spellAge +
+                ", spellAge=" + this.age +
                 ", wasInterrupted=" + this.wasInterrupted + "]";
     }
 }
