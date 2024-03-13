@@ -9,10 +9,13 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
+import java.util.Collection;
+import java.util.List;
+
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
-import static net.minecraft.command.argument.EntityArgumentType.getPlayer;
-import static net.minecraft.command.argument.EntityArgumentType.player;
+import static net.minecraft.command.argument.EntityArgumentType.getPlayers;
+import static net.minecraft.command.argument.EntityArgumentType.players;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -37,14 +40,14 @@ public class NebulaCommand {
         var command = literal("nebula").requires(source -> source.hasPermissionLevel(4))
                 .then(literal("getMana")
                         .executes(context -> getMana(context.getSource()))
-                        .then(argument("player", player())
-                                .executes(context -> getMana(context.getSource(), getPlayer(context, "player")))))
+                        .then(argument("players", players())
+                                .executes(context -> getMana(context.getSource(), getPlayers(context, "players")))))
                 .then(literal("setMana")
-                        .then(argument("player", player())
+                        .then(argument("players", players())
                                 .then(argument("mana", integer(0))
                                         .executes(context -> setMana(
                                                 context.getSource(),
-                                                getPlayer(context, "player"),
+                                                getPlayers(context, "players"),
                                                 getInteger(context, "mana"))))))
                 .then(learnSpellCommand);
 
@@ -53,23 +56,26 @@ public class NebulaCommand {
         dispatcher.register(command);
     }
 
-    private static int setMana(ServerCommandSource source, ServerPlayerEntity player, int mana) {
-        if(source.getPlayer() != null) {
+    private static int setMana(ServerCommandSource source, Collection<ServerPlayerEntity> players, int mana) {
+        for (ServerPlayerEntity player : players) {
             player.getManaManager().setMana(mana);
             source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
         }
+
         return 1;
     }
 
     private static int getMana(ServerCommandSource source) {
         if(source.getPlayer() != null) {
-            return getMana(source, source.getPlayer());
+            return getMana(source, List.of(source.getPlayer()));
         }
         return 0;
     }
 
-    private static int getMana(ServerCommandSource source, ServerPlayerEntity player) {
-        source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
+    private static int getMana(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
+        for (ServerPlayerEntity player : players) {
+            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
+        }
         return 1;
     }
 
