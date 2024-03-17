@@ -26,7 +26,6 @@ public interface NebulaPlayer {
         throw new UnsupportedOperationException("Injected Interface method was not overridden!");
     }
 
-
     static ManaManager getManaManager(ServerPlayerEntity serverPlayer) {
         return serverPlayer.getManaManager();
     }

@@ -2,14 +2,13 @@ package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.api.manager.spell.SpellManager;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
 
 /**
  * This class represents an attempt to cast a spell. It holds a reference to the caster of the Spell.
  *
  */
 public abstract class Spell {
-    private static final int DEFAULT_SPELL_AGE = 3 * 20;
+    private static final int DEFAULT_SPELL_AGE = 0;
 
     protected final SpellType<?> spellType;
     protected final PlayerEntity caster;
@@ -39,10 +38,6 @@ public abstract class Spell {
     }
 
     public void tick() {
-    }
-
-    public Identifier getId() {
-        return this.getType().getId();
     }
 
     public PlayerEntity getCaster() {
