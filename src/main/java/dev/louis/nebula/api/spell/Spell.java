@@ -2,7 +2,6 @@ package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.api.manager.spell.SpellManager;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
 /**
@@ -12,16 +11,17 @@ import net.minecraft.util.Identifier;
 public abstract class Spell {
     private static final int DEFAULT_SPELL_AGE = 3 * 20;
 
-    private final SpellType<?> spellType;
-    private PlayerEntity caster;
+    protected final SpellType<?> spellType;
+    protected final PlayerEntity caster;
 
     protected boolean wasInterrupted;
     protected boolean stopped;
 
     public int age = 0;
 
-    public Spell(SpellType<?> spellType) {
+    public Spell(SpellType<?> spellType, PlayerEntity caster) {
         this.spellType = spellType;
+        this.caster = caster;
     }
 
     /**
@@ -53,10 +53,6 @@ public abstract class Spell {
         return this.spellType;
     }
 
-    public int getAge() {
-        return this.age;
-    }
-
     public int getDuration() {
         return DEFAULT_SPELL_AGE;
     }
@@ -67,10 +63,6 @@ public abstract class Spell {
      * Use this to finish all remaining logic of the spell.
      */
     public void finish() {
-    }
-
-    public void setCaster(PlayerEntity caster) {
-        this.caster = caster;
     }
 
     /**
@@ -98,8 +90,6 @@ public abstract class Spell {
      * <br>
      * Unlike {@link Spell#interrupt()} if you call this method it is expected that the spell has finished execution.<br>
      */
-    //Thinking about possible change.
-    @Deprecated
     protected final void stop() {
         this.stopped = true;
     }
@@ -120,16 +110,6 @@ public abstract class Spell {
     public boolean wasInterrupted() {
         return this.wasInterrupted;
     }
-
-    /**
-     * Write additional casting data about the spell to the buf.
-     * @param buf The buf to be written to.
-     * @return The buf after being written to.
-     */
-    public PacketByteBuf writeBuf(PacketByteBuf buf) {
-        return buf;
-    }
-
 
     @Override
     public String toString() {

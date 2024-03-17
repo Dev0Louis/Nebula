@@ -47,8 +47,6 @@ public interface ManaManager {
      */
     boolean hasEnoughMana(int mana);
 
-    //Thinking about removal as it would isolate the ManaManager from anything Spell related :)
-    @Deprecated
     /**
      * @param spellType The SpellType which should be checked.
      * @return If enough mana is available for the specified SpellType.

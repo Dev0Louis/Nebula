@@ -1,5 +1,6 @@
-package dev.louis.nebula;
+package dev.louis.nebula.manager;
 
+import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.manager.mana.ManaManager;
 import dev.louis.nebula.api.manager.mana.entrypoint.RegisterManaManagerEntrypoint;
 import dev.louis.nebula.api.manager.mana.registerable.ManaManagerRegistrableView;

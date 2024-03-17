@@ -3,6 +3,7 @@ package dev.louis.nebula;
 import com.mojang.logging.LogUtils;
 import dev.louis.nebula.api.spell.SpellType;
 import dev.louis.nebula.command.NebulaCommand;
+import dev.louis.nebula.manager.NebulaManager;
 import dev.louis.nebula.networking.SpellCastC2SPacket;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

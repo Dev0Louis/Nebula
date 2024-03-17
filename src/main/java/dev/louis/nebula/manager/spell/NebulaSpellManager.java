@@ -73,18 +73,9 @@ public class NebulaSpellManager implements SpellManager {
         return shouldSync;
     }
 
-    /**
-     * This Method does not return an unmodifiable set.
-     * So that it could theoretically be modified.
-     */
-    protected Set<SpellType<?>> getCastableSpells() {
-        return learnedSpells;
-    }
-
     @Override
     public boolean cast(SpellType<?> spellType) {
-        var spell = spellType.create();
-        spell.setCaster(this.player);
+        var spell = spellType.create(this.player);
         return this.cast(spell);
     }
 
@@ -97,9 +88,9 @@ public class NebulaSpellManager implements SpellManager {
             if (this.isServer()) {
                 spell.applyCost();
                 spell.cast();
-                this.activeSpells.add(spell);
+                if (spell.getDuration() > 0) this.activeSpells.add(spell);
             } else {
-                ClientPlayNetworking.send(new SpellCastC2SPacket(spell));
+                ClientPlayNetworking.send(new SpellCastC2SPacket(spell.getType()));
             }
             return true;
         }
@@ -171,9 +162,9 @@ public class NebulaSpellManager implements SpellManager {
     @Override
     public void writeNbt(NbtCompound nbt) {
         NbtList nbtList = new NbtList();
-        for (SpellType<?> spell : getCastableSpells()) {
+        for (SpellType<?> spellType : this.getLearnedSpells()) {
             NbtCompound nbtCompound = new NbtCompound();
-            nbtCompound.putString(SPELL_NBT_KEY, spell.getId().toString());
+            nbtCompound.putString(SPELL_NBT_KEY, spellType.getId().toString());
 
             nbtList.add(nbtCompound);
         }

@@ -68,8 +68,8 @@ public class SpellType<T extends Spell> {
         return manaCost;
     }
 
-    public T create() {
-        return this.spellFactory.create(this);
+    public T create(PlayerEntity caster) {
+        return this.spellFactory.create(this, caster);
     }
 
     @Override
@@ -134,7 +134,8 @@ public class SpellType<T extends Spell> {
 
     @FunctionalInterface
     public interface SpellFactory<T extends Spell> {
-        T create(SpellType<T> spellType);
+
+        T create(SpellType<T> spellType, PlayerEntity caster);
     }
 
     @FunctionalInterface

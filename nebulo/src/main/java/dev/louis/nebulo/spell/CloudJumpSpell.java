@@ -2,14 +2,15 @@ package dev.louis.nebulo.spell;
 
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 
 public class CloudJumpSpell extends Spell {
-    public CloudJumpSpell(SpellType<?> spellType) {
-        super(spellType);
+    public CloudJumpSpell(SpellType<?> spellType, PlayerEntity player) {
+        super(spellType, player);
     }
 
     @Override
