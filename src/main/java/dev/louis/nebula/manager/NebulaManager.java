@@ -1,5 +1,6 @@
-package dev.louis.nebula;
+package dev.louis.nebula.manager;
 
+import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.manager.mana.ManaManager;
 import dev.louis.nebula.api.manager.mana.entrypoint.RegisterManaManagerEntrypoint;
 import dev.louis.nebula.api.manager.mana.registerable.ManaManagerRegistrableView;
@@ -8,11 +9,6 @@ import dev.louis.nebula.api.manager.spell.entrypoint.RegisterSpellManagerEntrypo
 import dev.louis.nebula.api.manager.spell.registerable.SpellManagerRegistrableView;
 import dev.louis.nebula.manager.mana.NebulaManaManager;
 import dev.louis.nebula.manager.spell.NebulaSpellManager;
-import dev.louis.nebula.networking.SyncManaS2CPacket;
-import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
@@ -28,19 +24,17 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     private static RegisterManaManagerEntrypoint manaManagerEntrypoint;
     private static ModContainer manaManagerMod;
     private static ManaManager.Factory<?> manaManagerFactory;
-    private static Runnable manaPacketRegisterer = () -> manaManagerEntrypoint.registerManaPacketReceiver();
 
     private static RegisterSpellManagerEntrypoint spellManagerEntrypoint;
     private static ModContainer spellManagerMod;
     private static SpellManager.Factory<?> spellManagerFactory;
-    private static Runnable spellPacketRegisterer = () -> spellManagerEntrypoint.registerSpellPacketReceiver();
 
 
 
     private NebulaManager() {}
 
     public static void init() {
-        if(NebulaManager.isLocked) throw new IllegalStateException("Registration of Managers is locked!");
+        if (NebulaManager.isLocked) throw new IllegalStateException("Registration of Managers is locked!");
         NebulaManager nebulaManager = new NebulaManager();
         nebulaManager.runEntrypointsOrThrow();
         nebulaManager.lock();
@@ -64,17 +58,13 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
     }
 
     public void lock() {
-        if(spellManagerFactory == null) {
+        if (spellManagerFactory == null) {
             registerSpellManager(NebulaSpellManager::new);
 
             spellManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
-            spellPacketRegisterer = () ->
-                    ClientPlayNetworking.registerGlobalReceiver(SyncManaS2CPacket.TYPE, NebulaManaManager::receiveSync);
         }
-        if(manaManagerFactory == null) {
+        if (manaManagerFactory == null) {
             registerManaManager(NebulaManaManager::new);
-            manaPacketRegisterer = () ->
-                    ClientPlayNetworking.registerGlobalReceiver(UpdateSpellCastabilityS2CPacket.TYPE, NebulaSpellManager::receiveSync);
 
             manaManagerMod = FabricLoader.getInstance().getModContainer(Nebula.MOD_ID).orElseThrow();
         }
@@ -147,17 +137,15 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
         Nebula.LOGGER.info("SpellManager is registered by: " + NebulaManager.spellManagerMod.getMetadata().getName());
     }
 
-    private static <T> T getFirstOrNull(List<T> list) {
-        return list.isEmpty() ? null : list.get(0);
+    public static ModContainer getManaManagerMod() {
+        return manaManagerMod;
     }
 
-    @Environment(EnvType.CLIENT)
-    public static void registerPacketReceivers() {
-        if(!NebulaManager.isLocked) {
-            throw new IllegalStateException("NebulaManager is not locked yet!");
-        }
-        NebulaManager.manaPacketRegisterer.run();
-        NebulaManager.spellPacketRegisterer.run();
+    public static ModContainer getSpellManagerMod() {
+        return spellManagerMod;
+    }
 
+    private static <T> T getFirstOrNull(List<T> list) {
+        return list.isEmpty() ? null : list.get(0);
     }
 }

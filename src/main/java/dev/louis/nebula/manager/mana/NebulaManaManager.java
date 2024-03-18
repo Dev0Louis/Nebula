@@ -29,7 +29,7 @@ public class NebulaManaManager implements ManaManager {
 
     @Override
     public void tick() {
-        if(this.dirty) {
+        if (this.dirty) {
             this.sendSync();
             this.dirty = false;
         }
@@ -47,7 +47,7 @@ public class NebulaManaManager implements ManaManager {
 
     public void setMana(int mana, boolean syncToClient) {
         this.mana = Math.max(Math.min(mana, this.getMaxMana()), 0);
-        if(syncToClient) this.markDirty();
+        if (syncToClient) this.markDirty();
     }
 
     @Override
@@ -61,11 +61,6 @@ public class NebulaManaManager implements ManaManager {
     }
 
     @Override
-    public void drainMana(SpellType<?> spellType) {
-        this.drainMana(spellType.getManaCost());
-    }
-
-    @Override
     public int getMaxMana() {
         return 20;
     }
@@ -76,7 +71,7 @@ public class NebulaManaManager implements ManaManager {
     }
 
     @Override
-    public boolean isCastable(SpellType<?> spellType) {
+    public boolean hasEnoughMana(SpellType<?> spellType) {
         return this.hasEnoughMana(spellType.getManaCost());
     }
 
