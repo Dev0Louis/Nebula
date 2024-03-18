@@ -88,7 +88,7 @@ public class NebulaSpellManager implements SpellManager {
             if (this.isServer()) {
                 spell.applyCost();
                 spell.cast();
-                if (spell.getDuration() > 0) this.activeSpells.add(spell);
+                this.activeSpells.add(spell);
             } else {
                 ClientPlayNetworking.send(new SpellCastC2SPacket(spell.getType()));
             }
@@ -108,7 +108,7 @@ public class NebulaSpellManager implements SpellManager {
 
     @Override
     public boolean isCastable(SpellType<?> spellType) {
-        return this.player.isAlive() && player.getManaManager().hasEnoughMana(spellType) && (!spellType.needsLearning() || this.hasLearned(spellType)) && (spellType.allowsMultipleCasts() || !player.getSpellManager().isSpellTypeActive(spellType));
+        return this.player.isAlive() && player.getManaManager().hasEnoughMana(spellType) && (!spellType.needsLearning() || this.hasLearned(spellType)) && (spellType.allowsParallelCasts() || !player.getSpellManager().isSpellTypeActive(spellType));
     }
 
     public void markDirty() {

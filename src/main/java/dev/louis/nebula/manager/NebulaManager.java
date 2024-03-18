@@ -137,6 +137,14 @@ public class NebulaManager implements ManaManagerRegistrableView, SpellManagerRe
         Nebula.LOGGER.info("SpellManager is registered by: " + NebulaManager.spellManagerMod.getMetadata().getName());
     }
 
+    public static ModContainer getManaManagerMod() {
+        return manaManagerMod;
+    }
+
+    public static ModContainer getSpellManagerMod() {
+        return spellManagerMod;
+    }
+
     private static <T> T getFirstOrNull(List<T> list) {
         return list.isEmpty() ? null : list.get(0);
     }

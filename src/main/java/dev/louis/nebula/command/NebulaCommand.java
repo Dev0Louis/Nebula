@@ -81,6 +81,7 @@ public class NebulaCommand {
 
     private static int learnSpell(ServerCommandSource source, SpellType<?> spellType) {
         if(source.getPlayer() != null) {
+            source.getPlayer().getSpellManager().learnSpell(spellType);
             source.sendMessage(Text.of("Learned spell " + spellType.getId()));
         }
         return 1;

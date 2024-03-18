@@ -10,7 +10,8 @@
   "client": [
     "ClientPlayerEntityAccessor",
     "ClientPlayerEntityMixin",
-    "ClientPlayNetworkHandlerMixin"
+    "ClientPlayNetworkHandlerMixin",
+    "DebugHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1
