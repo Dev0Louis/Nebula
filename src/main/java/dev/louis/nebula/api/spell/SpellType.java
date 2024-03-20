@@ -18,21 +18,20 @@ public class SpellType<T extends Spell> {
     public static final SimpleRegistry<SpellType<?>> REGISTRY =
             FabricRegistryBuilder.createSimple(REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
 
-    private final SpellFactory<T> factory;
+    private final SpellFactory<T> spellFactory;
     private final int manaCost;
-    private final boolean allowsMultipleCasts;
-    private final boolean needLearning;
-    private final Castability castability;
+    private final boolean allowsParallelCasts;
+    private final boolean needsLearning;
 
     @ApiStatus.Internal
-    public SpellType(SpellFactory<T> factory, int manaCost, boolean allowsMultipleCasts, boolean needLearning, Castability castability) {
-        this.factory = factory;
+    public SpellType(SpellFactory<T> spellFactory, int manaCost, boolean allowsParallelCasts, boolean needsLearning) {
+        this.spellFactory = spellFactory;
         this.manaCost = manaCost;
-        this.allowsMultipleCasts = allowsMultipleCasts;
-        this.needLearning = needLearning;
-        this.castability = castability;
+        this.allowsParallelCasts = allowsParallelCasts;
+        this.needsLearning = needsLearning;
     }
 
+    @ApiStatus.Internal
     public static void init() {
     }
 
@@ -52,40 +51,49 @@ public class SpellType<T extends Spell> {
      * This should be used to check if the player can cast the spell.
      */
     public boolean isCastable(PlayerEntity player) {
-        return castability.isCastable(this, player);
+        return player.getSpellManager().isCastable(this);
     }
 
-    public boolean allowsMultipleCasts() {
-        return allowsMultipleCasts;
+    /**
+     * Utility method for checking if the spell has been learned by the given player.
+     * @param player Player to check.
+     * @return If the spell has been learned.
+     */
+    public boolean isLearnedBy(PlayerEntity player) {
+        return player.getSpellManager().hasLearned(this);
+    }
+
+    public boolean allowsParallelCasts() {
+        return allowsParallelCasts;
     }
 
     public boolean needsLearning() {
-        return needLearning;
-    }
-
-    public boolean hasLearned(PlayerEntity player) {
-        return player.getSpellManager().hasLearned(this);
+        return needsLearning;
     }
 
     public int getManaCost() {
         return manaCost;
     }
 
-    public T create() {
-        return this.factory.create(this);
+    public T create(PlayerEntity caster) {
+        return this.spellFactory.create(this, caster);
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "{id=" + this.getId() + ", manaCost=" + this.getManaCost() + "}";
+        return "SpellType{" +
+                "spellFactory=" + spellFactory +
+                ", manaCost=" + manaCost +
+                ", allowsParallelCasts=" + allowsParallelCasts +
+                ", needLearning=" + needsLearning +
+                '}';
     }
 
     public static class Builder<T extends Spell> {
         private final SpellFactory<T> factory;
         private final int manaCost;
-        private boolean allowsMultipleCasts;
+        private boolean allowParallelCast;
         private boolean needsLearning = true;
-        private Castability castability = Castability.DEFAULT;
 
         private Builder(SpellFactory<T> factory, int manaCost) {
             this.factory = factory;
@@ -101,7 +109,7 @@ public class SpellType<T extends Spell> {
          * That means that a spell could be cast while it is already ticking
          */
         public Builder<T> parallelCast() {
-            this.allowsMultipleCasts = true;
+            this.allowParallelCast = true;
             return this;
         }
 
@@ -113,41 +121,18 @@ public class SpellType<T extends Spell> {
             return this;
         }
 
-        public Builder<T> castability(Castability castability) {
-            this.castability = castability;
-            return this;
-        }
-
         public SpellType<T> build() {
             return new SpellType<>(
                     this.factory,
                     this.manaCost,
-                    this.allowsMultipleCasts,
-                    this.needsLearning,
-                    this.castability
+                    this.allowParallelCast,
+                    this.needsLearning
             );
         }
     }
 
     @FunctionalInterface
     public interface SpellFactory<T extends Spell> {
-        T create(SpellType<T> spellType);
-    }
-
-    @FunctionalInterface
-    public interface Castability {
-        Castability ALWAYS = (spellType, player) -> true;
-        Castability DEFAULT = (spellType, player) -> player.getManaManager().isCastable(spellType) && player.getSpellManager().isCastable(spellType);
-        Castability NEVER = (spellType, player) -> false;
-
-        boolean isCastable(SpellType<?> spellType, PlayerEntity player);
-
-        default Castability and(Castability other) {
-            return (spellType, player) -> this.isCastable(spellType, player) && other.isCastable(spellType, player);
-        }
-
-        default Castability or(Castability other) {
-            return (spellType, player) -> this.isCastable(spellType, player) || other.isCastable(spellType, player);
-        }
+        T create(SpellType<T> spellType, PlayerEntity caster);
     }
 }
