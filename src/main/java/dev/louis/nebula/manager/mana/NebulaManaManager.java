@@ -3,11 +3,9 @@ package dev.louis.nebula.manager.mana;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.manager.mana.ManaManager;
 import dev.louis.nebula.api.spell.SpellType;
-import dev.louis.nebula.mixin.ClientPlayerEntityAccessor;
-import dev.louis.nebula.networking.SyncManaS2CPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import dev.louis.nebula.networking.s2c.SyncManaPayload;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -85,15 +83,14 @@ public class NebulaManaManager implements ManaManager {
             int syncMana = this.getMana();
             if (syncMana == this.lastSyncedMana) return true;
             this.lastSyncedMana = syncMana;
-            ServerPlayNetworking.send(serverPlayerEntity, new SyncManaS2CPacket(syncMana));
+            ServerPlayNetworking.send(serverPlayerEntity, new SyncManaPayload(syncMana));
             return true;
         }
         return false;
     }
 
-    public static boolean receiveSync(SyncManaS2CPacket packet, ClientPlayerEntity player, PacketSender responseSender) {
-        ((ClientPlayerEntityAccessor)player).getClient().executeSync(() -> player.getManaManager().setMana(packet.mana()));
-        return true;
+    public static void receiveSync(SyncManaPayload spellCastPayload, ClientPlayNetworking.Context context) {
+        context.client().executeSync(() -> context.player().getManaManager().setMana(spellCastPayload.mana()));
     }
 
     @Override

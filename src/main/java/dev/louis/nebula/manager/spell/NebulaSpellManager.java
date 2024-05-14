@@ -5,13 +5,10 @@ import dev.louis.nebula.api.event.SpellCastCallback;
 import dev.louis.nebula.api.manager.spell.SpellManager;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellType;
-import dev.louis.nebula.mixin.ClientPlayerEntityAccessor;
-import dev.louis.nebula.networking.SpellCastC2SPacket;
-import dev.louis.nebula.networking.UpdateSpellCastabilityS2CPacket;
+import dev.louis.nebula.networking.c2s.SpellCastPayload;
+import dev.louis.nebula.networking.s2c.UpdateSpellCastabilityPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -90,7 +87,7 @@ public class NebulaSpellManager implements SpellManager {
                 spell.cast();
                 this.activeSpells.add(spell);
             } else {
-                ClientPlayNetworking.send(new SpellCastC2SPacket(spell.getType()));
+                ClientPlayNetworking.send(new SpellCastPayload(spell.getType()));
             }
             return true;
         }
@@ -140,7 +137,7 @@ public class NebulaSpellManager implements SpellManager {
         if (this.player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
             Map<SpellType<?>, Boolean> castableSpells = new HashMap<>();
             SpellType.REGISTRY.forEach(spellType -> castableSpells.put(spellType, this.hasLearned(spellType)));
-            ServerPlayNetworking.send(serverPlayerEntity, new UpdateSpellCastabilityS2CPacket(castableSpells));
+            ServerPlayNetworking.send(serverPlayerEntity, new UpdateSpellCastabilityPayload(castableSpells));
             dirty = false;
             return true;
         }
@@ -148,9 +145,9 @@ public class NebulaSpellManager implements SpellManager {
     }
 
 
-    public static boolean receiveSync(UpdateSpellCastabilityS2CPacket packet, ClientPlayerEntity player, PacketSender responseSender) {
-        ((ClientPlayerEntityAccessor)player).getClient().executeSync(() -> {
-            SpellManager spellManager = player.getSpellManager();
+    public static boolean receiveSync(UpdateSpellCastabilityPayload packet, ClientPlayNetworking.Context context) {
+        context.client().executeSync(() -> {
+            SpellManager spellManager = context.player()  .getSpellManager();
             packet.spells().forEach((spellType, learned) -> {
                 if (learned) spellManager.learnSpell(spellType);
                 else spellManager.forgetSpell(spellType);

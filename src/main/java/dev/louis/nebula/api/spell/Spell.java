@@ -92,7 +92,6 @@ public abstract class Spell {
     /**
      * If true {@link Spell#applyCost()} and {@link Spell#cast()}  will be called in that order. <br>
      * If false nothing will be called. <br>
-     * {@link SpellType.Builder#castability(SpellType.Castability)} instead if possible.
      */
     public boolean isCastable() {
         return this.getType().isCastable(this.caster);

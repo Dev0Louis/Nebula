@@ -13,7 +13,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Optional;
 
 public class SpellType<T extends Spell> {
-    private static final RegistryKey<Registry<SpellType<?>>> REGISTRY_KEY =
+    public static final RegistryKey<Registry<SpellType<?>>> REGISTRY_KEY =
             RegistryKey.ofRegistry(new Identifier(Nebula.MOD_ID, "spell_type"));
     public static final SimpleRegistry<SpellType<?>> REGISTRY =
             FabricRegistryBuilder.createSimple(REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
