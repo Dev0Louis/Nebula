@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class SpellType<T extends Spell> {
     public static final RegistryKey<Registry<SpellType<?>>> REGISTRY_KEY =
-            RegistryKey.ofRegistry(new Identifier(Nebula.MOD_ID, "spell_type"));
+            RegistryKey.ofRegistry(Identifier.of(Nebula.MOD_ID, "spell_type"));
     public static final SimpleRegistry<SpellType<?>> REGISTRY =
             FabricRegistryBuilder.createSimple(REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
 

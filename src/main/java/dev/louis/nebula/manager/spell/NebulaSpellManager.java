@@ -176,7 +176,7 @@ public class NebulaSpellManager implements SpellManager {
         if (nbtList == null) return;
         for (int x = 0; x < nbtList.size(); ++x) {
             NbtCompound nbtCompound = nbtList.getCompound(x);
-            Identifier spell = new Identifier(nbtCompound.getString(SPELL_NBT_KEY));
+            Identifier spell = Identifier.tryParse(nbtCompound.getString(SPELL_NBT_KEY));
             SpellType.get(spell).ifPresent(learnedSpells::add);
         }
     }
