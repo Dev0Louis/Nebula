@@ -1,6 +1,7 @@
 package dev.louis.nebula.api.manager.mana;
 
 import dev.louis.nebula.api.spell.SpellType;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -28,7 +29,7 @@ public interface ManaManager {
      * Adds the specified amount of mana.
      * @param mana The amount of mana to add.
      */
-    void addMana(int mana);
+    void addMana(int mana, TransactionContext context);
 
     /**
      * Drains the specified amount of mana.

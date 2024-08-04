@@ -1,11 +1,14 @@
 package dev.louis.nebula.manager.mana;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.mana.ManaContainer;
+import dev.louis.nebula.api.mana.ManaHolder;
 import dev.louis.nebula.api.manager.mana.ManaManager;
 import dev.louis.nebula.api.spell.SpellType;
 import dev.louis.nebula.networking.s2c.SyncManaPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -17,9 +20,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public class NebulaManaManager implements ManaManager {
     protected static final String MANA_NBT_KEY = "Mana";
     protected PlayerEntity player;
+    protected ManaHolder manaHolder = new ManaContainer();
     protected int mana = 0;
     protected int lastSyncedMana = -1;
-    private boolean dirty;
+    private boolean needsSync;
 
     public NebulaManaManager(PlayerEntity player) {
         this.player = player;
@@ -27,15 +31,15 @@ public class NebulaManaManager implements ManaManager {
 
     @Override
     public void tick() {
-        if (this.dirty) {
+        if (this.needsSync) {
             this.sendSync();
-            this.dirty = false;
+            this.needsSync = false;
         }
     }
 
     @Override
     public int getMana() {
-        return mana;
+        return manaHolder.mana();
     }
 
     @Override
@@ -44,23 +48,24 @@ public class NebulaManaManager implements ManaManager {
     }
 
     public void setMana(int mana, boolean syncToClient) {
-        this.mana = Math.max(Math.min(mana, this.getMaxMana()), 0);
-        if (syncToClient) this.markDirty();
+        manaHolder.setMana(Math.max(Math.min(mana, this.getMaxMana()), 0));
+        if (syncToClient) this.querySync();
     }
 
     @Override
-    public void addMana(int mana) {
-        this.setMana(this.getMana() + mana);
+    public void addMana(int mana, TransactionContext context) {
+        manaHolder.insert(mana, context);
     }
 
     @Override
     public void drainMana(int mana) {
-        this.setMana(this.getMana() - mana);
+        //TODO: Add some kind of extracting to manaHolder
     }
 
     @Override
     public int getMaxMana() {
-        return 20;
+        //TODO: Rename method.
+        return manaHolder.capacity();
     }
 
     @Override
@@ -73,8 +78,8 @@ public class NebulaManaManager implements ManaManager {
         return this.hasEnoughMana(spellType.getManaCost());
     }
 
-    public void markDirty() {
-        this.dirty = true;
+    public void querySync() {
+        this.needsSync = true;
     }
 
     @Override
