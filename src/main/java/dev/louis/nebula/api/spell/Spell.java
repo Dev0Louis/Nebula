@@ -1,6 +1,8 @@
 package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.api.manager.spell.SpellManager;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.entity.player.PlayerEntity;
 
 /**
@@ -34,7 +36,10 @@ public abstract class Spell {
      * Remove the Cost required by the SpellType.
      */
     public void applyCost() {
-        this.getCaster().getManaManager().drainMana(getType().getManaCost());
+        try(Transaction transaction = Transaction.openOuter()) {
+            this.getCaster().getManaManager().drainMana(getType().getManaCost(), transaction);
+            transaction.commit();
+        }
     }
 
     public void tick() {

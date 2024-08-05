@@ -10,4 +10,5 @@ public interface ManaHolder {
     int mana();
     void setMana(int mana);
     int insert(int amount, TransactionContext context);
+    int extract(int amount, TransactionContext context);
 }

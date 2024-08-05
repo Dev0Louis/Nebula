@@ -3,6 +3,7 @@ package dev.louis.nebula.command;
 import com.mojang.brigadier.CommandDispatcher;
 import dev.louis.nebula.api.spell.SpellType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -42,10 +43,10 @@ public class NebulaCommand {
                         .executes(context -> getMana(context.getSource()))
                         .then(argument("players", players())
                                 .executes(context -> getMana(context.getSource(), getPlayers(context, "players")))))
-                .then(literal("setMana")
+                .then(literal("addMana")
                         .then(argument("players", players())
                                 .then(argument("mana", integer(0))
-                                        .executes(context -> setMana(
+                                        .executes(context -> addMana(
                                                 context.getSource(),
                                                 getPlayers(context, "players"),
                                                 getInteger(context, "mana"))))))
@@ -56,10 +57,13 @@ public class NebulaCommand {
         dispatcher.register(command);
     }
 
-    private static int setMana(ServerCommandSource source, Collection<ServerPlayerEntity> players, int mana) {
+    private static int addMana(ServerCommandSource source, Collection<ServerPlayerEntity> players, int mana) {
         for (ServerPlayerEntity player : players) {
-            player.getManaManager().setMana(mana);
-            source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
+            try(Transaction transaction = Transaction.openOuter()) {
+                player.getManaManager().addMana(mana, transaction);
+                transaction.commit();
+                source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
+            }
         }
 
         return 1;
@@ -81,7 +85,7 @@ public class NebulaCommand {
 
     private static int learnSpell(ServerCommandSource source, SpellType<?> spellType) {
         if(source.getPlayer() != null) {
-            source.getPlayer().getSpellManager().learnSpell(spellType);
+            //source.getPlayer().getSpellManager().learnSpell(spellType);
             source.sendMessage(Text.of("Learned spell " + spellType.getId()));
         }
         return 1;

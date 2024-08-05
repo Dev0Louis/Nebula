@@ -51,7 +51,7 @@ public class SpellType<T extends Spell> {
      * This should be used to check if the player can cast the spell.
      */
     public boolean isCastable(PlayerEntity player) {
-        return player.getSpellManager().isCastable(this);
+        return true; //TODO: IMPLEMENT
     }
 
     /**
@@ -60,7 +60,7 @@ public class SpellType<T extends Spell> {
      * @return If the spell has been learned.
      */
     public boolean isLearnedBy(PlayerEntity player) {
-        return player.getSpellManager().hasLearned(this);
+        return true; //TODO: IMPLEMENT
     }
 
     public boolean allowsParallelCasts() {

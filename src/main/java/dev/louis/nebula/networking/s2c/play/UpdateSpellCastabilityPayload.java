@@ -1,4 +1,4 @@
-package dev.louis.nebula.networking.s2c;
+package dev.louis.nebula.networking.s2c.play;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.spell.Spell;

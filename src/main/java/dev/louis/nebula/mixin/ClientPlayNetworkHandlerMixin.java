@@ -1,6 +1,7 @@
 package dev.louis.nebula.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.louis.nebula.InternalNebulaPlayer;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,7 +23,6 @@ public class ClientPlayNetworkHandlerMixin {
             @Local(ordinal = 0) ClientPlayerEntity oldClientPlayer,
             @Local(ordinal = 1) ClientPlayerEntity newClientPlayer
     ) {
-        newClientPlayer.setSpellManager(oldClientPlayer.getSpellManager().setPlayer(newClientPlayer));
-        newClientPlayer.setManaManager(oldClientPlayer.getManaManager().setPlayer(newClientPlayer));
+        InternalNebulaPlayer.getManaManager(newClientPlayer).copyFrom(InternalNebulaPlayer.getManaManager(oldClientPlayer));
     }
 }

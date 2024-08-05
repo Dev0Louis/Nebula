@@ -1,7 +1,8 @@
 package dev.louis.nebula.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import dev.louis.nebula.manager.NebulaManager;
+import dev.louis.nebula.api.mana.ManaManager;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,8 +17,7 @@ public class DebugHudMixin {
 			method = "getLeftText"
 	)
 	protected List<String> getLeftText(List<String> original) {
-		original.add("[Nebula] Mana Manager Mod: " + NebulaManager.getManaManagerMod().getMetadata().getName());
-		original.add("[Nebula] Spell Manager Mod: " + NebulaManager.getSpellManagerMod().getMetadata().getName());
+		original.add("[Nebula] Mana: " + MinecraftClient.getInstance().player.getManaManager().getMana());
 		return original;
 	}
 }
