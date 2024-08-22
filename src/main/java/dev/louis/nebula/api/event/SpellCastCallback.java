@@ -5,9 +5,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
-import org.jetbrains.annotations.ApiStatus;
 
-@ApiStatus.Experimental
 public interface SpellCastCallback {
     Event<SpellCastCallback> EVENT = EventFactory.createArrayBacked(SpellCastCallback.class, (listeners) -> (player, spell) -> {
                 for (SpellCastCallback event : listeners) {
@@ -16,6 +14,15 @@ public interface SpellCastCallback {
                     if (result != ActionResult.PASS) {
                         return result;
                     }
+                }
+
+                return ActionResult.PASS;
+            }
+    );
+
+    Event<SpellCastCallback> AFTER = EventFactory.createArrayBacked(SpellCastCallback.class, (listeners) -> (player, spell) -> {
+                for (SpellCastCallback event : listeners) {
+                    ActionResult result = event.interact(player, spell);
                 }
 
                 return ActionResult.PASS;
