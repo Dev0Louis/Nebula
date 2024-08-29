@@ -29,5 +29,5 @@ public interface SpellCastCallback {
             }
     );
 
-    ActionResult interact(PlayerEntity player, Spell spell);
+    ActionResult interact(PlayerEntity player, Spell<?> spell);
 }

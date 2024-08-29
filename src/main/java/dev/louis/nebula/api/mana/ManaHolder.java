@@ -6,9 +6,9 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
  * A ManaContainer can store mana, give mana,
  */
 public interface ManaHolder {
-    int capacity();
-    int mana();
-    void setMana(int mana);
-    int insert(int amount, TransactionContext context);
-    int extract(int amount, TransactionContext context);
+    int manaCapacity();
+    float getMana();
+    void setMana(float mana);
+    float insert(float amount, TransactionContext context);
+    float extract(float amount, TransactionContext context);
 }

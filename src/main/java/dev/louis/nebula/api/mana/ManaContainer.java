@@ -4,9 +4,9 @@ import dev.louis.nebula.Nebula;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 
-public class ManaContainer extends SnapshotParticipant<Integer> implements ManaHolder {
+public class ManaContainer extends SnapshotParticipant<Float> implements ManaHolder {
     private final int capacity;
-    private int mana;
+    private float mana;
 
     public ManaContainer(int startingMana, int capacity) {
         this.mana = startingMana;
@@ -14,17 +14,17 @@ public class ManaContainer extends SnapshotParticipant<Integer> implements ManaH
     }
 
     @Override
-    public int capacity() {
+    public int manaCapacity() {
         return capacity;
     }
 
     @Override
-    public int mana() {
+    public float getMana() {
         return mana;
     }
 
     @Override
-    public void setMana(int mana) {
+    public void setMana(float mana) {
         if (mana > capacity) {
             Nebula.LOGGER.warn("A ManaContainer with capacity of " + capacity + " was set to hold " + mana + " mana. Clamping the Value.");
             mana = capacity;
@@ -34,8 +34,8 @@ public class ManaContainer extends SnapshotParticipant<Integer> implements ManaH
     }
 
     @Override
-    public int insert(int amount, TransactionContext context) {
-        int insertion = Math.min(amount, capacity - mana);
+    public float insert(float amount, TransactionContext context) {
+        float insertion = Math.min(amount, capacity - mana);
 
         if (insertion > 0) {
             updateSnapshots(context);
@@ -47,8 +47,8 @@ public class ManaContainer extends SnapshotParticipant<Integer> implements ManaH
     }
 
     @Override
-    public int extract(int amount, TransactionContext context) {
-        int extraction = Math.min(amount, capacity - mana);
+    public float extract(float amount, TransactionContext context) {
+        float extraction = Math.min(amount, capacity - mana);
 
         if (extraction > 0) {
             updateSnapshots(context);
@@ -60,12 +60,12 @@ public class ManaContainer extends SnapshotParticipant<Integer> implements ManaH
     }
 
     @Override
-    protected Integer createSnapshot() {
+    protected Float createSnapshot() {
         return mana;
     }
 
     @Override
-    protected void readSnapshot(Integer snapshot) {
+    protected void readSnapshot(Float snapshot) {
         this.mana = snapshot;
     }
 }

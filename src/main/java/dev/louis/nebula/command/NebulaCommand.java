@@ -1,7 +1,6 @@
 package dev.louis.nebula.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import dev.louis.nebula.api.spell.SpellType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.command.CommandRegistryAccess;
@@ -26,18 +25,6 @@ public class NebulaCommand {
     }
 
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-
-        var learnSpellCommand = literal("learnSpell");
-        SpellType.REGISTRY.forEach(spellType -> {
-            if (!spellType.needsLearning()) return;
-            learnSpellCommand.then(CommandManager.literal(spellType.getId().toString()).executes(context -> {
-                if(context.getSource().isExecutedByPlayer()) {
-                    learnSpell(context.getSource(), spellType);
-                }
-                return 0;
-            }));
-        });
-
         var command = literal("nebula").requires(source -> source.hasPermissionLevel(4))
                 .then(literal("getMana")
                         .executes(context -> getMana(context.getSource()))
@@ -49,10 +36,8 @@ public class NebulaCommand {
                                         .executes(context -> addMana(
                                                 context.getSource(),
                                                 getPlayers(context, "players"),
-                                                getInteger(context, "mana"))))))
-                .then(learnSpellCommand);
+                                                getInteger(context, "mana"))))));
 
-        command.then(learnSpellCommand);
 
         dispatcher.register(command);
     }
@@ -60,7 +45,7 @@ public class NebulaCommand {
     private static int addMana(ServerCommandSource source, Collection<ServerPlayerEntity> players, int mana) {
         for (ServerPlayerEntity player : players) {
             try(Transaction transaction = Transaction.openOuter()) {
-                player.getManaManager().addMana(mana, transaction);
+                player.getManaManager().insert(mana, transaction);
                 transaction.commit();
                 source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
             }
@@ -79,14 +64,6 @@ public class NebulaCommand {
     private static int getMana(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for (ServerPlayerEntity player : players) {
             source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
-        }
-        return 1;
-    }
-
-    private static int learnSpell(ServerCommandSource source, SpellType<?> spellType) {
-        if(source.getPlayer() != null) {
-            //source.getPlayer().getSpellManager().learnSpell(spellType);
-            source.sendMessage(Text.of("Learned spell " + spellType.getId()));
         }
         return 1;
     }

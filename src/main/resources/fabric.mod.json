@@ -29,7 +29,12 @@
   },
   "custom": {
     "loom:injected_interfaces": {
-      "net/minecraft/class_1657": ["dev/louis/nebula/api/NebulaPlayer"]
+      "net/minecraft/class_1657": [
+        "dev/louis/nebula/api/NebulaPlayer"
+      ],
+      "net/minecraft/class_1309": [
+        "dev/louis/nebula/api/spell/SpellCaster<Lnet/minecraft/class_1309;>"
+      ]
     }
   }
 }
