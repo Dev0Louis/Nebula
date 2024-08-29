@@ -1,47 +1,48 @@
 package dev.louis.nebula.mixin;
 
-import dev.louis.nebula.api.spell.Spell;
-import dev.louis.nebula.api.spell.SpellCaster;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import dev.louis.nebula.InternalNebulaPlayer;
+import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.mana.NebulaManaManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings("UnreachableCode")
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin<T extends LivingEntity> extends Entity implements SpellCaster {
-    public LivingEntityMixin(EntityType<?> type, World world) {
-        super(type, world);
+public abstract class LivingEntityMixin extends Entity implements InternalNebulaPlayer, ManaPool {
+    protected LivingEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
+        super(entityType, world);
+    }
+
+    @Unique
+    protected NebulaManaManager manaManager = new NebulaManaManager((PlayerEntity) (Object) this);
+
+    @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
+    public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
+        this.manaManager.writeNbt(nbt);
+    }
+
+    @Inject(method = "readCustomDataFromNbt",at = @At("RETURN"))
+    public void readManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
+        this.manaManager.readNbt(nbt);
+    }
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    public void tickManaAndSpellManager(CallbackInfo ci) {
+        this.manaManager.tick();
     }
 
     @Override
-    public <T> void castSpell(Spell<T> spell) {
-
-    }
-
-    @SuppressWarnings("AddedMixinMembersNamePattern")
-    //@Override
-    < public void cas2tSpell(Spell<?> spell) {
-        try(Transaction transaction = Transaction.openOuter()) {
-            //try {
-                //spell.cast((LivingEntity) (Object) this, transaction);
-            //} catch (SpellException spellException) {
-                //spell.fail(((LivingEntity) (Object) this));
-            //}
-        }
-    }
-
-    @Override
-    public Vec3d getPos() {
-        return super.getPos();
-    }
-
-    @Override
-    public BlockPos getBlockPos() {
-        return super.getBlockPos();
+    public @NotNull NebulaManaManager getManaManager() {
+        return this.manaManager;
     }
 }

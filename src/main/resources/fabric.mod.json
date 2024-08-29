@@ -32,8 +32,8 @@
       "net/minecraft/class_1657": [
         "dev/louis/nebula/api/NebulaPlayer"
       ],
-      "net/minecraft/class_1309": [
-        "dev/louis/nebula/api/spell/SpellCaster<Lnet/minecraft/class_1309;>"
+      "net/minecraft/class_3222": [
+        "dev/louis/nebula/api/spell/SpellCaster<Lnet/minecraft/class_3222;>"
       ]
     }
   }

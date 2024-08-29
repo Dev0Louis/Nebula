@@ -45,7 +45,7 @@ public class NebulaCommand {
     private static int addMana(ServerCommandSource source, Collection<ServerPlayerEntity> players, int mana) {
         for (ServerPlayerEntity player : players) {
             try(Transaction transaction = Transaction.openOuter()) {
-                player.getManaManager().insert(mana, transaction);
+                player.getManaManager().insertMana(mana, transaction);
                 transaction.commit();
                 source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
             }

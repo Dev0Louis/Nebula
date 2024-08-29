@@ -3,18 +3,20 @@ package dev.louis.nebula.api.mana;
 import dev.louis.nebula.Nebula;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
+import org.jetbrains.annotations.ApiStatus;
 
-public class ManaContainer extends SnapshotParticipant<Float> implements ManaHolder {
-    private final int capacity;
+@ApiStatus.Experimental
+public class ManaContainer extends SnapshotParticipant<Float> implements ManaPool {
+    private final float capacity;
     private float mana;
 
-    public ManaContainer(int startingMana, int capacity) {
+    public ManaContainer(int startingMana, float capacity) {
         this.mana = startingMana;
         this.capacity = capacity;
     }
 
     @Override
-    public int manaCapacity() {
+    public float capacity() {
         return capacity;
     }
 
@@ -34,7 +36,7 @@ public class ManaContainer extends SnapshotParticipant<Float> implements ManaHol
     }
 
     @Override
-    public float insert(float amount, TransactionContext context) {
+    public float insertMana(float amount, TransactionContext context) {
         float insertion = Math.min(amount, capacity - mana);
 
         if (insertion > 0) {
@@ -47,7 +49,7 @@ public class ManaContainer extends SnapshotParticipant<Float> implements ManaHol
     }
 
     @Override
-    public float extract(float amount, TransactionContext context) {
+    public float extractMana(float amount, TransactionContext context) {
         float extraction = Math.min(amount, capacity - mana);
 
         if (extraction > 0) {

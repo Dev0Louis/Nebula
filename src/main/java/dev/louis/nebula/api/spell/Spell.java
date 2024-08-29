@@ -10,9 +10,12 @@ public interface Spell<Caster extends SpellCaster<Caster>> {
 
     /**
      * This should not be called manually unless you are //TODO: Add stuff.
-     * Use {@link SpellManager#cast(Spell)} or {@link SpellManager#cast(SpellType)}
      */
-    void cast(Caster caster, Transaction transaction) throws SpellException;
+    default void cast(Caster caster, Transaction transaction) throws SpellException {
 
-    void fail(Caster livingEntity);
+    }
+
+    default void fail(Caster caster) {
+
+    }
 }
