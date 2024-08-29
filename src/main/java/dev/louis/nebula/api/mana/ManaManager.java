@@ -32,4 +32,6 @@ public interface ManaManager {
      * @return If the state was successfully send.
      */
     boolean sendSync();
+
+    void setMana(float mana);
 }

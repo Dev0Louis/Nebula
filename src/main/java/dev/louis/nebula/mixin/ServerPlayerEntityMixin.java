@@ -1,5 +1,6 @@
 package dev.louis.nebula.mixin;
 
+import dev.louis.nebula.api.event.SpellCastCallback;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellCaster;
 import dev.louis.nebula.api.spell.SpellException;
@@ -23,15 +24,18 @@ public abstract class ServerPlayerEntityMixin extends LivingEntityMixin implemen
 
     @Override
     public void castSpell(Spell<ServerPlayerEntity> spell, Transaction transaction) throws SpellException {
+        SpellCastCallback.EVENT.invoker().allowSpellCast(this.nebula$getCaster(), spell);
         spell.cast(this.nebula$getCaster(), transaction);
+        SpellCastCallback.After.EVENT.invoker().spellCast(this.nebula$getCaster(), spell);
     }
 
-    /* These two method need to implemented to remap the interface */
+    /* This method needs to implemented to remap the interface methods */
     @Override
     public World getWorld() {
         return super.getWorld();
     }
 
+    /* This method needs to implemented to remap the interface methods */
     @Override
     public Vec3d getPos() {
         return super.getPos();

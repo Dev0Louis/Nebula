@@ -11,6 +11,7 @@ public interface Spell<Caster extends SpellCaster<Caster>> {
     /**
      * This should not be called manually unless you are //TODO: Add stuff.
      */
+    @SuppressWarnings("RedundantThrows")
     default void cast(Caster caster, Transaction transaction) throws SpellException {
 
     }

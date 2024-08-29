@@ -1,6 +1,5 @@
 package dev.louis.nebula.mana;
 
-import dev.louis.nebula.InternalNebulaPlayer;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.ManaManager;
 import dev.louis.nebula.api.mana.ManaPool;
@@ -106,7 +105,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @SuppressWarnings("resource")
     public static void receive(SyncManaPayload payload, ClientPlayNetworking.Context context) {
-        context.client().executeSync(() -> InternalNebulaPlayer.getManaManager(context.player()).setMana(payload.mana()));
+        context.client().executeSync(() -> context.player().getManaManager().setMana(payload.mana()));
     }
 
     public void writeNbt(NbtCompound nbt) {
@@ -120,7 +119,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         this.setMana(nebulaNbt.getFloat(MANA_NBT_KEY), false);
     }
 
-    public void copyFrom(NebulaManaManager manaManager) {
+    public void copyFrom(ManaManager manaManager) {
         this.setMana(manaManager.getMana());
     }
 

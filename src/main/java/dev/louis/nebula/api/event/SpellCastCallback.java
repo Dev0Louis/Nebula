@@ -1,14 +1,14 @@
 package dev.louis.nebula.api.event;
 
 import dev.louis.nebula.api.spell.Spell;
+import dev.louis.nebula.api.spell.SpellCaster;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.player.PlayerEntity;
 
 public interface SpellCastCallback {
-    Event<SpellCastCallback> EVENT = EventFactory.createArrayBacked(SpellCastCallback.class, (listeners) -> (player, spell) -> {
+    Event<SpellCastCallback> EVENT = EventFactory.createArrayBacked(SpellCastCallback.class, (listeners) -> (spellCaster, spell) -> {
                 for (SpellCastCallback event : listeners) {
-                    var disallowed = !event.allowSpellCast(player, spell);
+                    var disallowed = !event.allowSpellCast(spellCaster, spell);
                     if (disallowed) return false;
                 }
 
@@ -16,15 +16,15 @@ public interface SpellCastCallback {
             }
     );
 
-    boolean allowSpellCast(PlayerEntity player, Spell<?> spell);
+    boolean allowSpellCast(SpellCaster<?> spellCaster, Spell<?> spell);
 
     interface After {
-        Event<SpellCastCallback.After> EVENT = EventFactory.createArrayBacked(SpellCastCallback.After.class, (listeners) -> (player, spell) -> {
+        Event<SpellCastCallback.After> EVENT = EventFactory.createArrayBacked(SpellCastCallback.After.class, (listeners) -> (spellCaster, spell) -> {
                     for (SpellCastCallback.After event : listeners) {
-                        event.spellCast(player, spell);
+                        event.spellCast(spellCaster, spell);
                     }
          }
         );
-        void spellCast(PlayerEntity player, Spell<?> spell);
+        void spellCast(SpellCaster<?> spellCaster, Spell<?> spell);
     }
 }

@@ -1,6 +1,7 @@
 package dev.louis.nebula.api.spell;
 
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public interface SpellCaster<Caster extends SpellCaster<Caster>> {
@@ -9,6 +10,7 @@ public interface SpellCaster<Caster extends SpellCaster<Caster>> {
     default void castSpell(Spell<Caster> spell) {
         try(Transaction transaction = Transaction.openOuter()) {
             castSpell(spell, transaction);
+            transaction.commit();
         } catch (SpellException e) {
             spell.fail(this.nebula$getCaster());
         }
@@ -17,4 +19,5 @@ public interface SpellCaster<Caster extends SpellCaster<Caster>> {
     Caster nebula$getCaster();
 
     World getWorld();
+    Vec3d getPos();
 }
