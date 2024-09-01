@@ -2,7 +2,6 @@ package dev.louis.nebula.mana;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.ManaManager;
-import dev.louis.nebula.api.mana.ManaPool;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -11,8 +10,10 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.ApiStatus;
 
-public class NebulaManaManager extends SnapshotParticipant<Float> implements ManaPool, ManaManager  {
+@ApiStatus.Internal
+public class NebulaManaManager extends SnapshotParticipant<Float> implements ManaManager  {
     public static final String MANA_NBT_KEY = "Mana";
     public static final float DEFAULT_CAPACITY = 20;
     protected LivingEntity entity;
@@ -44,11 +45,11 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         return capacity;
     }
 
-    public float getMana() {
+    public float get() {
         return mana;
     }
 
-    public void setMana(float mana) {
+    public void set(float mana) {
         this.setMana(mana, this.needsSyncing());
     }
 
@@ -58,7 +59,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     @Override
-    public float insertMana(float amount, TransactionContext context) {
+    public float insert(float amount, TransactionContext context) {
         float insertion = Math.min(amount, capacity - mana);
 
         if (insertion > 0) {
@@ -71,7 +72,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     @Override
-    public float extractMana(float amount, TransactionContext context) {
+    public float extract(float amount, TransactionContext context) {
         float extraction = Math.min(amount, capacity - mana);
 
         if (extraction > 0) {
@@ -94,7 +95,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     public boolean sendSync() {
         if (this.entity instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
-            float syncMana = this.getMana();
+            float syncMana = this.get();
             if (syncMana == this.lastSyncedMana) return true;
             this.lastSyncedMana = syncMana;
             ServerPlayNetworking.send(serverPlayerEntity, new SyncManaPayload(syncMana));
@@ -105,12 +106,12 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @SuppressWarnings("resource")
     public static void receive(SyncManaPayload payload, ClientPlayNetworking.Context context) {
-        context.client().executeSync(() -> context.player().getManaManager().setMana(payload.mana()));
+        context.client().executeSync(() -> context.player().getManaManager().set(payload.mana()));
     }
 
     public void writeNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
-        nebulaNbt.putFloat(MANA_NBT_KEY, this.getMana());
+        nebulaNbt.putFloat(MANA_NBT_KEY, this.get());
         nbt.put(Nebula.MOD_ID, nebulaNbt);
     }
 
@@ -120,7 +121,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     public void copyFrom(ManaManager manaManager) {
-        this.setMana(manaManager.getMana());
+        this.set(manaManager.get());
     }
 
     @Override

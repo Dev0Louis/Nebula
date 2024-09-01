@@ -1,6 +1,6 @@
 package dev.louis.nebula;
 
-import dev.louis.nebula.api.ManaManagerHolder;
+import dev.louis.nebula.api.mana.ManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
 import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.ApiStatus;

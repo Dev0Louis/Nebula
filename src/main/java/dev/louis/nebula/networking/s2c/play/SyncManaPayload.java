@@ -5,7 +5,9 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public record SyncManaPayload(float mana) implements CustomPayload {
     public static final Id<SyncManaPayload> ID = new CustomPayload.Id<>(Identifier.of(Nebula.MOD_ID, "synchronize_mana"));
     public static final PacketCodec<PacketByteBuf, SyncManaPayload> CODEC = PacketCodec.of(SyncManaPayload::write, SyncManaPayload::read);

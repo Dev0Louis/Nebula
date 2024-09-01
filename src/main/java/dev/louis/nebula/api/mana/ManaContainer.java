@@ -21,12 +21,12 @@ public class ManaContainer extends SnapshotParticipant<Float> implements ManaPoo
     }
 
     @Override
-    public float getMana() {
+    public float get() {
         return mana;
     }
 
     @Override
-    public void setMana(float mana) {
+    public void set(float mana) {
         if (mana > capacity) {
             Nebula.LOGGER.warn("A ManaContainer with capacity of " + capacity + " was set to hold " + mana + " mana. Clamping the Value.");
             mana = capacity;
@@ -36,7 +36,7 @@ public class ManaContainer extends SnapshotParticipant<Float> implements ManaPoo
     }
 
     @Override
-    public float insertMana(float amount, TransactionContext context) {
+    public float insert(float amount, TransactionContext context) {
         float insertion = Math.min(amount, capacity - mana);
 
         if (insertion > 0) {
@@ -49,7 +49,7 @@ public class ManaContainer extends SnapshotParticipant<Float> implements ManaPoo
     }
 
     @Override
-    public float extractMana(float amount, TransactionContext context) {
+    public float extract(float amount, TransactionContext context) {
         float extraction = Math.min(amount, capacity - mana);
 
         if (extraction > 0) {

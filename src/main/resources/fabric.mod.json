@@ -30,10 +30,7 @@
   "custom": {
     "loom:injected_interfaces": {
       "net/minecraft/class_1309": [
-        "dev/louis/nebula/api/ManaManagerHolder"
-      ],
-      "net/minecraft/class_3222": [
-        "dev/louis/nebula/api/spell/SpellCaster<Lnet/minecraft/class_3222;>"
+        "dev/louis/nebula/api/mana/ManaManagerHolder"
       ]
     }
   }

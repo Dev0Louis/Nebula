@@ -8,6 +8,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,7 @@ import static net.minecraft.command.argument.EntityArgumentType.players;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
+@ApiStatus.Internal
 public class NebulaCommand {
     public static void init() {
         CommandRegistrationCallback.EVENT.register(NebulaCommand::register);
@@ -45,9 +47,9 @@ public class NebulaCommand {
     private static int addMana(ServerCommandSource source, Collection<ServerPlayerEntity> players, int mana) {
         for (ServerPlayerEntity player : players) {
             try(Transaction transaction = Transaction.openOuter()) {
-                player.getManaManager().insertMana(mana, transaction);
+                player.getManaManager().insert(mana, transaction);
                 transaction.commit();
-                source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
+                source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().get() + " Mana."));
             }
         }
 
@@ -63,7 +65,7 @@ public class NebulaCommand {
 
     private static int getMana(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for (ServerPlayerEntity player : players) {
-            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
+            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().get() + " mana."));
         }
         return 1;
     }
