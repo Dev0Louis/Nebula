@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.spell.EntitySpellSource;
+import dev.louis.nebula.api.spell.source.EntitySpellSource;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;

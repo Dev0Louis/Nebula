@@ -1,7 +1,7 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.api.mana.ManaManagerHolder;
 import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.api.mana.holder.ManaManagerHolder;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 /**

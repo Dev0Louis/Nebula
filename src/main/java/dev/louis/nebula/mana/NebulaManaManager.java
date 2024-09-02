@@ -1,6 +1,10 @@
 package dev.louis.nebula.mana;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.event.ManaExtractionCallback;
+import dev.louis.nebula.api.event.ManaInsertionCallback;
+import dev.louis.nebula.api.mana.ExtractionContext;
+import dev.louis.nebula.api.mana.InsertionContext;
 import dev.louis.nebula.api.mana.ManaManager;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -60,28 +64,30 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public float insertMana(float amount, TransactionContext context) {
-        float insertion = Math.min(amount, capacity - mana);
+        float insertion = Math.clamp(amount, 0, capacity);
+        var canInsert = ManaInsertionCallback.BEFORE.invoker().canInsertMana(InsertionContext.create(this.entity, this.mana, insertion, amount));
 
-        if (insertion > 0) {
+        if (canInsert && insertion > 0) {
             updateSnapshots(context);
             this.mana = this.mana + insertion;
-            return insertion;
         }
+        ManaInsertionCallback.AFTER.invoker().onManaInsertion(InsertionContext.create(this.entity, this.mana, insertion, amount));
 
-        return 0;
+        return insertion;
     }
 
     @Override
     public float extractMana(float amount, TransactionContext context) {
-        float extraction = Math.min(amount, capacity - mana);
+        float extraction = Math.clamp(amount, 0, capacity);
+        var canExtract = ManaExtractionCallback.BEFORE.invoker().canExtractMana(ExtractionContext.create(this.entity, this.mana, extraction, amount));
 
-        if (extraction > 0) {
+        if (canExtract && extraction > 0) {
             updateSnapshots(context);
             this.mana = this.mana - extraction;
-            return extraction;
         }
+        ManaExtractionCallback.AFTER.invoker().onManaExtraction(ExtractionContext.create(this.entity, this.mana, extraction, amount));
 
-        return 0;
+        return extraction;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package dev.louis.nebula.mixin;
 
 import dev.louis.nebula.api.mana.ManaPool;
-import dev.louis.nebula.api.mana.ManaPoolHolder;
+import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
 import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
 import net.minecraft.entity.Entity;

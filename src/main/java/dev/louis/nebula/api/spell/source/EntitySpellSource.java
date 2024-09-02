@@ -1,4 +1,4 @@
-package dev.louis.nebula.spell;
+package dev.louis.nebula.api.spell.source;
 
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellException;
