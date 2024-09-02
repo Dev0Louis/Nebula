@@ -30,7 +30,8 @@
   "custom": {
     "loom:injected_interfaces": {
       "net/minecraft/class_1309": [
-        "dev/louis/nebula/api/mana/ManaManagerHolder"
+        "dev/louis/nebula/api/mana/ManaManagerHolder",
+        "dev/louis/nebula/api/mana/ManaPoolHolder"
       ]
     }
   }

@@ -1,16 +1,16 @@
-package dev.louis.nebula.api.mana;
+package dev.louis.nebula.mana;
 
-import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.mana.ManaPool;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
-public class ManaContainer extends SnapshotParticipant<Float> implements ManaPool {
+public class SimpleManaContainer extends SnapshotParticipant<Float> implements ManaPool {
     private final float capacity;
     private float mana;
 
-    public ManaContainer(int startingMana, float capacity) {
+    public SimpleManaContainer(int startingMana, float capacity) {
         this.mana = startingMana;
         this.capacity = capacity;
     }
@@ -21,22 +21,17 @@ public class ManaContainer extends SnapshotParticipant<Float> implements ManaPoo
     }
 
     @Override
-    public float get() {
+    public float getMana() {
         return mana;
     }
 
     @Override
-    public void set(float mana) {
-        if (mana > capacity) {
-            Nebula.LOGGER.warn("A ManaContainer with capacity of " + capacity + " was set to hold " + mana + " mana. Clamping the Value.");
-            mana = capacity;
-        }
-
-        this.mana = mana;
+    public void setMana(float mana) {
+        this.mana = Math.clamp(mana, 0, capacity);
     }
 
     @Override
-    public float insert(float amount, TransactionContext context) {
+    public float insertMana(float amount, TransactionContext context) {
         float insertion = Math.min(amount, capacity - mana);
 
         if (insertion > 0) {
@@ -49,7 +44,7 @@ public class ManaContainer extends SnapshotParticipant<Float> implements ManaPoo
     }
 
     @Override
-    public float extract(float amount, TransactionContext context) {
+    public float extractMana(float amount, TransactionContext context) {
         float extraction = Math.min(amount, capacity - mana);
 
         if (extraction > 0) {

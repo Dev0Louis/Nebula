@@ -1,7 +1,7 @@
 package dev.louis.nebula.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.louis.nebula.InternalManaManagerHolder;
+import dev.louis.nebula.mana.InternalManaManagerHolder;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;

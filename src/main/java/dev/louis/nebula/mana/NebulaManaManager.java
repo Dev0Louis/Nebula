@@ -45,11 +45,11 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         return capacity;
     }
 
-    public float get() {
+    public float getMana() {
         return mana;
     }
 
-    public void set(float mana) {
+    public void setMana(float mana) {
         this.setMana(mana, this.needsSyncing());
     }
 
@@ -59,7 +59,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     @Override
-    public float insert(float amount, TransactionContext context) {
+    public float insertMana(float amount, TransactionContext context) {
         float insertion = Math.min(amount, capacity - mana);
 
         if (insertion > 0) {
@@ -72,7 +72,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     @Override
-    public float extract(float amount, TransactionContext context) {
+    public float extractMana(float amount, TransactionContext context) {
         float extraction = Math.min(amount, capacity - mana);
 
         if (extraction > 0) {
@@ -95,7 +95,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     public boolean sendSync() {
         if (this.entity instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
-            float syncMana = this.get();
+            float syncMana = this.getMana();
             if (syncMana == this.lastSyncedMana) return true;
             this.lastSyncedMana = syncMana;
             ServerPlayNetworking.send(serverPlayerEntity, new SyncManaPayload(syncMana));
@@ -106,12 +106,12 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @SuppressWarnings("resource")
     public static void receive(SyncManaPayload payload, ClientPlayNetworking.Context context) {
-        context.client().executeSync(() -> context.player().getManaManager().set(payload.mana()));
+        context.client().executeSync(() -> context.player().getManaManager().setMana(payload.mana()));
     }
 
     public void writeNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
-        nebulaNbt.putFloat(MANA_NBT_KEY, this.get());
+        nebulaNbt.putFloat(MANA_NBT_KEY, this.getMana());
         nbt.put(Nebula.MOD_ID, nebulaNbt);
     }
 
@@ -121,7 +121,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     public void copyFrom(ManaManager manaManager) {
-        this.set(manaManager.get());
+        this.setMana(manaManager.getMana());
     }
 
     @Override

@@ -47,9 +47,9 @@ public class NebulaCommand {
     private static int addMana(ServerCommandSource source, Collection<ServerPlayerEntity> players, int mana) {
         for (ServerPlayerEntity player : players) {
             try(Transaction transaction = Transaction.openOuter()) {
-                player.getManaManager().insert(mana, transaction);
+                player.getManaManager().insertMana(mana, transaction);
                 transaction.commit();
-                source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().get() + " Mana."));
+                source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
             }
         }
 
@@ -65,7 +65,7 @@ public class NebulaCommand {
 
     private static int getMana(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for (ServerPlayerEntity player : players) {
-            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().get() + " mana."));
+            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
         }
         return 1;
     }

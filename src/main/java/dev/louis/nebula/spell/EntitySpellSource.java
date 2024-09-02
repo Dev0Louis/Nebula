@@ -3,20 +3,19 @@ package dev.louis.nebula.spell;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellException;
 import dev.louis.nebula.api.spell.SpellSource;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
+public class EntitySpellSource<E extends LivingEntity> implements SpellSource<E> {
     protected E entity;
 
     public EntitySpellSource(E entity) {
         this.entity = entity;
     }
-
 
     @Override
     public void castSpell(Spell<SpellSource<E>> spell) {

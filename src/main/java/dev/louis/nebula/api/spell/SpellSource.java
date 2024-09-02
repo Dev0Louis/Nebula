@@ -1,7 +1,7 @@
 package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.spell.EntitySpellSource;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -16,7 +16,7 @@ public interface SpellSource<Source> {
     BlockPos getBlockPos();
     Source getSource();
 
-    static <E extends Entity> SpellSource<E> ofEntity(E entity) {
+    static <E extends LivingEntity> SpellSource<E> ofEntity(E entity) {
         return new EntitySpellSource<>(entity);
     }
 

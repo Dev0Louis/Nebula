@@ -32,7 +32,7 @@ public interface Spell<E extends SpellSource<?>> {
     }
 
     static void drainMana(ManaPool manaPool, int amount, Transaction transaction) throws SpellException {
-        var extracted = manaPool.extract(amount, transaction);
+        var extracted = manaPool.extractMana(amount, transaction);
         if (extracted < amount) throw SpellException.create();
         transaction.commit();
     }

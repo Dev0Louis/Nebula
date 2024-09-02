@@ -1,5 +1,6 @@
 package dev.louis.nebula.api.mana;
 
+import dev.louis.nebula.mana.SimpleManaContainer;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 /**
@@ -8,8 +9,12 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 @SuppressWarnings("UnusedReturnValue")
 public interface ManaPool {
     float capacity();
-    float get();
-    void set(float mana);
-    float insert(float amount, TransactionContext context);
-    float extract(float amount, TransactionContext context);
+    float getMana();
+    void setMana(float mana);
+    float insertMana(float amount, TransactionContext context);
+    float extractMana(float amount, TransactionContext context);
+
+    static ManaPool createSimple(int startingValue, int maxValue) {
+        return new SimpleManaContainer(startingValue, maxValue);
+    }
 }

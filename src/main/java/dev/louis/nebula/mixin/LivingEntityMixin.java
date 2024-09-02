@@ -1,6 +1,8 @@
 package dev.louis.nebula.mixin;
 
-import dev.louis.nebula.InternalManaManagerHolder;
+import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.api.mana.ManaPoolHolder;
+import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -16,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements InternalManaManagerHolder {
+public abstract class LivingEntityMixin extends Entity implements InternalManaManagerHolder, ManaPoolHolder {
     protected LivingEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -42,5 +44,10 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     @Override
     public @NotNull NebulaManaManager getManaManager() {
         return this.manaManager;
+    }
+
+    @Override
+    public @NotNull ManaPool getManaPool() {
+        return this.getManaManager();
     }
 }
