@@ -1,6 +1,7 @@
 package dev.louis.nebula.mana;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.attribute.NebulaAttributes;
 import dev.louis.nebula.api.event.ManaExtractionCallback;
 import dev.louis.nebula.api.event.ManaInsertionCallback;
 import dev.louis.nebula.api.mana.ExtractionContext;
@@ -19,25 +20,20 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public class NebulaManaManager extends SnapshotParticipant<Float> implements ManaManager  {
     public static final String MANA_NBT_KEY = "Mana";
-    public static final float DEFAULT_CAPACITY = 20;
     protected LivingEntity entity;
-    protected float capacity;
     protected float mana;
     protected float lastSyncedMana = -1;
     //Mana should be synced on the first tick.
     private boolean needsSync = true;
 
     public NebulaManaManager(LivingEntity entity) {
-        this(entity, DEFAULT_CAPACITY);
-    }
-
-    public NebulaManaManager(LivingEntity entity, float capacity) {
         this.entity = entity;
-        this.mana = 0;
-        this.capacity = capacity;
     }
 
     public void tick() {
+        if (capacity() > mana) {
+            setMana(capacity());
+        }
         if (this.needsSync) {
             this.sendSync();
             this.needsSync = false;
@@ -46,7 +42,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public float capacity() {
-        return capacity;
+        return (float) entity.getAttributeValue(NebulaAttributes.GENERIC_MAX_MANA);
     }
 
     public float getMana() {
@@ -64,7 +60,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public float insertMana(float amount, TransactionContext context) {
-        float insertion = Math.clamp(amount, 0, capacity);
+        float insertion = Math.clamp(amount, 0, capacity());
         var canInsert = ManaInsertionCallback.BEFORE.invoker().canInsertMana(InsertionContext.create(this.entity, this.mana, insertion, amount));
 
         if (canInsert && insertion > 0) {
@@ -78,7 +74,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public float extractMana(float amount, TransactionContext context) {
-        float extraction = Math.clamp(amount, 0, capacity);
+        float extraction = Math.clamp(amount, 0, capacity());
         var canExtract = ManaExtractionCallback.BEFORE.invoker().canExtractMana(ExtractionContext.create(this.entity, this.mana, extraction, amount));
 
         if (canExtract && extraction > 0) {

@@ -1,21 +1,27 @@
 package dev.louis.nebula.mixin;
 
+import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.ManaPool;
 import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
+import dev.louis.nebula.duck.DefaultAttributeContainer$BuilderDuck;
 import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+@Debug(export = true)
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements InternalManaManagerHolder, ManaPoolHolder {
@@ -24,7 +30,15 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     }
 
     @Unique
-    protected NebulaManaManager manaManager = new NebulaManaManager((LivingEntity) (Object) this);
+    protected NebulaManaManager manaManager;
+
+    @Inject(
+            method = "<init>",
+            at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;attributes:Lnet/minecraft/entity/attribute/AttributeContainer;", shift = At.Shift.AFTER)
+    )
+    public void lateManaManagerInit(EntityType<?> entityType, World world, CallbackInfo ci) {
+        manaManager = Nebula.createManaManager((LivingEntity) (Object) this);
+    }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
     public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
@@ -49,5 +63,13 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     @Override
     public @NotNull ManaPool getManaPool() {
         return this.getManaManager();
+    }
+
+    @Inject(
+            method = "createLivingAttributes",
+            at = @At("RETURN")
+    )
+    private static void a(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir) {
+        ((DefaultAttributeContainer$BuilderDuck) cir.getReturnValue()).nebula$markManaHaving();
     }
 }
