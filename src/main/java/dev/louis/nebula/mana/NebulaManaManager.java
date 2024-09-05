@@ -1,7 +1,6 @@
 package dev.louis.nebula.mana;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.attribute.NebulaAttributes;
 import dev.louis.nebula.api.event.ManaExtractionCallback;
 import dev.louis.nebula.api.event.ManaInsertionCallback;
 import dev.louis.nebula.api.mana.ExtractionContext;
@@ -50,8 +49,12 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     public void regenMana() {
         try(Transaction tx = Transaction.openOuter()) {
-            insertMana((float) entity.getAttributes().getValue(NebulaAttributes.GENERIC_MANA_REGENERATION), tx);
+            insertMana(this.getManaRegenRate(), tx);
         }
+    }
+
+    private float getManaRegenRate() {
+        return this.entity.isMobOrPlayer() ? 0.005f : 0;
     }
 
     public float getMana() {

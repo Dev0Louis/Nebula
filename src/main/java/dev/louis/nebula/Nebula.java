@@ -1,7 +1,6 @@
 package dev.louis.nebula;
 
 import com.mojang.logging.LogUtils;
-import dev.louis.nebula.api.attribute.NebulaAttributes;
 import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.mana.NebulaManaManager;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
@@ -26,7 +25,6 @@ public class Nebula implements ModInitializer {
         NebulaCommand.init();
         this.registerPacketReceivers();
         LOGGER.info("Nebula has been initialized.");
-        NebulaAttributes.init();
     }
 
     public void registerPacketReceivers() {
