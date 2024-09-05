@@ -31,7 +31,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     public void tick() {
-        if (capacity() > mana) {
+        if (mana > capacity()) {
             setMana(capacity());
         }
         if (this.needsSync) {
