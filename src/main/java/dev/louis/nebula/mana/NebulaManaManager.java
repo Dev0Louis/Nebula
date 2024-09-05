@@ -1,6 +1,7 @@
 package dev.louis.nebula.mana;
 
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.attribute.NebulaAttributes;
 import dev.louis.nebula.api.event.ManaExtractionCallback;
 import dev.louis.nebula.api.event.ManaInsertionCallback;
 import dev.louis.nebula.api.mana.ExtractionContext;
@@ -9,6 +10,7 @@ import dev.louis.nebula.api.mana.ManaManager;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.entity.LivingEntity;
@@ -31,6 +33,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     public void tick() {
+        this.regenMana();
         if (mana > capacity()) {
             setMana(capacity());
         }
@@ -43,6 +46,12 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     @Override
     public float capacity() {
         return entity.getMaxHealth();
+    }
+
+    public void regenMana() {
+        try(Transaction tx = Transaction.openOuter()) {
+            insertMana((float) entity.getAttributes().getValue(NebulaAttributes.GENERIC_MANA_REGENERATION), tx);
+        }
     }
 
     public float getMana() {
