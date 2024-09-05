@@ -6,9 +6,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
 
+@ApiStatus.NonExtendable
 public interface InsertionContext {
     /**
      * The entity that mana is being inserted into.

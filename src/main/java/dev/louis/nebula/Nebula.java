@@ -40,7 +40,6 @@ public class Nebula implements ModInitializer {
      * @return
      */
     public static NebulaManaManager createManaManager(LivingEntity livingEntity) {
-        System.out.println(livingEntity.getClass());
         return new NebulaManaManager(livingEntity);
     }
 }

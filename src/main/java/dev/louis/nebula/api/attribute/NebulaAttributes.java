@@ -9,7 +9,6 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 public class NebulaAttributes {
-
     public static final RegistryEntry<EntityAttribute> GENERIC_MANA_REGENERATION = register(
             "generic.mana_regeneration",
             new ClampedEntityAttribute(
