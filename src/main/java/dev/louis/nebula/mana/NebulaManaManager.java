@@ -17,9 +17,10 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 
+import static dev.louis.nebula.Nebula.MANA_NBT_KEY;
+
 @ApiStatus.Internal
 public class NebulaManaManager extends SnapshotParticipant<Float> implements ManaManager  {
-    public static final String MANA_NBT_KEY = "Mana";
     protected LivingEntity entity;
     protected float mana;
     protected float lastSyncedMana = -1;
@@ -111,12 +112,14 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         context.client().executeSync(() -> context.player().getManaManager().setMana(payload.mana()));
     }
 
+    @Override
     public void writeNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
         nebulaNbt.putFloat(MANA_NBT_KEY, this.getMana());
         nbt.put(Nebula.MOD_ID, nebulaNbt);
     }
 
+    @Override
     public void readNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
         this.setMana(nebulaNbt.getFloat(MANA_NBT_KEY), false);

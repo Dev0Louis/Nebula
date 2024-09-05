@@ -9,15 +9,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 public class NebulaAttributes {
-    public static final RegistryEntry<EntityAttribute> GENERIC_MAX_MANA = register(
-            "generic.max_mana",
-            new ClampedEntityAttribute(
-                    "attribute.nebula.name.generic.max_mana",
-                    20.0f,
-                    1.0f,
-                    1024.0f
-            ).setTracked(true).setCategory(EntityAttribute.Category.POSITIVE)
-    );
+
     public static final RegistryEntry<EntityAttribute> GENERIC_MANA_REGENERATION = register(
             "generic.mana_regeneration",
             new ClampedEntityAttribute(

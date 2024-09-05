@@ -1,9 +1,13 @@
 package dev.louis.nebula.mana;
 
+import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.ManaPool;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
+import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.ApiStatus;
+
+import static dev.louis.nebula.Nebula.MANA_NBT_KEY;
 
 @ApiStatus.Experimental
 public class SimpleManaContainer extends SnapshotParticipant<Float> implements ManaPool {
@@ -25,7 +29,6 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
         return mana;
     }
 
-    @Override
     public void setMana(float mana) {
         this.mana = Math.clamp(mana, 0, capacity);
     }
@@ -54,6 +57,19 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
         }
 
         return 0;
+    }
+
+    @Override
+    public void writeNbt(NbtCompound nbt) {
+        NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
+        nebulaNbt.putFloat(MANA_NBT_KEY, this.getMana());
+        nbt.put(Nebula.MOD_ID, nebulaNbt);
+    }
+
+    @Override
+    public void readNbt(NbtCompound nbt) {
+        NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
+        this.setMana(nebulaNbt.getFloat(MANA_NBT_KEY));
     }
 
     @Override

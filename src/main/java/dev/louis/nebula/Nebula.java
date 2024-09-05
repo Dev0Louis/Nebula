@@ -18,6 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class Nebula implements ModInitializer {
     public static final String MOD_ID = "nebula";
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final String MANA_NBT_KEY = "Mana";
+
 
     @Override
     public void onInitialize() {
