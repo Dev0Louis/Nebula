@@ -3,13 +3,11 @@ package dev.louis.nebula.mixin;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.ManaPool;
 import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
-import dev.louis.nebula.duck.DefaultAttributeContainer$BuilderDuck;
 import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +17,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Debug(export = true)
 @SuppressWarnings("AddedMixinMembersNamePattern")
@@ -63,13 +60,5 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     @Override
     public @NotNull ManaPool getManaPool() {
         return this.getManaManager();
-    }
-
-    @Inject(
-            method = "createLivingAttributes",
-            at = @At("RETURN")
-    )
-    private static void a(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir) {
-        ((DefaultAttributeContainer$BuilderDuck) cir.getReturnValue()).nebula$markManaHaving();
     }
 }

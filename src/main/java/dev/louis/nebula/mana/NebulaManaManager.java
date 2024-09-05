@@ -1,7 +1,6 @@
 package dev.louis.nebula.mana;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.attribute.NebulaAttributes;
 import dev.louis.nebula.api.event.ManaExtractionCallback;
 import dev.louis.nebula.api.event.ManaInsertionCallback;
 import dev.louis.nebula.api.mana.ExtractionContext;
@@ -43,7 +42,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public float capacity() {
-        return (float) entity.getAttributeValue(NebulaAttributes.GENERIC_MAX_MANA);
+        return entity.getMaxHealth();
     }
 
     public float getMana() {
