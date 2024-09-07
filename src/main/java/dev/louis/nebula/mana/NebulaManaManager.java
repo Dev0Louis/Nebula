@@ -50,6 +50,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     public void regenMana() {
         try(Transaction tx = Transaction.openOuter()) {
             insertMana(this.getManaRegenRate(), tx);
+            tx.commit();
         }
     }
 

@@ -33,8 +33,8 @@ If you need any further help reach out to me on [Discord](https://discord.gg/9m5
 
 ```java
 public class SuicideSpell extends Spell {
-    public SuicideSpell(SpellType<? extends Spell> spellType, PlayerEntity caster) {
-        super(spellType, caster);
+    public SuicideSpell(SpellType<? extends Spell> tickingSpellType, PlayerEntity caster) {
+        super(tickingSpellType, caster);
     }
 
     @Override
