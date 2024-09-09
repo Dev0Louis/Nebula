@@ -16,7 +16,7 @@ public class DebugHudMixin {
 			method = "getLeftText"
 	)
 	protected List<String> getLeftText(List<String> original) {
-		original.add("[Nebula] Mana: " + MinecraftClient.getInstance().player.getManaManager().getMana());
+		original.add("[Nebula] Mana: " + String.format("%.2f", MinecraftClient.getInstance().player.getManaManager().getMana()));
 		return original;
 	}
 }
