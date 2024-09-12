@@ -5,22 +5,23 @@ import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellException;
 import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.spell.executor.SpellExecutor;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.ApiStatus;
 
-@ApiStatus.Internal
-public class EntitySpellSource<Entity extends LivingEntity> implements SpellSource<Entity> {
-    protected Entity entity;
+public class WorldSpellSource implements SpellSource<World> {
+    private final World world;
+    private final Vec3d pos;
+    private final BlockPos blockPos;
 
-    public EntitySpellSource(Entity entity) {
-        this.entity = entity;
+    public WorldSpellSource(World world, Vec3d pos) {
+        this.world = world;
+        this.pos = pos;
+        this.blockPos = BlockPos.ofFloored(pos);
     }
 
     @Override
-    public void castSpell(Spell<Entity> spell) {
+    public void castSpell(Spell<World> spell) {
         try {
             spell.cast(this);
         } catch (SpellException e) {
@@ -30,36 +31,36 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
 
     @Override
     public boolean startExecutor(SpellExecutor spellExecutor) {
-        return false;
+        return world.startSpellExecutor(spellExecutor);
     }
 
     @Override
     public boolean isActive() {
-        return entity.isAlive();
+        return true;
     }
 
     @Override
     public World getWorld() {
-        return entity.getWorld();
+        return world;
     }
 
     @Override
     public Vec3d getPos() {
-        return entity.getPos();
+        return pos;
     }
 
     @Override
     public BlockPos getBlockPos() {
-        return entity.getBlockPos();
+        return blockPos;
     }
 
     @Override
     public ManaPool getManaPool() {
-        return entity.getManaPool();
+        return ManaPool.EMPTY;
     }
 
     @Override
-    public Entity getSource() {
-        return entity;
+    public World getSource() {
+        return world;
     }
 }

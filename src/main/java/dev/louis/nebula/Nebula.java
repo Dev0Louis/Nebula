@@ -5,7 +5,6 @@ import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.mana.NebulaManaManager;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -25,7 +24,6 @@ public class Nebula implements ModInitializer {
     public void onInitialize() {
         NebulaCommand.init();
         this.registerPacketReceivers();
-        AttachmentRegistry.createPersistent()
         LOGGER.info("Nebula has been initialized.");
     }
 

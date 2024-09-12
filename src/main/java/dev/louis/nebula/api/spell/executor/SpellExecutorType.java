@@ -1,4 +1,4 @@
-package dev.louis.nebula.api.spell.executer;
+package dev.louis.nebula.api.spell.executor;
 
 import com.mojang.serialization.MapCodec;
 import dev.louis.nebula.Nebula;
@@ -10,10 +10,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
-public record SpellExecutorType<T extends SpellExecutor>(MapCodec<SpellExecutorType<T>> mapCodec) {
+public record SpellExecutorType<T extends SpellExecutor>(MapCodec<T> mapCodec) {
     public static final RegistryKey<Registry<SpellExecutorType<?>>> REGISTRY_KEY = RegistryKey.ofRegistry(Identifier.of(Nebula.MOD_ID, "ticking_spell_type"));
     public static final Registry<SpellExecutorType<?>> REGISTRY = FabricRegistryBuilder.createSimple(REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
-
-
-
 }

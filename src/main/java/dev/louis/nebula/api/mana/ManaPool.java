@@ -9,6 +9,38 @@ import net.minecraft.nbt.NbtCompound;
  */
 @SuppressWarnings("UnusedReturnValue")
 public interface ManaPool {
+    ManaPool EMPTY = new ManaPool() {
+        @Override
+        public float capacity() {
+            return 0;
+        }
+
+        @Override
+        public float getMana() {
+            return 0;
+        }
+
+        @Override
+        public float insertMana(float amount, TransactionContext context) {
+            return 0;
+        }
+
+        @Override
+        public float extractMana(float amount, TransactionContext context) {
+            return 0;
+        }
+
+        @Override
+        public void readNbt(NbtCompound nbtCompound) {
+
+        }
+
+        @Override
+        public void writeNbt(NbtCompound nbtCompound) {
+
+        }
+    };
+
     float capacity();
     float getMana();
     float insertMana(float amount, TransactionContext context);

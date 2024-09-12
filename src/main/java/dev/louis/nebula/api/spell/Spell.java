@@ -8,12 +8,12 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
  * This class represents an attempt to cast a spell. It holds a reference to the caster of the Spell.
  *
  */
-public interface Spell<E extends SpellSource<?>> {
+public interface Spell<Caster>  {
 
     /**
      * This should not be called manually unless you are //TODO: Add stuff.
      */
-    void cast(E caster) throws SpellException;
+    void cast(SpellSource<Caster> source) throws SpellException;
 
 
     // Small utility methods to help to easily extract mana or throw an Exception if not enough Mana is available

@@ -29,9 +29,13 @@
   },
   "custom": {
     "loom:injected_interfaces": {
+      "net/minecraft/class_3218": [
+        "dev/louis/nebula/api/spell/executor/SpellExecutorExecutor"
+      ],
       "net/minecraft/class_1309": [
         "dev/louis/nebula/api/mana/holder/ManaManagerHolder",
-        "dev/louis/nebula/api/mana/holder/ManaPoolHolder"
+        "dev/louis/nebula/api/mana/holder/ManaPoolHolder",
+        "dev/louis/nebula/api/spell/executor/SpellExecutorExecutor"
       ]
     }
   }
