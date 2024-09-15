@@ -1,6 +1,6 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.spell.Spell;
+import dev.louis.nebula.api.spell.QuickSpell;
 import dev.louis.nebula.api.spell.SpellException;
 import dev.louis.nebula.api.spell.SpellSource;
 import net.minecraft.entity.LivingEntity;
@@ -24,11 +24,11 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
     }
 
     @Override
-    public void castSpell(Spell<Entity> spell) {
+    public void castSpell(QuickSpell<Entity> quickSpell) {
         if (!entity.isAlive()) return;
 
         try {
-            spell.cast(this);
+            quickSpell.cast(this);
         } catch (SpellException e) {
             e.onFail(this);
         }
@@ -50,7 +50,7 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
     }
 
     @Override
-    public Entity getSource() {
+    public Entity getCaster() {
         return entity;
     }
 }

@@ -1,6 +1,6 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.spell.Spell;
+import dev.louis.nebula.api.spell.QuickSpell;
 import dev.louis.nebula.api.spell.SpellException;
 import dev.louis.nebula.api.spell.SpellSource;
 import net.minecraft.util.math.BlockPos;
@@ -21,9 +21,9 @@ public class WorldSpellSource implements SpellSource<World> {
     }
 
     @Override
-    public void castSpell(Spell<World> spell) {
+    public void castSpell(QuickSpell<World> quickSpell) {
         try {
-            spell.cast(this);
+            quickSpell.cast(this);
         } catch (SpellException e) {
             e.onFail(this);
         }
@@ -45,7 +45,7 @@ public class WorldSpellSource implements SpellSource<World> {
     }
 
     @Override
-    public World getSource() {
+    public World getCaster() {
         return world;
     }
 }

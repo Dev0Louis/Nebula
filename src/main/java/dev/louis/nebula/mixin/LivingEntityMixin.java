@@ -59,6 +59,6 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
 
     @Override
     public @NotNull ManaPool getManaPool() {
-        return this.getManaManager();
+        return this.manaManager;
     }
 }

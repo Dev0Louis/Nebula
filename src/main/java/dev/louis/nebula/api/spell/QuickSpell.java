@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
  * This class represents an attempt to cast a spell. It holds a reference to the caster of the Spell.
  *
  */
-public interface Spell<Caster> {
+public interface QuickSpell<Caster> {
 
     /**
      * This should not be called manually unless you are //TODO: Add stuff.

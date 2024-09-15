@@ -11,12 +11,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public interface SpellSource<Caster> {
-    void castSpell(Spell<Caster> spell);
+    void castSpell(QuickSpell<Caster> quickSpell);
 
     World getWorld();
     Vec3d getPos();
     BlockPos getBlockPos();
-    Caster getSource();
+    Caster getCaster();
 
 
     static SpellSource<World> universal(World world, Vec3d pos) {
