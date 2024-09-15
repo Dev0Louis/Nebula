@@ -50,6 +50,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     public void regenMana() {
         try(Transaction tx = Transaction.openOuter()) {
             insertMana(this.getManaRegenRate(), tx);
+            tx.commit();
         }
     }
 
@@ -72,13 +73,18 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public float insertMana(float amount, TransactionContext context) {
-        float insertion = Math.clamp(amount, 0, capacity());
-        var canInsert = ManaInsertionCallback.BEFORE.invoker().canInsertMana(InsertionContext.create(this.entity, this.mana, insertion, amount));
+        if (amount < 0) throw new IllegalArgumentException("Insertion amount is negative.");
+        float insertion = Math.min(amount, capacity());
 
-        if (canInsert && insertion > 0) {
+        var shouldInsert = ManaInsertionCallback.BEFORE.invoker().canInsertMana(InsertionContext.create(this.entity, this.mana, insertion, amount))
+                // implicit NaN check (as NaN > x = false)
+                && insertion > 0;
+
+        if (shouldInsert) {
             updateSnapshots(context);
             this.mana = this.mana + insertion;
         }
+
         ManaInsertionCallback.AFTER.invoker().onManaInsertion(InsertionContext.create(this.entity, this.mana, insertion, amount));
 
         return insertion;
@@ -86,13 +92,18 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public float extractMana(float amount, TransactionContext context) {
-        float extraction = Math.clamp(amount, 0, capacity());
-        var canExtract = ManaExtractionCallback.BEFORE.invoker().canExtractMana(ExtractionContext.create(this.entity, this.mana, extraction, amount));
+        if (amount < 0) throw new IllegalArgumentException("Extraction amount is negative.");
+        float extraction = Math.min(amount, capacity());
 
-        if (canExtract && extraction > 0) {
+        var shouldExtract = ManaExtractionCallback.BEFORE.invoker().canExtractMana(ExtractionContext.create(this.entity, this.mana, extraction, amount))
+                // implicit NaN check (as NaN > x = false)
+                && extraction > 0;
+
+        if (shouldExtract) {
             updateSnapshots(context);
             this.mana = this.mana - extraction;
         }
+
         ManaExtractionCallback.AFTER.invoker().onManaExtraction(ExtractionContext.create(this.entity, this.mana, extraction, amount));
 
         return extraction;

@@ -3,29 +3,29 @@ package dev.louis.nebula.spell.source;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellException;
 import dev.louis.nebula.api.spell.SpellSource;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class EntitySpellSource<Entity extends LivingEntity> implements SpellSource<Entity> {
-    private final Entity entity;
+public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSource<BE> {
+    protected BE blockEntity;
     private final World world;
     private final Vec3d pos;
     private final BlockPos blockPos;
 
-    public EntitySpellSource(Entity entity, World world, Vec3d pos, BlockPos blockPos) {
-        this.entity = entity;
+    public BlockEntitySpellSource(BE blockEntity, World world, Vec3d pos, BlockPos blockPos) {
+        this.blockEntity = blockEntity;
         this.world = world;
         this.pos = pos;
         this.blockPos = blockPos;
     }
 
     @Override
-    public void castSpell(Spell<Entity> spell) {
-        if (!entity.isAlive()) return;
+    public void castSpell(Spell<BE> spell) {
+        if (blockEntity.isRemoved()) return;
 
         try {
             spell.cast(this);
@@ -33,6 +33,7 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
             e.onFail(this);
         }
     }
+
 
     @Override
     public World getWorld() {
@@ -50,7 +51,7 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
     }
 
     @Override
-    public Entity getSource() {
-        return entity;
+    public BE getSource() {
+        return blockEntity;
     }
 }

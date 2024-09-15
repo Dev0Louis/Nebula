@@ -35,28 +35,34 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
 
     @Override
     public float insertMana(float amount, TransactionContext context) {
-        float insertion = Math.min(amount, capacity - mana);
+        if (amount < 0) throw new IllegalArgumentException("Insertion amount is negative.");
+        float insertion = Math.min(amount, capacity());
 
-        if (insertion > 0) {
+        // implicit NaN check (as NaN > x = false)
+        var shouldInsert = insertion > 0;
+
+        if (shouldInsert) {
             updateSnapshots(context);
             this.mana = this.mana + insertion;
-            return insertion;
         }
 
-        return 0;
+        return insertion;
     }
 
     @Override
     public float extractMana(float amount, TransactionContext context) {
-        float extraction = Math.min(amount, capacity - mana);
+        if (amount < 0) throw new IllegalArgumentException("Extraction amount is negative.");
+        float extraction = Math.min(amount, capacity());
 
-        if (extraction > 0) {
+        // implicit NaN check (as NaN > x = false)
+        var shouldExtract = extraction > 0;
+
+        if (shouldExtract) {
             updateSnapshots(context);
             this.mana = this.mana - extraction;
-            return extraction;
         }
 
-        return 0;
+        return extraction;
     }
 
     @Override
