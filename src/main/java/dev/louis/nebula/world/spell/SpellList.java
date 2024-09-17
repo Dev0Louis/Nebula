@@ -1,4 +1,4 @@
-package dev.louis.nebula.spell;
+package dev.louis.nebula.world.spell;
 
 import dev.louis.nebula.api.spell.Spell;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
@@ -15,16 +15,16 @@ public class SpellList {
     private Int2ObjectMap<Spell> iterating;
 
     /**
-     * Ensures that the modified {@code spells} map is not currently iterated.
-     * If {@code spells} is iterated, this moves its value to {@code temp} so
-     * modification to {@code spells} is safe.
+     * Ensures that the modified {@code entities} map is not currently iterated.
+     * If {@code entities} is iterated, this moves its value to {@code temp} so
+     * modification to {@code entities} is safe.
      */
     private void ensureSafe() {
         if (this.iterating == this.spells) {
             this.temp.clear();
 
-            for(Int2ObjectMap.Entry<Spell> spellEntry : Int2ObjectMaps.fastIterable(this.spells)) {
-                this.temp.put(spellEntry.getIntKey(), spellEntry.getValue());
+            for(Int2ObjectMap.Entry<Spell> entry : Int2ObjectMaps.fastIterable(this.spells)) {
+                this.temp.put(entry.getIntKey(), entry.getValue());
             }
 
             Int2ObjectMap<Spell> spells = this.spells;
@@ -47,7 +47,6 @@ public class SpellList {
         this.spells.remove(id);
     }
 
-
     public boolean has(Spell spell) {
         return has(spell.getId());
     }
@@ -61,25 +60,25 @@ public class SpellList {
     }
 
     /**
-     * Runs an {@code action} on every entity in this storage.
+     * Runs an {@code action} on every spell in this storage.
      *
      * <p>If this storage is updated during the iteration, the iteration will
      * not be updated to reflect updated contents. For example, if a spell
      * is added by the {@code action}, the {@code action} won't run on that
-     * entity later.
+     * spell later.
      *
      * @throws UnsupportedOperationException if this is called before an iteration
      * has finished, such as within the {@code action} or from another thread
      */
     public void forEach(Consumer<Spell> action) {
         if (this.iterating != null) {
-            throw new UnsupportedOperationException("Only one concurrent iteration supported.");
+            throw new UnsupportedOperationException("Only one concurrent iteration supported");
         } else {
             this.iterating = this.spells;
 
             try {
-                for(Spell entity : this.spells.values()) {
-                    action.accept(entity);
+                for(Spell spell : this.spells.values()) {
+                    action.accept(spell);
                 }
             } finally {
                 this.iterating = null;

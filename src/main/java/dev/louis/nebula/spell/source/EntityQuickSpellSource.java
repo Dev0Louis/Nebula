@@ -1,31 +1,31 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.spell.QuickSpell;
-import dev.louis.nebula.api.spell.SpellException;
-import dev.louis.nebula.api.spell.SpellSource;
-import net.minecraft.block.entity.BlockEntity;
+import dev.louis.nebula.api.spell.quick.QuickSpell;
+import dev.louis.nebula.api.spell.quick.QuickSpellSource;
+import dev.louis.nebula.api.spell.quick.SpellException;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSource<BE> {
-    protected BE blockEntity;
+public class EntityQuickSpellSource<Entity extends LivingEntity> implements QuickSpellSource<Entity> {
+    private final Entity entity;
     private final World world;
     private final Vec3d pos;
     private final BlockPos blockPos;
 
-    public BlockEntitySpellSource(BE blockEntity, World world, Vec3d pos, BlockPos blockPos) {
-        this.blockEntity = blockEntity;
+    public EntityQuickSpellSource(Entity entity, World world, Vec3d pos, BlockPos blockPos) {
+        this.entity = entity;
         this.world = world;
         this.pos = pos;
         this.blockPos = blockPos;
     }
 
     @Override
-    public void castSpell(QuickSpell<BE> quickSpell) {
-        if (blockEntity.isRemoved()) return;
+    public void castSpell(QuickSpell<Entity> quickSpell) {
+        if (!entity.isAlive()) return;
 
         try {
             quickSpell.cast(this);
@@ -33,7 +33,6 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
             e.onFail(this);
         }
     }
-
 
     @Override
     public World getWorld() {
@@ -51,7 +50,7 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public BE getCaster() {
-        return blockEntity;
+    public Entity getCaster() {
+        return entity;
     }
 }

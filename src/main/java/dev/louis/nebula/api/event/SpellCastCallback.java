@@ -1,7 +1,7 @@
 package dev.louis.nebula.api.event;
 
-import dev.louis.nebula.api.spell.QuickSpell;
-import dev.louis.nebula.api.spell.SpellSource;
+import dev.louis.nebula.api.spell.quick.QuickSpell;
+import dev.louis.nebula.api.spell.quick.QuickSpellSource;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
@@ -24,10 +24,10 @@ public interface SpellCastCallback {
     );
 
     interface Before {
-        boolean allowSpellCast(SpellSource<?> spellSource, QuickSpell<?> quickSpell);
+        boolean allowSpellCast(QuickSpellSource<?> quickSpellSource, QuickSpell<?> quickSpell);
 
     }
     interface After {
-        void onSpellCast(SpellSource<?> spellSource, QuickSpell<?> quickSpell);
+        void onSpellCast(QuickSpellSource<?> quickSpellSource, QuickSpell<?> quickSpell);
     }
 }

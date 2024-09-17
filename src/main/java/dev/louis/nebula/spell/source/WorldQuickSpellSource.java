@@ -1,20 +1,20 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.spell.QuickSpell;
-import dev.louis.nebula.api.spell.SpellException;
-import dev.louis.nebula.api.spell.SpellSource;
+import dev.louis.nebula.api.spell.quick.QuickSpell;
+import dev.louis.nebula.api.spell.quick.QuickSpellSource;
+import dev.louis.nebula.api.spell.quick.SpellException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class WorldSpellSource implements SpellSource<World> {
+public class WorldQuickSpellSource implements QuickSpellSource<World> {
     protected final World world;
     private final Vec3d pos;
     private final BlockPos blockPos;
 
-    public WorldSpellSource(World world, Vec3d pos) {
+    public WorldQuickSpellSource(World world, Vec3d pos) {
         this.world = world;
         this.pos = pos;
         this.blockPos = BlockPos.ofFloored(pos);

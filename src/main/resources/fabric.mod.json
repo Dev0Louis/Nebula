@@ -17,6 +17,9 @@
     ],
     "client": [
       "dev.louis.nebula.NebulaClient"
+    ],
+    "cardinal-components": [
+      "dev.louis.nebula.cca.NebulaCCA"
     ]
   },
   "mixins": [
@@ -33,6 +36,9 @@
         "dev/louis/nebula/api/mana/holder/ManaManagerHolder",
         "dev/louis/nebula/api/mana/holder/ManaPoolHolder"
       ]
-    }
+    },
+    "cardinal-components": [
+      "nebula:spells"
+    ]
   }
 }

@@ -1,10 +1,10 @@
-package dev.louis.nebula.api.spell;
+package dev.louis.nebula.api.spell.quick;
 
 import java.util.function.Consumer;
 
 public class SpellException extends Exception {
 
-    public void onFail(SpellSource<?> source) {
+    public void onFail(QuickSpellSource<?> source) {
 
     }
 
@@ -12,10 +12,10 @@ public class SpellException extends Exception {
         return new SpellException();
     }
 
-    public static SpellException create(Consumer<SpellSource<?>> failAction) {
+    public static SpellException create(Consumer<QuickSpellSource<?>> failAction) {
         return new SpellException() {
             @Override
-            public void onFail(SpellSource<?> source) {
+            public void onFail(QuickSpellSource<?> source) {
                 failAction.accept(source);
             }
         };

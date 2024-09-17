@@ -1,31 +1,31 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.spell.QuickSpell;
-import dev.louis.nebula.api.spell.SpellException;
-import dev.louis.nebula.api.spell.SpellSource;
-import net.minecraft.entity.LivingEntity;
+import dev.louis.nebula.api.spell.quick.QuickSpell;
+import dev.louis.nebula.api.spell.quick.QuickSpellSource;
+import dev.louis.nebula.api.spell.quick.SpellException;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class EntitySpellSource<Entity extends LivingEntity> implements SpellSource<Entity> {
-    private final Entity entity;
+public class BlockEntityQuickSpellSource<BE extends BlockEntity> implements QuickSpellSource<BE> {
+    protected BE blockEntity;
     private final World world;
     private final Vec3d pos;
     private final BlockPos blockPos;
 
-    public EntitySpellSource(Entity entity, World world, Vec3d pos, BlockPos blockPos) {
-        this.entity = entity;
+    public BlockEntityQuickSpellSource(BE blockEntity, World world, Vec3d pos, BlockPos blockPos) {
+        this.blockEntity = blockEntity;
         this.world = world;
         this.pos = pos;
         this.blockPos = blockPos;
     }
 
     @Override
-    public void castSpell(QuickSpell<Entity> quickSpell) {
-        if (!entity.isAlive()) return;
+    public void castSpell(QuickSpell<BE> quickSpell) {
+        if (blockEntity.isRemoved()) return;
 
         try {
             quickSpell.cast(this);
@@ -33,6 +33,7 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
             e.onFail(this);
         }
     }
+
 
     @Override
     public World getWorld() {
@@ -50,7 +51,7 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
     }
 
     @Override
-    public Entity getCaster() {
-        return entity;
+    public BE getCaster() {
+        return blockEntity;
     }
 }
