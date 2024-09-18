@@ -3,7 +3,7 @@ package dev.louis.nebula.cca.component;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellType;
-import dev.louis.nebula.api.world.SpellWorld;
+import dev.louis.nebula.world.SpellWorld;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -18,6 +18,7 @@ import org.ladysnake.cca.api.v3.component.load.ServerUnloadAwareComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,20 +28,14 @@ public class SpellsComponent implements CommonTickingComponent, ServerLoadAwareC
     private static final String SPELL_ID = "spell_id";
     private static final String SPELL_DATA = "spell_data";
 
-    private final World world;
+    private World world;
     private final Chunk chunk;
 
     // Data
     private List<Spell> spells = new ArrayList<>();
 
-    private int i;
-
     public SpellsComponent(Chunk chunk) {
         this.chunk = chunk;
-        this.world = switch (chunk) {
-            case WorldChunk worldChunk -> worldChunk.getWorld();
-            default -> null;
-        };
     }
 
     @Override
@@ -84,26 +79,52 @@ public class SpellsComponent implements CommonTickingComponent, ServerLoadAwareC
     }
 
     private void assertWorldAccess() {
-        if (world == null) throw new IllegalArgumentException("Spells Component needs a world access. Not provided by " + chunk.getClass().getSimpleName());
+        if (world == null) {
+            this.world = switch (chunk) {
+                case WorldChunk worldChunk -> worldChunk.getWorld();
+                default -> throw new IllegalArgumentException("Spells Component needs a world access. Not provided by " + chunk.getClass().getSimpleName());
+            };
+        }
     }
 
     @Override
     public void loadServerside() {
         this.assertWorldAccess();
+        List<Spell> spellsToRemove = new LinkedList<>();
         for (Spell spell : spells) {
-            ((SpellWorld) world).startSpell(this.chunk, spell);
+            if (!((SpellWorld) world).nebula$startSpell(this.chunk, spell)) {
+                spellsToRemove.add(spell);
+            }
         }
+        int failedStarts = spellsToRemove.size();
+        if (failedStarts > 0) {
+            var spellOrSpells = failedStarts == 1 ? "spell" : "spells";
+            Nebula.LOGGER.warn("Failed to start " + failedStarts + " " + spellOrSpells + " from Chunk " + chunk.getPos());
+        }
+
+        spellsToRemove.forEach(spells::remove);
     }
 
     @Override
     public void unloadServerside() {
         this.assertWorldAccess();
-        System.out.println(i);
+
+        List<Spell> spellsToRemove = new LinkedList<>();
+        for (Spell spell : spells) {
+            var existed = ((SpellWorld) world).nebula$removeSpell(spell.getId());
+            if (!existed) {
+                Nebula.LOGGER.warn("Failed to remove spell from world at (chunk pos) " + chunk.getPos());
+                spellsToRemove.add(spell);
+            }
+        }
+
+        spellsToRemove.forEach(spells::remove);
     }
+
 
     public Spell takeSpell(int id) {
         var spell = spells.get(id);
-        if (spell == null) throw new IllegalStateException("Tried to take sZpell from SpellsComponent that didn't exist.");
+        if (spell == null) throw new IllegalStateException("Tried to take spell from SpellsComponent that didn't exist.");
         spells.remove(id);
         return spell;
     }

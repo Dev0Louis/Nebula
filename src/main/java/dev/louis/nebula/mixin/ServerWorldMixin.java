@@ -3,8 +3,8 @@ package dev.louis.nebula.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellType;
-import dev.louis.nebula.api.world.SpellWorld;
 import dev.louis.nebula.cca.NebulaCCA;
+import dev.louis.nebula.world.SpellWorld;
 import dev.louis.nebula.world.spell.SpellList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -58,7 +58,7 @@ public abstract class ServerWorldMixin extends World implements SpellWorld {
     final Int2ObjectMap<ChunkPos> spellToChunk = new Int2ObjectLinkedOpenHashMap<>();
 
     @Override
-    public boolean startSpell(Chunk chunk, Spell spell) {
+    public boolean nebula$startSpell(Chunk chunk, Spell spell) {
         if (spellList.has(spell)) return false;
         spellList.add(spell);
         spellToChunk.put(spell.getId(), chunk.getPos());
@@ -67,7 +67,7 @@ public abstract class ServerWorldMixin extends World implements SpellWorld {
     }
 
     @Override
-    public boolean stopSpell(int id) {
+    public boolean nebula$stopSpell(int id) {
         if (!spellList.has(id)) return false;
         spellList.remove(id);
         spellToChunk.remove(id);
@@ -76,7 +76,7 @@ public abstract class ServerWorldMixin extends World implements SpellWorld {
     }
 
     @Override
-    public Spell getSpell(int id) {
+    public Spell nebula$getSpell(int id) {
         return spellList.get(id);
     }
 
