@@ -4,10 +4,12 @@ import dev.louis.nebula.api.spell.Spell;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+@ApiStatus.Internal
 public class SpellList {
     private Int2ObjectMap<Spell> spells = new Int2ObjectLinkedOpenHashMap<>();
     private Int2ObjectMap<Spell> temp = new Int2ObjectLinkedOpenHashMap<>();

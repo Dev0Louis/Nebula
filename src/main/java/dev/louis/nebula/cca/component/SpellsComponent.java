@@ -13,15 +13,16 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
+import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.load.ServerLoadAwareComponent;
 import org.ladysnake.cca.api.v3.component.load.ServerUnloadAwareComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
+@SuppressWarnings("UnstableApiUsage")
 public class SpellsComponent implements CommonTickingComponent, ServerLoadAwareComponent, ServerUnloadAwareComponent {
 
     private static final String SPELLS = "spells";
@@ -31,8 +32,8 @@ public class SpellsComponent implements CommonTickingComponent, ServerLoadAwareC
     private World world;
     private final Chunk chunk;
 
-    // Data
-    private List<Spell> spells = new ArrayList<>();
+    @Nullable //Null if spells were delegated to the world
+    private Collection<Spell> spells = new ArrayList<>();
 
     public SpellsComponent(Chunk chunk) {
         this.chunk = chunk;
@@ -40,8 +41,9 @@ public class SpellsComponent implements CommonTickingComponent, ServerLoadAwareC
 
     @Override
     public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-       var spellsNbt = tag.getList(SPELLS, NbtElement.COMPOUND_TYPE);
-       var lookup = registryLookup.createRegistryLookup();
+        var spellsNbt = tag.getList(SPELLS, NbtElement.COMPOUND_TYPE);
+        Collection<Spell> spells = new ArrayList<>(spellsNbt.size());
+        var lookup = registryLookup.createRegistryLookup();
         for(int i = 0; i < spellsNbt.size(); ++i) {
             NbtCompound spellNbt = spellsNbt.getCompound(i);
             var spellId = Identifier.tryParse(spellNbt.getString(SPELL_ID));
@@ -51,23 +53,24 @@ public class SpellsComponent implements CommonTickingComponent, ServerLoadAwareC
                             spellType -> {
                                 Spell spell = spellType.factory().create(world);
                                 spell.readNbt(spellNbt.getCompound(SPELL_DATA));
-                                this.spells.add(spell);
+                                spells.add(spell);
                             },
                             () -> Nebula.LOGGER.error("Unknown spellType " + spellId + ". Skipping.")
                     );
         }
-
+        this.spells = spells;
     }
 
     @Override
     public void writeToNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
         NbtList nbtList = new NbtList();
-
-        for (Spell spell : spells) {
-            var spellNbt = new NbtCompound();
-            spellNbt.putString(SPELL_ID, spell.getType().id().toString());
-            spellNbt.put(SPELL_DATA, spell.writeNbt(new NbtCompound()));
-            nbtList.add(spellNbt);
+        if (spells != null) {
+            for (Spell spell : spells) {
+                var spellNbt = new NbtCompound();
+                spellNbt.putString(SPELL_ID, spell.getType().id().toString());
+                spellNbt.put(SPELL_DATA, spell.writeNbt(new NbtCompound()));
+                nbtList.add(spellNbt);
+            }
         }
 
         tag.put(SPELLS, nbtList);
@@ -75,7 +78,7 @@ public class SpellsComponent implements CommonTickingComponent, ServerLoadAwareC
 
     @Override
     public void tick() {
-        this.assertWorldAccess();
+        //this.assertWorldAccess();
     }
 
     private void assertWorldAccess() {
@@ -90,47 +93,29 @@ public class SpellsComponent implements CommonTickingComponent, ServerLoadAwareC
     @Override
     public void loadServerside() {
         this.assertWorldAccess();
-        List<Spell> spellsToRemove = new LinkedList<>();
+        int failedStarts = 0;
+        if (spells == null) throw new IllegalStateException("Spells is null on load?");
+        
         for (Spell spell : spells) {
             if (!((SpellWorld) world).nebula$startSpell(this.chunk, spell)) {
-                spellsToRemove.add(spell);
+                failedStarts++;
             }
         }
-        int failedStarts = spellsToRemove.size();
         if (failedStarts > 0) {
             var spellOrSpells = failedStarts == 1 ? "spell" : "spells";
             Nebula.LOGGER.warn("Failed to start " + failedStarts + " " + spellOrSpells + " from Chunk " + chunk.getPos());
         }
-
-        spellsToRemove.forEach(spells::remove);
+        spells = null;
     }
 
     @Override
     public void unloadServerside() {
         this.assertWorldAccess();
 
-        List<Spell> spellsToRemove = new LinkedList<>();
-        for (Spell spell : spells) {
-            var existed = ((SpellWorld) world).nebula$removeSpell(spell.getId());
-            if (!existed) {
-                Nebula.LOGGER.warn("Failed to remove spell from world at (chunk pos) " + chunk.getPos());
-                spellsToRemove.add(spell);
-            }
-        }
-
-        spellsToRemove.forEach(spells::remove);
+        this.spells = ((SpellWorld) world).nebula$takeSpells(this.chunk);
     }
 
-
-    public Spell takeSpell(int id) {
-        var spell = spells.get(id);
-        if (spell == null) throw new IllegalStateException("Tried to take spell from SpellsComponent that didn't exist.");
-        spells.remove(id);
-        return spell;
-    }
-
-    public void giveSpell(Spell spell) {
-        if (spells.contains(spell)) throw new IllegalStateException("Tried to give spell but we already own that id.");
-        spells.add(spell);
+    public void castSpell(Spell spell) {
+        ((SpellWorld) world).nebula$startSpell(this.chunk, spell);
     }
 }

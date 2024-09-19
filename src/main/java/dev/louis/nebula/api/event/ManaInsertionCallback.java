@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.event;
 
-import dev.louis.nebula.api.mana.InsertionContext;
+import dev.louis.nebula.api.mana.EntityInsertionContext;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
@@ -22,10 +22,10 @@ public interface ManaInsertionCallback {
     );
 
     interface Before {
-        boolean canInsertMana(InsertionContext context);
+        boolean canInsertMana(EntityInsertionContext context);
     }
 
     interface After {
-        void onManaInsertion(InsertionContext context);
+        void onManaInsertion(EntityInsertionContext context);
     }
 }

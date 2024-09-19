@@ -1,5 +1,6 @@
 package dev.louis.nebula.api.spell;
 
+import dev.louis.nebula.cca.NebulaCCA;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -25,6 +26,11 @@ public abstract class Spell {
     protected Spell(SpellType<?> type, World world) {
         this.type = type;
         this.world = world;
+    }
+
+    public void cast() {
+        if (pos == null || blockPos == null || chunkPos == null) throw new IllegalStateException("Tried to cast unfinished spell.");
+        world.getChunk(chunkPos.x, chunkPos.z).getComponent(NebulaCCA.SPELLS).castSpell(this);
     }
 
     public abstract int getId();

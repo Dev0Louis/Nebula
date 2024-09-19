@@ -1,14 +1,13 @@
 package dev.louis.nebula.api.event;
 
-import dev.louis.nebula.api.spell.quick.QuickSpell;
-import dev.louis.nebula.api.spell.quick.QuickSpellSource;
+import dev.louis.nebula.api.spell.Spell;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
 public interface SpellCastCallback {
-    Event<Before> BEFORE = EventFactory.createArrayBacked(Before.class, (listeners) -> (spellCaster, spell) -> {
+    Event<Before> BEFORE = EventFactory.createArrayBacked(Before.class, (listeners) -> (spell) -> {
                 for (Before event : listeners) {
-                    var disallowed = !event.allowSpellCast(spellCaster, spell);
+                    var disallowed = !event.allowSpellCast(spell);
                     if (disallowed) return false;
                 }
 
@@ -16,18 +15,18 @@ public interface SpellCastCallback {
             }
     );
 
-    Event<After> AFTER = EventFactory.createArrayBacked(After.class, (listeners) -> (spellCaster, spell) -> {
+    Event<After> AFTER = EventFactory.createArrayBacked(After.class, (listeners) -> (spell) -> {
                 for (After event : listeners) {
-                    event.onSpellCast(spellCaster, spell);
+                    event.onSpellCast(spell);
                 }
             }
     );
 
     interface Before {
-        boolean allowSpellCast(QuickSpellSource<?> quickSpellSource, QuickSpell<?> quickSpell);
-
+        boolean allowSpellCast(Spell quickSpellSource);
     }
+
     interface After {
-        void onSpellCast(QuickSpellSource<?> quickSpellSource, QuickSpell<?> quickSpell);
+        void onSpellCast(Spell quickSpell);
     }
 }

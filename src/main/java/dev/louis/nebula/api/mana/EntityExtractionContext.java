@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.mana;
 
-import dev.louis.nebula.mana.NebulaExtractionContext;
+import dev.louis.nebula.mana.NebulaEntityExtractionContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -11,17 +11,17 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Optional;
 
 @ApiStatus.NonExtendable
-public interface ExtractionContext {
+public interface EntityExtractionContext {
         /**
          * The entity that mana is being extracted from.
          */
-        Optional<LivingEntity> entity();
+        LivingEntity entity();
 
         /**
          * The player that mana is being extracted from.
          */
         default Optional<PlayerEntity> player() {
-            return entity().filter(PlayerEntity.class::isInstance).map(PlayerEntity.class::cast);
+            return Optional.of(entity()).filter(PlayerEntity.class::isInstance).map(PlayerEntity.class::cast);
         }
 
         /**
@@ -47,7 +47,7 @@ public interface ExtractionContext {
         float amount();
 
         /**
-         * The amount that should be extracted.
+         * The amount that is extracted.
          */
         float extraction();
 
@@ -56,33 +56,15 @@ public interface ExtractionContext {
          */
         float requestedExtraction();
 
-        static ExtractionContext create(
-                World world,
-                Vec3d pos,
-                BlockPos blockPos,
-                float amount,
-                float extraction,
-                float requestedExtraction
-        ) {
-                return new NebulaExtractionContext(
-                        Optional.empty(),
-                        world,
-                        pos,
-                        blockPos,
-                        amount,
-                        extraction,
-                        requestedExtraction
-                );
-        }
 
-        static ExtractionContext create(
+        static EntityExtractionContext create(
                 LivingEntity entity,
                 float amount,
                 float extraction,
                 float requestedExtraction
         ) {
-                return new NebulaExtractionContext(
-                        Optional.of(entity),
+                return new NebulaEntityExtractionContext(
+                        entity,
                         entity.getWorld(),
                         entity.getPos(),
                         entity.getBlockPos(),

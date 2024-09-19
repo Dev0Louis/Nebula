@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.mana;
 
-import dev.louis.nebula.mana.NebulaInsertionContext;
+import dev.louis.nebula.mana.NebulaEntityInsertionContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -11,17 +11,17 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Optional;
 
 @ApiStatus.NonExtendable
-public interface InsertionContext {
+public interface EntityInsertionContext {
     /**
      * The entity that mana is being inserted into.
      */
-    Optional<LivingEntity> entity();
+    LivingEntity entity();
 
     /**
      * The player that mana is being inserted into.
      */
     default Optional<PlayerEntity> player() {
-        return entity().filter(PlayerEntity.class::isInstance).map(PlayerEntity.class::cast);
+        return Optional.of(entity()).filter(PlayerEntity.class::isInstance).map(PlayerEntity.class::cast);
     }
 
     /**
@@ -47,7 +47,7 @@ public interface InsertionContext {
     float amount();
 
     /**
-     * The amount that should be inserted.
+     * The amount that is inserted.
      */
     float insertion();
 
@@ -56,33 +56,14 @@ public interface InsertionContext {
      */
     float requestedInsertion();
 
-    static InsertionContext create(
-            World world,
-            Vec3d pos,
-            BlockPos blockPos,
-            float amount,
-            float insertion,
-            float requestedInsertion
-    ) {
-        return new NebulaInsertionContext(
-                Optional.empty(),
-                world,
-                pos,
-                blockPos,
-                amount,
-                insertion,
-                requestedInsertion
-        );
-    }
-
-    static InsertionContext create(
+    static EntityInsertionContext create(
             LivingEntity entity,
             float amount,
             float insertion,
             float requestedInsertion
     ) {
-        return new NebulaInsertionContext(
-                Optional.of(entity),
+        return new NebulaEntityInsertionContext(
+                entity,
                 entity.getWorld(),
                 entity.getPos(),
                 entity.getBlockPos(),

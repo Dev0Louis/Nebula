@@ -3,7 +3,6 @@ package dev.louis.nebula.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellType;
-import dev.louis.nebula.cca.NebulaCCA;
 import dev.louis.nebula.world.SpellWorld;
 import dev.louis.nebula.world.spell.SpellList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
@@ -32,6 +31,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -80,14 +81,23 @@ public abstract class ServerWorldMixin extends World implements SpellWorld {
         return spellList.get(id);
     }
 
+    @Override
+    public Collection<Spell> nebula$takeSpells(Chunk chunk) {
+        Collection<Spell> spells = new ArrayList<>();
+        for (Int2ObjectMap.Entry<ChunkPos> entry : spellToChunk.int2ObjectEntrySet()) {
+            if (entry.getValue().equals(chunk.getPos())) {
+                var spellId = entry.getIntKey();
+                spells.add(spellList.get(spellId));
+                spellToChunk.remove(spellId);
+            }
+        }
+        return spells.isEmpty() ? null : spells;
+    }
+
     @Unique
     public void moveSpellToChunk(Spell spell, ChunkPos oldPos) {
-        ChunkPos newPos = spell.getChunkPos();
-        var takenSpell = NebulaCCA.SPELLS.get(this.getChunk(oldPos.x, oldPos.z)).takeSpell(spell.getId());
-        NebulaCCA.SPELLS.get(this.getChunk(newPos.x, newPos.z)).giveSpell(takenSpell);
-
-        spellToChunk.put(spell.getId(), newPos);
-    };
+        spellToChunk.put(spell.getId(), spell.getChunkPos());
+    }
 
     @Inject(
             method = "tick",

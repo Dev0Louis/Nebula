@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.event;
 
-import dev.louis.nebula.api.mana.ExtractionContext;
+import dev.louis.nebula.api.mana.EntityExtractionContext;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
@@ -22,10 +22,10 @@ public interface ManaExtractionCallback {
     );
 
     interface Before {
-        boolean canExtractMana(ExtractionContext context);
+        boolean canExtractMana(EntityExtractionContext context);
     }
 
     interface After {
-        void onManaExtraction(ExtractionContext context);
+        void onManaExtraction(EntityExtractionContext context);
     }
 }
