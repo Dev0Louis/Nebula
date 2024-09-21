@@ -4,9 +4,9 @@ import dev.louis.nebula.api.mana.EntityExtractionContext;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
-public interface ManaExtractionCallback {
-    Event<ManaExtractionCallback.Before> BEFORE = EventFactory.createArrayBacked(ManaExtractionCallback.Before.class, (listeners) -> (context) -> {
-                for (ManaExtractionCallback.Before event : listeners) {
+public interface EntityManaExtractionCallback {
+    Event<EntityManaExtractionCallback.Before> BEFORE = EventFactory.createArrayBacked(EntityManaExtractionCallback.Before.class, (listeners) -> (context) -> {
+                for (EntityManaExtractionCallback.Before event : listeners) {
                     var passed = event.canExtractMana(context);
                     if (!passed) return false;
                 }
@@ -14,8 +14,8 @@ public interface ManaExtractionCallback {
             }
     );
 
-    Event<ManaExtractionCallback.After> AFTER = EventFactory.createArrayBacked(ManaExtractionCallback.After.class, (listeners) -> (context) -> {
-                for (ManaExtractionCallback.After event : listeners) {
+    Event<EntityManaExtractionCallback.After> AFTER = EventFactory.createArrayBacked(EntityManaExtractionCallback.After.class, (listeners) -> (context) -> {
+                for (EntityManaExtractionCallback.After event : listeners) {
                     event.onManaExtraction(context);
                 }
             }

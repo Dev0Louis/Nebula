@@ -1,8 +1,8 @@
 package dev.louis.nebula.mana;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.event.ManaExtractionCallback;
-import dev.louis.nebula.api.event.ManaInsertionCallback;
+import dev.louis.nebula.api.event.EntityManaExtractionCallback;
+import dev.louis.nebula.api.event.EntityManaInsertionCallback;
 import dev.louis.nebula.api.mana.EntityExtractionContext;
 import dev.louis.nebula.api.mana.EntityInsertionContext;
 import dev.louis.nebula.api.mana.ManaManager;
@@ -76,7 +76,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         if (amount < 0) throw new IllegalArgumentException("Insertion amount is negative.");
         float insertion = Math.min(amount, capacity());
 
-        var shouldInsert = ManaInsertionCallback.BEFORE.invoker().canInsertMana(EntityInsertionContext.create(this.entity, this.mana, insertion, amount))
+        var shouldInsert = EntityManaInsertionCallback.BEFORE.invoker().canInsertMana(EntityInsertionContext.create(this.entity, this.mana, insertion, amount))
                 // implicit NaN check (as NaN > x = false)
                 && insertion > 0;
 
@@ -85,7 +85,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
             this.mana = this.mana + insertion;
         }
 
-        ManaInsertionCallback.AFTER.invoker().onManaInsertion(EntityInsertionContext.create(this.entity, this.mana, insertion, amount));
+        EntityManaInsertionCallback.AFTER.invoker().onManaInsertion(EntityInsertionContext.create(this.entity, this.mana, insertion, amount));
 
         return insertion;
     }
@@ -95,7 +95,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         if (amount < 0) throw new IllegalArgumentException("Extraction amount is negative.");
         float extraction = Math.min(amount, capacity());
 
-        var shouldExtract = ManaExtractionCallback.BEFORE.invoker().canExtractMana(EntityExtractionContext.create(this.entity, this.mana, extraction, amount))
+        var shouldExtract = EntityManaExtractionCallback.BEFORE.invoker().canExtractMana(EntityExtractionContext.create(this.entity, this.mana, extraction, amount))
                 // implicit NaN check (as NaN > x = false)
                 && extraction > 0;
 
@@ -104,7 +104,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
             this.mana = this.mana - extraction;
         }
 
-        ManaExtractionCallback.AFTER.invoker().onManaExtraction(EntityExtractionContext.create(this.entity, this.mana, extraction, amount));
+        EntityManaExtractionCallback.AFTER.invoker().onManaExtraction(EntityExtractionContext.create(this.entity, this.mana, extraction, amount));
 
         return extraction;
     }

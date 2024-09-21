@@ -17,9 +17,6 @@
     ],
     "client": [
       "dev.louis.nebula.NebulaClient"
-    ],
-    "cardinal-components": [
-      "dev.louis.nebula.cca.NebulaCCA"
     ]
   },
   "mixins": [
@@ -34,7 +31,8 @@
     "loom:injected_interfaces": {
       "net/minecraft/class_1309": [
         "dev/louis/nebula/api/mana/holder/ManaManagerHolder",
-        "dev/louis/nebula/api/mana/holder/ManaPoolHolder"
+        "dev/louis/nebula/api/mana/holder/ManaPoolHolder",
+        "dev/louis/nebula/api/spell/holder/SpellEffectHolder"
       ]
     },
     "cardinal-components": [

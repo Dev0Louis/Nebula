@@ -4,9 +4,9 @@ import dev.louis.nebula.api.mana.EntityInsertionContext;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
-public interface ManaInsertionCallback {
-    Event<ManaInsertionCallback.Before> BEFORE = EventFactory.createArrayBacked(ManaInsertionCallback.Before.class, (listeners) -> (context) -> {
-                for (ManaInsertionCallback.Before event : listeners) {
+public interface EntityManaInsertionCallback {
+    Event<EntityManaInsertionCallback.Before> BEFORE = EventFactory.createArrayBacked(EntityManaInsertionCallback.Before.class, (listeners) -> (context) -> {
+                for (EntityManaInsertionCallback.Before event : listeners) {
                     var passed = event.canInsertMana(context);
                     if (!passed) return false;
                 }
@@ -14,8 +14,8 @@ public interface ManaInsertionCallback {
             }
     );
 
-    Event<ManaInsertionCallback.After> AFTER = EventFactory.createArrayBacked(ManaInsertionCallback.After.class, (listeners) -> (context) -> {
-                for (ManaInsertionCallback.After event : listeners) {
+    Event<EntityManaInsertionCallback.After> AFTER = EventFactory.createArrayBacked(EntityManaInsertionCallback.After.class, (listeners) -> (context) -> {
+                for (EntityManaInsertionCallback.After event : listeners) {
                     event.onManaInsertion(context);
                 }
             }

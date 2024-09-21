@@ -1,82 +1,53 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.cca.NebulaCCA;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-public abstract class Spell {
-    public int age;
-    private static final AtomicInteger ID_COUNTER = new AtomicInteger();
-
-    private final int id = ID_COUNTER.getAndIncrement();
-
-    private final SpellType<?> type;
-    private final World world;
-
-    private Vec3d pos;
-    private BlockPos blockPos;
-    private ChunkPos chunkPos;
+import dev.louis.nebula.api.event.SpellCastCallback;
+import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.api.mana.holder.ManaManagerHolder;
+import dev.louis.nebula.api.spell.quick.SpellException;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 
-    protected Spell(SpellType<?> type, World world) {
-        this.type = type;
-        this.world = world;
+public interface Spell<Caster> {
+
+    default boolean tryCast(SpellSource<Caster> source) {
+        var allowed = SpellCastCallback.BEFORE.invoker().allowSpellCast(source, this);
+        if (!allowed) return false;
+
+        try {
+            cast(source);
+        } catch (SpellException e) {
+            e.onFail(source);
+            return false;
+        }
+
+        SpellCastCallback.AFTER.invoker().onSpellCast(source, this);
+        return true;
     }
 
-    public void cast() {
-        if (pos == null || blockPos == null || chunkPos == null) throw new IllegalStateException("Tried to cast unfinished spell.");
-        world.getChunk(chunkPos.x, chunkPos.z).getComponent(NebulaCCA.SPELLS).castSpell(this);
+    /**
+     * This should not be called manually unless you are //TODO: Add stuff.
+     */
+    void cast(SpellSource<Caster> source) throws SpellException;
+
+
+    // Small utility methods to help to easily extract mana or throw an Exception if not enough Mana is available
+    static void drainMana(ManaManagerHolder manaManagerHolder, int amount) throws SpellException {
+        drainMana(manaManagerHolder.getManaManager(), amount);
     }
 
-    public abstract int getId();
-
-    public SpellType<?> getType() {
-        return type;
+    static void drainMana(ManaManagerHolder manaManagerHolder, int amount, Transaction transaction) throws SpellException {
+        drainMana(manaManagerHolder.getManaManager(), amount, transaction);
     }
 
-    public boolean hasEnded() {
-        return false;
+    static void drainMana(ManaPool manaPool, int amount) throws SpellException {
+        try(Transaction transaction = Transaction.openOuter()) {
+            drainMana(manaPool, amount, transaction);
+        }
     }
 
-    public void checkEnded() {
-
-    }
-
-    public void tick() {
-
-    }
-
-    public void setPos(Vec3d pos) {
-        this.pos = pos;
-        this.blockPos = BlockPos.ofFloored(pos);
-        this.chunkPos = new ChunkPos(this.blockPos);
-    }
-
-    public World getWorld() {
-        return world;
-    }
-
-    public BlockPos getBlockPos() {
-        return blockPos;
-    }
-
-    public ChunkPos getChunkPos() {
-        return chunkPos;
-    }
-
-    public Vec3d getPos() {
-        return pos;
-    }
-
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        return nbt;
-    }
-
-    public void readNbt(NbtCompound nbt) {
+    static void drainMana(ManaPool manaPool, int amount, Transaction transaction) throws SpellException {
+        var extracted = manaPool.extractMana(amount, transaction);
+        if (extracted < amount) throw SpellException.create();
+        transaction.commit();
     }
 }

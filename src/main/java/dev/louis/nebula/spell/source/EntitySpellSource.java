@@ -1,39 +1,39 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.spell.quick.QuickSpell;
-import dev.louis.nebula.api.spell.quick.QuickSpellSource;
+import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.api.spell.Spell;
+import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.spell.quick.SpellException;
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class BlockEntityQuickSpellSource<BE extends BlockEntity> implements QuickSpellSource<BE> {
-    protected BE blockEntity;
+public class EntitySpellSource<Entity extends LivingEntity> implements SpellSource<Entity> {
+    private final Entity entity;
     private final World world;
     private final Vec3d pos;
     private final BlockPos blockPos;
 
-    public BlockEntityQuickSpellSource(BE blockEntity, World world, Vec3d pos, BlockPos blockPos) {
-        this.blockEntity = blockEntity;
+    public EntitySpellSource(Entity entity, World world, Vec3d pos, BlockPos blockPos) {
+        this.entity = entity;
         this.world = world;
         this.pos = pos;
         this.blockPos = blockPos;
     }
 
     @Override
-    public void castSpell(QuickSpell<BE> quickSpell) {
-        if (blockEntity.isRemoved()) return;
+    public void castSpell(Spell<Entity> spell) {
+        if (!entity.isAlive()) return;
 
         try {
-            quickSpell.cast(this);
+            spell.cast(this);
         } catch (SpellException e) {
             e.onFail(this);
         }
     }
-
 
     @Override
     public World getWorld() {
@@ -51,7 +51,12 @@ public class BlockEntityQuickSpellSource<BE extends BlockEntity> implements Quic
     }
 
     @Override
-    public BE getCaster() {
-        return blockEntity;
+    public Entity getCaster() {
+        return entity;
+    }
+
+    @Override
+    public ManaPool getManaPool() {
+        return entity.getManaPool();
     }
 }
