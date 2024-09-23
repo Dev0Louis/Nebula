@@ -4,6 +4,7 @@ import dev.louis.nebula.api.mana.ManaPool;
 import dev.louis.nebula.spell.source.BlockEntitySpellSource;
 import dev.louis.nebula.spell.source.EntitySpellSource;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -19,7 +20,7 @@ public interface SpellSource<Caster> {
     ManaPool getManaPool();
 
 
-    static <E extends LivingEntity> SpellSource<E> of(E entity, World world, Vec3d pos, BlockPos blockPos) {
+    static <E extends Entity> SpellSource<E> of(E entity, World world, Vec3d pos, BlockPos blockPos) {
         return new EntitySpellSource<>(entity, world, pos, blockPos);
     }
 

@@ -34,11 +34,11 @@ public class NebulaCommand {
                                 .executes(context -> getMana(context.getSource(), getPlayers(context, "players")))))
                 .then(literal("addMana")
                         .then(argument("players", players())
-                                .then(argument("mana", integer(0))
+                                .then(argument("capacity", integer(0))
                                         .executes(context -> addMana(
                                                 context.getSource(),
                                                 getPlayers(context, "players"),
-                                                getInteger(context, "mana"))))));
+                                                getInteger(context, "capacity"))))));
 
 
         dispatcher.register(command);
@@ -65,7 +65,7 @@ public class NebulaCommand {
 
     private static int getMana(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for (ServerPlayerEntity player : players) {
-            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
+            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " capacity."));
         }
         return 1;
     }

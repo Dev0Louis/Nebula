@@ -30,7 +30,7 @@ public interface Spell<Caster> {
     void cast(SpellSource<Caster> source) throws SpellException;
 
 
-    // Small utility methods to help to easily extract mana or throw an Exception if not enough Mana is available
+    // Small utility methods to help to easily extract capacity or throw an Exception if not enough Mana is available
     static void drainMana(ManaManagerHolder manaManagerHolder, int amount) throws SpellException {
         drainMana(manaManagerHolder.getManaManager(), amount);
     }

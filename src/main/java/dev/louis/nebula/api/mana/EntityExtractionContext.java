@@ -13,12 +13,12 @@ import java.util.Optional;
 @ApiStatus.NonExtendable
 public interface EntityExtractionContext {
         /**
-         * The entity that mana is being extracted from.
+         * The entity that capacity is being extracted from.
          */
         LivingEntity entity();
 
         /**
-         * The player that mana is being extracted from.
+         * The player that capacity is being extracted from.
          */
         default Optional<PlayerEntity> player() {
             return Optional.of(entity()).filter(PlayerEntity.class::isInstance).map(PlayerEntity.class::cast);
@@ -30,14 +30,14 @@ public interface EntityExtractionContext {
         World world();
 
         /**
-         * The position at which the mana is extracted from.
-         * For example the pos of an entity or a block from which mana is extracted.
+         * The position at which the capacity is extracted from.
+         * For example the pos of an entity or a block from which capacity is extracted.
          */
         Vec3d pos();
 
         /**
-         * The BlockPos at which the mana is extracted from.
-         * For example the BlockPos of an entity or a block from which mana is extracted.
+         * The BlockPos at which the capacity is extracted from.
+         * For example the BlockPos of an entity or a block from which capacity is extracted.
          */
         BlockPos blockPos();
 

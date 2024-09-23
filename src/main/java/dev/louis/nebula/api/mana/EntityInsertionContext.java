@@ -13,12 +13,12 @@ import java.util.Optional;
 @ApiStatus.NonExtendable
 public interface EntityInsertionContext {
     /**
-     * The entity that mana is being inserted into.
+     * The entity that capacity is being inserted into.
      */
     LivingEntity entity();
 
     /**
-     * The player that mana is being inserted into.
+     * The player that capacity is being inserted into.
      */
     default Optional<PlayerEntity> player() {
         return Optional.of(entity()).filter(PlayerEntity.class::isInstance).map(PlayerEntity.class::cast);
@@ -30,14 +30,14 @@ public interface EntityInsertionContext {
     World world();
 
     /**
-     * The position at which the mana is inserted into.
-     * For example the pos of an entity or a block in which mana is inserted into.
+     * The position at which the capacity is inserted into.
+     * For example the pos of an entity or a block in which capacity is inserted into.
      */
     Vec3d pos();
 
     /**
-     * The BlockPos at which the mana is inserted into.
-     * For example the BlockPos of an entity or a block in which mana is inserted into.
+     * The BlockPos at which the capacity is inserted into.
+     * For example the BlockPos of an entity or a block in which capacity is inserted into.
      */
     BlockPos blockPos();
 

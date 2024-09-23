@@ -2,7 +2,11 @@ package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.Collection;
 
 @ApiStatus.Experimental
 public abstract class SpellEffect {
@@ -27,11 +31,11 @@ public abstract class SpellEffect {
         return !terminated;
     }
 
-    public void writeNbt() {
-
+    public NbtCompound writeNbt(NbtCompound nbt) {
+        return nbt;
     }
 
-    public void readNbt() {
+    public void readNbt(NbtElement nbtElement) {
 
     }
 
@@ -41,5 +45,9 @@ public abstract class SpellEffect {
 
     public SpellEffectType<?> getType() {
         return type;
+    }
+
+    public boolean canStart(Collection<SpellEffect> activeSpellEffects) {
+        return activeSpellEffects.stream().noneMatch(spellEffect -> spellEffect.type.equals(this.type));
     }
 }

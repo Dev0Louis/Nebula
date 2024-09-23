@@ -44,7 +44,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public float capacity() {
-        return entity.getMaxHealth();
+        return entity.isMobOrPlayer() ? entity.getMaxHealth() : 0;
     }
 
     public void regenMana() {
@@ -136,9 +136,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public void writeNbt(NbtCompound nbt) {
-        NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
-        nebulaNbt.putFloat(MANA_NBT_KEY, this.getMana());
-        nbt.put(Nebula.MOD_ID, nebulaNbt);
+        nbt.putFloat(MANA_NBT_KEY, this.getMana());
     }
 
     @Override

@@ -1,13 +1,17 @@
 package dev.louis.nebula;
 
 import com.mojang.logging.LogUtils;
+import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.mana.NebulaManaManager;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
@@ -22,6 +26,10 @@ public class Nebula implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            Spell<PlayerEntity> spell = source -> source.getCaster().giveItemStack(Items.STONE.getDefaultStack());
+            newPlayer.castSpell(spell);
+        });
         NebulaCommand.init();
         this.registerPacketReceivers();
         LOGGER.info("Nebula has been initialized.");

@@ -1,23 +1,24 @@
 package dev.louis.nebula.spell.source;
 
 import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.spell.quick.SpellException;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class EntitySpellSource<Entity extends LivingEntity> implements SpellSource<Entity> {
-    private final Entity entity;
+public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
+    protected final E entity;
     private final World world;
     private final Vec3d pos;
     private final BlockPos blockPos;
 
-    public EntitySpellSource(Entity entity, World world, Vec3d pos, BlockPos blockPos) {
+    public EntitySpellSource(E entity, World world, Vec3d pos, BlockPos blockPos) {
         this.entity = entity;
         this.world = world;
         this.pos = pos;
@@ -25,7 +26,7 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
     }
 
     @Override
-    public void castSpell(Spell<Entity> spell) {
+    public void castSpell(Spell<E> spell) {
         if (!entity.isAlive()) return;
 
         try {
@@ -51,12 +52,13 @@ public class EntitySpellSource<Entity extends LivingEntity> implements SpellSour
     }
 
     @Override
-    public Entity getCaster() {
+    public E getCaster() {
         return entity;
     }
 
     @Override
     public ManaPool getManaPool() {
-        return entity.getManaPool();
+        if (entity instanceof ManaPoolHolder manaPoolHolder) manaPoolHolder.getManaPool();
+        return ManaPool.EMPTY;
     }
 }

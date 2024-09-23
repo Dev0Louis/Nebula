@@ -6,7 +6,7 @@ import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * A ManaContainer can store mana, give mana,
+ * A ManaContainer can store capacity, give capacity,
  */
 @SuppressWarnings("UnusedReturnValue")
 public interface ManaPool {
