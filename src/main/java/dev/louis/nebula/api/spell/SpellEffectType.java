@@ -10,11 +10,20 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
-public record SpellEffectType<T extends SpellEffect>(Identifier id, Factory<T> factory) {
+public record SpellEffectType<T extends SpellEffect>(Factory<T> factory) {
     public static final RegistryKey<Registry<SpellEffectType<?>>> REGISTRY_KEY =
             RegistryKey.ofRegistry(Identifier.of(Nebula.MOD_ID, "spell_effect_type"));
     public static final SimpleRegistry<SpellEffectType<?>> REGISTRY =
             FabricRegistryBuilder.createSimple(REGISTRY_KEY).buildAndRegister();
+
+
+    public static <T extends SpellEffect> SpellEffectType<T> register(Identifier id, SpellEffectType<T> spellEffectType) {
+        return Registry.register(REGISTRY, id, spellEffectType);
+    }
+
+    public static <T extends SpellEffect> SpellEffectType<T> register(Identifier id, Factory<T> spellFactory) {
+        return Registry.register(REGISTRY, id, new SpellEffectType<>(spellFactory));
+    }
 
     public interface Factory<T extends SpellEffect> {
         T create(LivingEntity entity);

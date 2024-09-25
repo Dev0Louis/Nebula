@@ -1,6 +1,5 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -11,15 +10,14 @@ import java.util.Collection;
 @ApiStatus.Experimental
 public abstract class SpellEffect {
     private final SpellEffectType<?> type;
-    protected final LivingEntity entity;
-    private boolean terminated;
+    protected final LivingEntity target;
 
-    public SpellEffect(SpellEffectType<?> type, LivingEntity entity) {
+    public int age;
+
+    public SpellEffect(SpellEffectType<?> type, LivingEntity target) {
         this.type = type;
-        this.entity = entity;
+        this.target = target;
     }
-
-
 
     public abstract void onStart();
 
@@ -28,7 +26,7 @@ public abstract class SpellEffect {
     public abstract void onEnd();
 
     public boolean shouldContinue() {
-        return !terminated;
+        return true;
     }
 
     public NbtCompound writeNbt(NbtCompound nbt) {
@@ -40,7 +38,7 @@ public abstract class SpellEffect {
     }
 
     void terminate() {
-        ((SpellEffectHolder) entity).endSpellEffect(this);
+        target.endSpellEffect(this);
     }
 
     public SpellEffectType<?> getType() {

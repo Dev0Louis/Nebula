@@ -11,6 +11,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.Optional;
+
 @ApiStatus.Internal
 public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSource<BE> {
     protected BE blockEntity;
@@ -58,8 +60,8 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public ManaPool getManaPool() {
-        if (blockEntity instanceof ManaPoolHolder manaPoolHolder) manaPoolHolder.getManaPool();
-        return ManaPool.EMPTY;
+    public Optional<ManaPool> getManaPool() {
+        if (blockEntity instanceof ManaPoolHolder manaPoolHolder) return Optional.of(manaPoolHolder.getManaPool());
+        return Optional.empty();
     }
 }

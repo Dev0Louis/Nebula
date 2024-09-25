@@ -65,7 +65,7 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         NbtList spellEffectsNbt = new NbtList();
         for (SpellEffect spellEffect : spellEffects) {
             var spellEffectNbt = new NbtCompound();
-            spellEffectNbt.putString(SPELL_EFFECT_ID, spellEffect.getType().id().toString());
+            spellEffectNbt.putString(SPELL_EFFECT_ID, SpellEffectType.REGISTRY.getId(spellEffect.getType()).toString());
             spellEffectNbt.put(SPELL_EFFECT_DATA, spellEffect.writeNbt(new NbtCompound()));
             spellEffectsNbt.add(spellEffectNbt);
         }
@@ -104,9 +104,11 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         this.manaManager.tick();
 
         terminatedSpells.stream().peek(spellEffects::remove).forEach(SpellEffect::onEnd);
+        terminatedSpells.clear();
 
         iterating = true;
         for (SpellEffect spellEffect : spellEffects) {
+            spellEffect.age++;
             if (!spellEffect.shouldContinue()) {
                 endSpellEffect(spellEffect);
                 continue;
@@ -144,5 +146,10 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
             this.terminatedSpells.add(spellEffect);
 
         }
+    }
+
+    @Override
+    public Collection<SpellEffect> getSpellEffects() {
+        return this.spellEffects;
     }
 }

@@ -1,7 +1,6 @@
 package dev.louis.nebulo.client;
 
-import dev.louis.nebula.api.spell.SpellType;
-import dev.louis.nebulo.NebuloSpells;
+import dev.louis.nebula.api.spell.SpellEffectType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -30,7 +29,7 @@ public class NebuloClient implements ClientModInitializer {
                 "key.categories.nebulo"
         );
         KeyBindingHelper.registerKeyBinding(keyBind);
-        SpellKeybindManager.addSpellKeyBinding(NebuloSpells.CLOUD_JUMP, keyBind);
+        SpellKeybindManager.addSpellKeyBinding(keyBind, SpellCreator.CLOUD_CREATOR);
     }
 
     private void registerKeybindCallback() {
@@ -40,17 +39,7 @@ public class NebuloClient implements ClientModInitializer {
                 return;
             }
 
-            for (SpellType<?> spellType : SpellType.REGISTRY) {
-                var optionalKey = SpellKeybindManager.getKey(spellType);
-                if(optionalKey.isPresent()) {
-                    var key = optionalKey.get();
-                    if(key.isPressed()) {
-                        client.player.getSpellManager().cast(spellType);
-                        spellCooldown = 10;
-                        return;
-                    }
-                }
-            }
+            SpellKeybindManager.checkPresses();
         });
     }
 
@@ -59,9 +48,9 @@ public class NebuloClient implements ClientModInitializer {
             var player = MinecraftClient.getInstance().player;
             if(player == null)return;
             var manaManager = player.getManaManager();
-            var spellManager = player.getSpellManager();
+            var spellEffects = player.getSpellEffects();
             var mana = String.valueOf(manaManager.getMana());
-            var maxMana = String.valueOf(manaManager.getMaxMana());
+            var maxMana = String.valueOf(manaManager.getCapacity());
             drawContext.drawText(
                     MinecraftClient.getInstance().textRenderer,
                     "Mana: " + mana + "/" + maxMana,
@@ -73,19 +62,19 @@ public class NebuloClient implements ClientModInitializer {
 
             drawContext.drawText(
                     MinecraftClient.getInstance().textRenderer,
-                    "Learned Spells:",
+                    "Spell Effects:",
                     10,
                     20,
                     0x00FFFF,
                     true
             );
 
-            var spells = spellManager.getLearnedSpells();
+
             AtomicInteger y = new AtomicInteger(30);
-            spells.forEach(spellType -> {
+            spellEffects.forEach(spellEffect -> {
                 drawContext.drawText(
                         MinecraftClient.getInstance().textRenderer,
-                        spellType.getId().toString(),
+                        SpellEffectType.REGISTRY.getId(spellEffect.getType()).toString(),
                         10,
                         y.get(),
                         0x03F6FF,

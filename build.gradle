@@ -47,6 +47,43 @@ processResources {
     }
 }
 
+sourceSets {
+    nebulo {
+        System.out.println("AAAAAAA")
+        //compileClasspath += main.compileClasspath
+        //runtimeClasspath += main.runtimeClasspath
+        compileClasspath += main.compileClasspath
+        compileClasspath += main.output
+        runtimeClasspath += main.runtimeClasspath
+        runtimeClasspath += main.output
+    }
+}
+
+
+
+loom {
+    runs {
+        nebuloClient {
+            server()
+            ideConfigGenerated project.rootProject == project
+            name = "Nebulo Server"
+            source sourceSets.main
+        }
+        nebuloServer {
+            client()
+            ideConfigGenerated project.rootProject == project
+            name = "Nebulo Client"
+            source sourceSets.main
+        }
+    }
+}
+
+configurations {
+    nebuloRuntimeClasspath {
+        extendsFrom runtimeClasspath
+    }
+}
+
 def targetJavaVersion = 21
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is

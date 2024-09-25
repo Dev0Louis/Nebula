@@ -2,7 +2,7 @@ package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.api.event.SpellCastCallback;
 import dev.louis.nebula.api.mana.ManaPool;
-import dev.louis.nebula.api.mana.holder.ManaManagerHolder;
+import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
 import dev.louis.nebula.api.spell.quick.SpellException;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
@@ -31,12 +31,12 @@ public interface Spell<Caster> {
 
 
     // Small utility methods to help to easily extract capacity or throw an Exception if not enough Mana is available
-    static void drainMana(ManaManagerHolder manaManagerHolder, int amount) throws SpellException {
-        drainMana(manaManagerHolder.getManaManager(), amount);
+    static void drainMana(ManaPoolHolder manaManagerHolder, int amount) throws SpellException {
+        drainMana(manaManagerHolder.getManaPool(), amount);
     }
 
-    static void drainMana(ManaManagerHolder manaManagerHolder, int amount, Transaction transaction) throws SpellException {
-        drainMana(manaManagerHolder.getManaManager(), amount, transaction);
+    static void drainMana(ManaPoolHolder manaManagerHolder, int amount, Transaction transaction) throws SpellException {
+        drainMana(manaManagerHolder.getManaPool(), amount, transaction);
     }
 
     static void drainMana(ManaPool manaPool, int amount) throws SpellException {

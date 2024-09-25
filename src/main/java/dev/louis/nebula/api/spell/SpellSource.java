@@ -10,6 +10,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.Optional;
+
 public interface SpellSource<Caster> {
     void castSpell(Spell<Caster> spell);
 
@@ -17,7 +19,7 @@ public interface SpellSource<Caster> {
     Vec3d getPos();
     BlockPos getBlockPos();
     Caster getCaster();
-    ManaPool getManaPool();
+    Optional<ManaPool> getManaPool();
 
 
     static <E extends Entity> SpellSource<E> of(E entity, World world, Vec3d pos, BlockPos blockPos) {

@@ -1,6 +1,5 @@
 package dev.louis.nebula.mana;
 
-import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.event.EntityManaExtractionCallback;
 import dev.louis.nebula.api.event.EntityManaInsertionCallback;
 import dev.louis.nebula.api.mana.EntityExtractionContext;
@@ -33,8 +32,8 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     public void tick() {
         this.regenMana();
-        if (mana > capacity()) {
-            setMana(capacity());
+        if (mana > getCapacity()) {
+            setMana(getCapacity());
         }
         if (this.needsSync) {
             this.sendSync();
@@ -43,7 +42,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     @Override
-    public float capacity() {
+    public float getCapacity() {
         return entity.isMobOrPlayer() ? entity.getMaxHealth() : 0;
     }
 
@@ -67,14 +66,14 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     public void setMana(float mana, boolean syncToClient) {
-        this.mana = Math.max(Math.min(mana, this.capacity()), 0);
+        this.mana = Math.max(Math.min(mana, this.getCapacity()), 0);
         if (syncToClient) this.querySync();
     }
 
     @Override
     public float insertMana(float amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Insertion amount is negative.");
-        float insertion = Math.min(amount, capacity());
+        float insertion = Math.min(amount, this.getCapacity());
 
         var shouldInsert = EntityManaInsertionCallback.BEFORE.invoker().canInsertMana(EntityInsertionContext.create(this.entity, this.mana, insertion, amount))
                 // implicit NaN check (as NaN > x = false)
@@ -93,7 +92,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     @Override
     public float extractMana(float amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Extraction amount is negative.");
-        float extraction = Math.min(amount, capacity());
+        float extraction = Math.min(amount, this.mana);
 
         var shouldExtract = EntityManaExtractionCallback.BEFORE.invoker().canExtractMana(EntityExtractionContext.create(this.entity, this.mana, extraction, amount))
                 // implicit NaN check (as NaN > x = false)
@@ -115,16 +114,21 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     public void querySync() {
-        this.needsSync = true;
+        this.needsSync = this.needsSyncing();
     }
 
     public boolean sendSync() {
-        if (this.entity instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.networkHandler != null) {
-            float syncMana = this.getMana();
-            if (syncMana == this.lastSyncedMana) return true;
-            this.lastSyncedMana = syncMana;
-            ServerPlayNetworking.send(serverPlayerEntity, new SyncManaPayload(syncMana));
-            return true;
+        if (this.entity instanceof ServerPlayerEntity serverPlayerEntity) {
+            if (serverPlayerEntity.networkHandler != null) {
+                float syncMana = this.getMana();
+                if (syncMana == this.lastSyncedMana) return true;
+                this.lastSyncedMana = syncMana;
+                ServerPlayNetworking.send(serverPlayerEntity, new SyncManaPayload(syncMana));
+                return true;
+            } else {
+                //Retry on next tick
+                this.querySync();
+            }
         }
         return false;
     }
@@ -141,8 +145,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
-        this.setMana(nebulaNbt.getFloat(MANA_NBT_KEY), false);
+        this.setMana(nbt.getFloat(MANA_NBT_KEY), false);
     }
 
     public void copyFrom(ManaManager manaManager) {

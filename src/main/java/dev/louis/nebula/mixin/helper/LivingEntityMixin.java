@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.Mixin;
 public class LivingEntityMixin implements LivingEntitySpellCaster {
     @Override
     public void castSpell(Spell<LivingEntity> spell) {
-        System.out.println("SPELL! " + this.getClass().getSimpleName());
         spell.tryCast(SpellSource.of((LivingEntity) (Object) this));
     }
 }

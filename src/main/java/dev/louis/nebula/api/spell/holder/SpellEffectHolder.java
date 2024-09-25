@@ -4,10 +4,19 @@ import dev.louis.nebula.api.spell.SpellEffect;
 import net.minecraft.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.Collection;
+
 @ApiStatus.Experimental
 public interface SpellEffectHolder {
-    boolean startSpellEffect(SpellEffect spellEffect);
-    void endSpellEffect(SpellEffect spellEffect);
+    default boolean startSpellEffect(SpellEffect spellEffect) {
+        throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");
+    }
+    default void endSpellEffect(SpellEffect spellEffect) {
+        throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");
+    }
+    default Collection<SpellEffect> getSpellEffects() {
+        throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");
+    }
 
     static void startSpellEffect(LivingEntity livingEntity, SpellEffect spellEffect) {
         livingEntity.startSpellEffect(spellEffect);
@@ -15,5 +24,9 @@ public interface SpellEffectHolder {
 
     static void endSpellEffect(LivingEntity livingEntity, SpellEffect spellEffect) {
         livingEntity.startSpellEffect(spellEffect);
+    }
+
+    static Collection<SpellEffect> getSpellEffects(LivingEntity livingEntity) {
+        return livingEntity.getSpellEffects();
     }
 }
