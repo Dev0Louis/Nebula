@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.api.event.SpellCastCallback;
+import dev.louis.nebula.api.event.SpellCastEvent;
 import dev.louis.nebula.api.mana.ManaPool;
 import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
 import dev.louis.nebula.api.spell.quick.SpellException;
@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 public interface Spell<Caster> {
 
     default boolean tryCast(SpellSource<Caster> source) {
-        var allowed = SpellCastCallback.BEFORE.invoker().allowSpellCast(source, this);
+        var allowed = SpellCastEvent.BEFORE.invoker().allowSpellCast(source, this);
         if (!allowed) return false;
 
         try {
@@ -20,7 +20,7 @@ public interface Spell<Caster> {
             return false;
         }
 
-        SpellCastCallback.AFTER.invoker().onSpellCast(source, this);
+        SpellCastEvent.AFTER.invoker().onSpellCast(source, this);
         return true;
     }
 
@@ -42,12 +42,12 @@ public interface Spell<Caster> {
     static void drainMana(ManaPool manaPool, int amount) throws SpellException {
         try(Transaction transaction = Transaction.openOuter()) {
             drainMana(manaPool, amount, transaction);
+            transaction.commit();
         }
     }
 
     static void drainMana(ManaPool manaPool, int amount, Transaction transaction) throws SpellException {
         var extracted = manaPool.extractMana(amount, transaction);
         if (extracted < amount) throw SpellException.create();
-        transaction.commit();
     }
 }

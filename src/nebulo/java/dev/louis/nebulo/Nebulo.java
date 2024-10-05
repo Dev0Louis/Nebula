@@ -19,6 +19,9 @@ public class Nebulo implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(CastSpellPayload.ID, Nebulo::receiveSpellCast);
 
         NebuloSpellEffects.init();
+        NebuloBlocks.init();
+        NebuloBlockEntities.init();
+        NebuloItems.init();
         SpellCreator.init();
         LOGGER.info("Nebulo has been initialized.");
     }

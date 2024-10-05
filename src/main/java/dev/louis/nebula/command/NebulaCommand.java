@@ -4,6 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -13,10 +15,9 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Collection;
 import java.util.List;
 
-import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
-import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
-import static net.minecraft.command.argument.EntityArgumentType.getPlayers;
-import static net.minecraft.command.argument.EntityArgumentType.players;
+import static com.mojang.brigadier.arguments.FloatArgumentType.floatArg;
+import static com.mojang.brigadier.arguments.FloatArgumentType.getFloat;
+import static net.minecraft.command.argument.EntityArgumentType.*;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -32,26 +33,30 @@ public class NebulaCommand {
                         .executes(context -> getMana(context.getSource()))
                         .then(argument("players", players())
                                 .executes(context -> getMana(context.getSource(), getPlayers(context, "players")))))
-                .then(literal("addMana")
-                        .then(argument("players", players())
-                                .then(argument("capacity", integer(0))
+                .then(literal("insertMana")
+                        .then(argument("entities", entities())
+                                .then(argument("insertion", floatArg(0))
                                         .executes(context -> addMana(
                                                 context.getSource(),
-                                                getPlayers(context, "players"),
-                                                getInteger(context, "capacity"))))));
+                                                getEntities(context, "entities"),
+                                                getFloat(context, "insertion"))
+                                        )
+                                )
+                        )
+                );
 
 
         dispatcher.register(command);
     }
 
-    private static int addMana(ServerCommandSource source, Collection<ServerPlayerEntity> players, int mana) {
-        for (ServerPlayerEntity player : players) {
+    private static int addMana(ServerCommandSource source, Collection<? extends Entity> entities, float mana) {
+        entities.stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(livingEntity -> {
             try(Transaction transaction = Transaction.openOuter()) {
-                player.getManaManager().insertMana(mana, transaction);
+                var insertion = livingEntity.getManaManager().insertMana(mana, transaction);
+                source.sendMessage(Text.of("Inserted " + insertion + " mana into " + livingEntity.getName().getString() + "."));
                 transaction.commit();
-                source.sendMessage(Text.of(player.getName().getString() + " now has " + player.getManaManager().getMana() + " Mana."));
             }
-        }
+        });
 
         return 1;
     }
@@ -65,7 +70,7 @@ public class NebulaCommand {
 
     private static int getMana(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for (ServerPlayerEntity player : players) {
-            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " capacity."));
+            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
         }
         return 1;
     }

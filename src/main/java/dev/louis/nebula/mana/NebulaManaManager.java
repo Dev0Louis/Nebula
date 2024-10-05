@@ -1,11 +1,10 @@
 package dev.louis.nebula.mana;
 
-import dev.louis.nebula.api.event.EntityManaExtractionCallback;
-import dev.louis.nebula.api.event.EntityManaInsertionCallback;
-import dev.louis.nebula.api.mana.EntityExtractionContext;
-import dev.louis.nebula.api.mana.EntityInsertionContext;
 import dev.louis.nebula.api.mana.ManaManager;
+import dev.louis.nebula.api.mana.ManaSource;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -16,28 +15,35 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.Collection;
+
 import static dev.louis.nebula.Nebula.MANA_NBT_KEY;
 
 @ApiStatus.Internal
 public class NebulaManaManager extends SnapshotParticipant<Float> implements ManaManager  {
+    private static final float MANA_REGEN_RATE = 0.005f;
     protected LivingEntity entity;
     protected float mana;
     protected float lastSyncedMana = -1;
-    //Mana should be synced on the first tick.
-    private boolean needsSync = true;
+    private boolean changed;
+    private Collection<ManaSource> alternativeManaSources;
 
-    public NebulaManaManager(LivingEntity entity) {
+    public NebulaManaManager(LivingEntity entity, Collection<ManaSource> alternativeManaSources) {
         this.entity = entity;
+        this.alternativeManaSources = alternativeManaSources;
     }
 
     public void tick() {
-        this.regenMana();
-        if (mana > getCapacity()) {
-            setMana(getCapacity());
+        if (shouldRegenMana()) this.regenMana();
+        var capacity = getCapacity();
+        if (mana > capacity) {
+            this.mana = capacity;
+            this.checkSync();
         }
-        if (this.needsSync) {
+
+        if (this.changed) {
             this.sendSync();
-            this.needsSync = false;
+            this.changed = false;
         }
     }
 
@@ -48,73 +54,93 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     public void regenMana() {
         try(Transaction tx = Transaction.openOuter()) {
-            insertMana(this.getManaRegenRate(), tx);
+            insertMana(MANA_REGEN_RATE, tx);
             tx.commit();
         }
     }
 
-    private float getManaRegenRate() {
-        return this.entity.isMobOrPlayer() ? 0.005f : 0;
+    private boolean shouldRegenMana() {
+        return !this.entity.getWorld().isClient() && this.entity.isMobOrPlayer() && this.entity.isAlive();
     }
 
     public float getMana() {
         return mana;
     }
 
+    @Override
     public void setMana(float mana) {
-        this.setMana(mana, this.needsSyncing());
+        this.mana = (Math.max(Math.min(mana, this.getCapacity()), 0));
+        this.checkSync();
     }
 
-    public void setMana(float mana, boolean syncToClient) {
-        this.mana = Math.max(Math.min(mana, this.getCapacity()), 0);
-        if (syncToClient) this.querySync();
+    public void setMana(float mana, TransactionContext context) {
+        this.setMana(mana, this.needsSyncing(), context);
+    }
+
+    public void setMana(float mana, boolean syncToClient, TransactionContext context) {
+        var newMana = Math.max(Math.min(mana, this.getCapacity()), 0);
+        if (newMana != this.mana) {
+            updateSnapshots(context);
+            this.mana = newMana;
+        }
     }
 
     @Override
     public float insertMana(float amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Insertion amount is negative.");
-        float insertion = Math.min(amount, this.getCapacity());
+        float insertion = Math.min(amount, this.getCapacity() - mana);
 
-        var shouldInsert = EntityManaInsertionCallback.BEFORE.invoker().canInsertMana(EntityInsertionContext.create(this.entity, this.mana, insertion, amount))
-                // implicit NaN check (as NaN > x = false)
-                && insertion > 0;
+        // implicit NaN check (as NaN > 0 = false)
+        var shouldInsert = insertion > 0;
 
         if (shouldInsert) {
             updateSnapshots(context);
             this.mana = this.mana + insertion;
+            return insertion;
         }
 
-        EntityManaInsertionCallback.AFTER.invoker().onManaInsertion(EntityInsertionContext.create(this.entity, this.mana, insertion, amount));
-
-        return insertion;
+        return 0;
     }
 
     @Override
-    public float extractMana(float amount, TransactionContext context) {
-        if (amount < 0) throw new IllegalArgumentException("Extraction amount is negative.");
-        float extraction = Math.min(amount, this.mana);
+    public float extractMana(float requestedExtraction, TransactionContext context) {
+        if (requestedExtraction < 0) throw new IllegalArgumentException("Extraction amount is negative.");
+        float extraction = extractAlternatives(Math.min(requestedExtraction, this.mana), requestedExtraction, context);
 
-        var shouldExtract = EntityManaExtractionCallback.BEFORE.invoker().canExtractMana(EntityExtractionContext.create(this.entity, this.mana, extraction, amount))
-                // implicit NaN check (as NaN > x = false)
-                && extraction > 0;
+
+        // implicit NaN check (as NaN > 0 = false)
+        var shouldExtract = extraction > 0;
 
         if (shouldExtract) {
             updateSnapshots(context);
             this.mana = this.mana - extraction;
+            return extraction;
         }
 
-        EntityManaExtractionCallback.AFTER.invoker().onManaExtraction(EntityExtractionContext.create(this.entity, this.mana, extraction, amount));
+        return 0;
+    }
 
-        return extraction;
+    private float extractAlternatives(float extraction, float requestedExtraction, TransactionContext context) {
+        float extractedMana = extraction;
+        for (ManaSource alternativeManaSource : alternativeManaSources) {
+            var toExtract = requestedExtraction - extractedMana;
+
+            if (toExtract < 0) throw new IllegalStateException("toExtract should never be < 0");
+
+            if (toExtract == 0) break;
+            extractedMana += alternativeManaSource.extractMana(toExtract, context);
+        }
+
+        return extractedMana;
     }
 
     @Override
     protected void onFinalCommit() {
-        this.querySync();
+        this.checkSync();
     }
 
-    public void querySync() {
-        this.needsSync = this.needsSyncing();
+    public void checkSync() {
+        this.changed = this.needsSyncing();
     }
 
     public boolean sendSync() {
@@ -125,14 +151,13 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
                 this.lastSyncedMana = syncMana;
                 ServerPlayNetworking.send(serverPlayerEntity, new SyncManaPayload(syncMana));
                 return true;
-            } else {
-                //Retry on next tick
-                this.querySync();
             }
+            //Hm didn't work
         }
         return false;
     }
 
+    @Environment(EnvType.CLIENT)
     @SuppressWarnings("resource")
     public static void receive(SyncManaPayload payload, ClientPlayNetworking.Context context) {
         context.client().executeSync(() -> context.player().getManaManager().setMana(payload.mana()));
@@ -145,7 +170,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        this.setMana(nbt.getFloat(MANA_NBT_KEY), false);
+        this.setMana(nbt.getFloat(MANA_NBT_KEY));
     }
 
     public void copyFrom(ManaManager manaManager) {
@@ -163,7 +188,6 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     public boolean needsSyncing() {
-        return entity instanceof ServerPlayerEntity;
-
+        return entity instanceof ServerPlayerEntity && lastSyncedMana != this.mana;
     }
 }

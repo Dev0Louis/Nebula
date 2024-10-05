@@ -1,6 +1,9 @@
 package dev.louis.nebula;
 
 import com.mojang.logging.LogUtils;
+import dev.louis.nebula.api.event.AlternativeManaSourcesEvent;
+import dev.louis.nebula.api.mana.ManaSource;
+import dev.louis.nebula.api.spell.SpellEffectType;
 import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.mana.NebulaManaManager;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
@@ -13,6 +16,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collection;
+
 @ApiStatus.Internal
 public class Nebula implements ModInitializer {
     public static final String MOD_ID = "nebula";
@@ -23,22 +28,28 @@ public class Nebula implements ModInitializer {
     @Override
     public void onInitialize() {
         NebulaCommand.init();
+        SpellEffectType.init();
         this.registerPacketReceivers();
         LOGGER.info("Nebula has been initialized.");
     }
 
-    public void registerPacketReceivers() {
+    private void registerPacketReceivers() {
         PayloadTypeRegistry.playS2C().register(SyncManaPayload.ID, SyncManaPayload.CODEC);
     }
 
     /**
      * No full entity has been constructed yet.
      * See {@link dev.louis.nebula.mixin.LivingEntityMixin#lateManaManagerInit(EntityType, World, CallbackInfo)} to see what information is available and what is not.
-     * @param livingEntity
+     * @param entity
      * @return
      */
-    public static NebulaManaManager createManaManager(LivingEntity livingEntity) {
-        return new NebulaManaManager(livingEntity);
+    public static NebulaManaManager createManaManager(LivingEntity entity) {
+        return new NebulaManaManager(entity, createAlternativeManaSources(entity));
+    }
+
+    public static Collection<ManaSource> createAlternativeManaSources(LivingEntity entity) {
+        return AlternativeManaSourcesEvent.CREATION.invoker().createManaSources(entity);
+
     }
 }
 

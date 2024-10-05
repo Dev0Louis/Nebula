@@ -11,7 +11,7 @@ public interface SpellEffectHolder {
     default boolean startSpellEffect(SpellEffect spellEffect) {
         throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");
     }
-    default void endSpellEffect(SpellEffect spellEffect) {
+    default void stopSpellEffect(SpellEffect spellEffect) {
         throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");
     }
     default Collection<SpellEffect> getSpellEffects() {
@@ -22,7 +22,7 @@ public interface SpellEffectHolder {
         livingEntity.startSpellEffect(spellEffect);
     }
 
-    static void endSpellEffect(LivingEntity livingEntity, SpellEffect spellEffect) {
+    static void stopSpellEffect(LivingEntity livingEntity, SpellEffect spellEffect) {
         livingEntity.startSpellEffect(spellEffect);
     }
 

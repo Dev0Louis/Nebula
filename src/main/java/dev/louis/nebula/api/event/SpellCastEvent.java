@@ -5,7 +5,7 @@ import dev.louis.nebula.api.spell.SpellSource;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
-public interface SpellCastCallback {
+public interface SpellCastEvent {
     Event<Before> BEFORE = EventFactory.createArrayBacked(Before.class, (listeners) -> (spellCaster, spell) -> {
                 for (Before event : listeners) {
                     var disallowed = !event.allowSpellCast(spellCaster, spell);

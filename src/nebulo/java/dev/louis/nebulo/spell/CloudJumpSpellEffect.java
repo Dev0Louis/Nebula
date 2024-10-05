@@ -9,6 +9,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 
 public class CloudJumpSpellEffect extends SpellEffect {
+
     public CloudJumpSpellEffect(LivingEntity entity) {
         super(NebuloSpellEffects.CLOUD_JUMP, entity);
     }
@@ -17,6 +18,7 @@ public class CloudJumpSpellEffect extends SpellEffect {
     public void onStart() {
         this.target.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, 1f, 1f);
         this.target.addVelocity(0, 2, 0);
+        this.target.setVelocity(this.target.getVelocity().multiply(1, 0.5, 0).add(0, 2, 0));
         this.target.velocityModified = true;
     }
 
@@ -65,6 +67,7 @@ public class CloudJumpSpellEffect extends SpellEffect {
 
     @Override
     public boolean shouldContinue() {
-        return this.target.getVelocity().getY() <= 0;
+        System.out.println(this.target.getWorld().isClient() + " " + this.target.getVelocity());
+        return age < 15 && this.target.getVelocity().getY() > -0;
     }
 }
