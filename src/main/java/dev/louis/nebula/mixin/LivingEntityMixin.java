@@ -6,6 +6,7 @@ import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
 import dev.louis.nebula.api.spell.SpellEffect;
 import dev.louis.nebula.api.spell.SpellEffectType;
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
+import dev.louis.nebula.constants.NbtConstants;
 import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
 import net.minecraft.entity.Entity;
@@ -51,13 +52,13 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
             at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;attributes:Lnet/minecraft/entity/attribute/AttributeContainer;", shift = At.Shift.AFTER)
     )
     public void lateManaManagerInit(EntityType<?> entityType, World world, CallbackInfo ci) {
-        manaManager = Nebula.createManaManager((LivingEntity) (Object) this);
+        manaManager = NebulaManaManager.createManaManager((LivingEntity) (Object) this);
         manaManager.checkSync();
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
     public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
-        NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
+        NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
 
         this.manaManager.writeNbt(nebulaNbt);
 
@@ -70,12 +71,12 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         });
         nebulaNbt.put(SPELL_EFFECTS, spellEffectsNbt);
 
-        nbt.put(Nebula.MOD_ID, nebulaNbt);
+        nbt.put(NbtConstants.NEBULA, nebulaNbt);
     }
 
     @Inject(method = "readCustomDataFromNbt",at = @At("RETURN"))
     public void readManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
-        NbtCompound nebulaNbt = nbt.getCompound(Nebula.MOD_ID);
+        NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
         this.manaManager.readNbt(nebulaNbt);
 
         var spellEffects = new HashMap<RegistryEntry<SpellEffectType<?>>, SpellEffect>();

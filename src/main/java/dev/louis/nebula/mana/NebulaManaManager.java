@@ -1,8 +1,10 @@
 package dev.louis.nebula.mana;
 
+import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.ManaManager;
 import dev.louis.nebula.api.mana.ManaSource;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
+import dev.louis.nebula.util.Phase;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,7 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 
-import static dev.louis.nebula.Nebula.MANA_NBT_KEY;
+import static dev.louis.nebula.constants.NbtConstants.MANA;
 
 @ApiStatus.Internal
 public class NebulaManaManager extends SnapshotParticipant<Float> implements ManaManager  {
@@ -26,11 +28,18 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     protected float mana;
     protected float lastSyncedMana = -1;
     private boolean changed;
-    private Collection<ManaSource> alternativeManaSources;
+    
+    private Collection<ManaSource> alternativePreManaSources;
+    private Collection<ManaSource> alternativePostManaSources;
 
-    public NebulaManaManager(LivingEntity entity, Collection<ManaSource> alternativeManaSources) {
+    public NebulaManaManager(LivingEntity entity, Collection<ManaSource> alternativePreManaSources, Collection<ManaSource> alternativePostManaSources) {
         this.entity = entity;
-        this.alternativeManaSources = alternativeManaSources;
+        this.alternativePreManaSources = alternativePreManaSources;
+        this.alternativePostManaSources = alternativePostManaSources;
+    }
+
+    public static NebulaManaManager createManaManager(LivingEntity entity) {
+        return new NebulaManaManager(entity, Nebula.createManaSourcesFor(entity, Phase.PRE), Nebula.createManaSourcesFor(entity, Phase.POST));
     }
 
     public void tick() {
@@ -102,37 +111,53 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         return 0;
     }
 
+    // Very sane code ;v;
     @Override
     public float extractMana(float requestedExtraction, TransactionContext context) {
         if (requestedExtraction < 0) throw new IllegalArgumentException("Extraction amount is negative.");
-        float extraction = extractAlternatives(Math.min(requestedExtraction, this.mana), requestedExtraction, context);
 
+        // This local is going to get modified throughout this code and will be returned at the end.
+        float extraction = extractAlternative(requestedExtraction, context, Phase.PRE);
+        var mainRequestedExtraction = requestedExtraction - extraction;
+
+
+        float mainExtraction = Math.min(mainRequestedExtraction, this.mana);
 
         // implicit NaN check (as NaN > 0 = false)
-        var shouldExtract = extraction > 0;
+        var shouldExtractMain = mainExtraction > 0;
 
-        if (shouldExtract) {
+        if (shouldExtractMain) {
             updateSnapshots(context);
-            this.mana = this.mana - extraction;
-            return extraction;
+
+            this.mana = this.mana - mainExtraction;
+            extraction += mainExtraction;
         }
 
-        return 0;
+        var postRequestedExtraction = requestedExtraction - extraction;
+        extraction += extractAlternative(postRequestedExtraction, context, Phase.POST);
+
+        return extraction;
     }
 
-    private float extractAlternatives(float extraction, float requestedExtraction, TransactionContext context) {
-        float extractedMana = extraction;
-        for (ManaSource alternativeManaSource : alternativeManaSources) {
+    private float extractAlternative(float requestedExtraction, TransactionContext context, Phase phase) {
+        float extractedMana = 0;
+        for (ManaSource alternativeManaSource : switch (phase) {
+                case PRE -> alternativePreManaSources;
+                case POST -> alternativePostManaSources;
+            }) {
             var toExtract = requestedExtraction - extractedMana;
 
-            if (toExtract < 0) throw new IllegalStateException("toExtract should never be < 0");
+            if (toExtract < 0) throw new IllegalStateException("toExtract should never be < 0. It is " + toExtract + "!");
 
             if (toExtract == 0) break;
+
             extractedMana += alternativeManaSource.extractMana(toExtract, context);
         }
 
         return extractedMana;
     }
+
+
 
     @Override
     protected void onFinalCommit() {
@@ -165,12 +190,12 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Override
     public void writeNbt(NbtCompound nbt) {
-        nbt.putFloat(MANA_NBT_KEY, this.getMana());
+        nbt.putFloat(MANA, this.getMana());
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        this.setMana(nbt.getFloat(MANA_NBT_KEY));
+        this.setMana(nbt.getFloat(MANA));
     }
 
     public void copyFrom(ManaManager manaManager) {
