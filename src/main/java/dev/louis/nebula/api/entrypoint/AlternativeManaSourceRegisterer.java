@@ -1,17 +1,19 @@
-package dev.louis.nebula.api;
+package dev.louis.nebula.api.entrypoint;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.factory.EntityManaSourceFactory;
 import dev.louis.nebula.util.Phase;
 import net.minecraft.util.Identifier;
 
-public class NebulaApi {
+public final class AlternativeManaSourceRegisterer {
+    public AlternativeManaSourceRegisterer() {
+    }
 
-    public static void registerPreManaAlternative(Identifier id, EntityManaSourceFactory factory) {
+    public void registerPre(Identifier id, EntityManaSourceFactory factory) {
         Nebula.registerManaAlternativeInPhase(id, factory, Phase.PRE);
     }
 
-    public static void registerPostManaAlternative(Identifier id, EntityManaSourceFactory factory) {
+    public void registerPost(Identifier id, EntityManaSourceFactory factory) {
         Nebula.registerManaAlternativeInPhase(id, factory, Phase.POST);
     }
 }

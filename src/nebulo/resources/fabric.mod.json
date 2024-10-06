@@ -14,6 +14,9 @@
     ],
     "client": [
       "dev.louis.nebulo.client.NebuloClient"
+    ],
+    "alternativeManaSource": [
+      "dev.louis.nebulo.NebuloAlternativeManaSources"
     ]
   },
   "mixins": [

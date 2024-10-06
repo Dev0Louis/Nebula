@@ -22,6 +22,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,6 +33,8 @@ import java.util.*;
 @SuppressWarnings({"AddedMixinMembersNamePattern", "UnreachableCode"})
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements InternalManaManagerHolder, ManaPoolHolder, SpellEffectHolder {
+
+    @Shadow public abstract float getHealth();
 
     private static final String SPELL_EFFECTS = "SpellEffects";
     private static final String SPELL_EFFECT_ID = "id";
@@ -47,14 +50,17 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     protected Map<RegistryEntry<SpellEffectType<?>>, SpellEffect> spellEffects = new HashMap<>();
 
 
+    // We init just after health was set.
     @Inject(
             method = "<init>",
-            at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;attributes:Lnet/minecraft/entity/attribute/AttributeContainer;", shift = At.Shift.AFTER)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setHealth(F)V", shift = At.Shift.AFTER)
     )
     public void lateManaManagerInit(EntityType<?> entityType, World world, CallbackInfo ci) {
         manaManager = NebulaManaManager.createManaManager((LivingEntity) (Object) this);
-        manaManager.checkSync();
+        manaManager.setMana(this.getHealth());
     }
+
+
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
     public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {

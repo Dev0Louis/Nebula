@@ -1,14 +1,11 @@
 package dev.louis.nebulo;
 
 import com.mojang.logging.LogUtils;
-import dev.louis.nebula.api.NebulaApi;
 import dev.louis.nebulo.client.SpellCreator;
-import dev.louis.nebulo.mana.LapisManaSource;
 import dev.louis.nebulo.networking.CastSpellPayload;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 
 public class Nebulo implements ModInitializer {
@@ -27,7 +24,6 @@ public class Nebulo implements ModInitializer {
         NebuloItems.init();
         SpellCreator.init();
         LOGGER.info("Nebulo has been initialized.");
-        NebulaApi.registerPostManaAlternative(Identifier.of(MOD_ID, "lapis"), LapisManaSource::create);
     }
 
     private static void receiveSpellCast(CastSpellPayload castSpellPayload, ServerPlayNetworking.Context context) {

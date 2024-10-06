@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
@@ -29,8 +30,8 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     protected float lastSyncedMana = -1;
     private boolean changed;
     
-    private Collection<ManaSource> alternativePreManaSources;
-    private Collection<ManaSource> alternativePostManaSources;
+    private final Collection<ManaSource> alternativePreManaSources;
+    private final Collection<ManaSource> alternativePostManaSources;
 
     public NebulaManaManager(LivingEntity entity, Collection<ManaSource> alternativePreManaSources, Collection<ManaSource> alternativePostManaSources) {
         this.entity = entity;
@@ -76,17 +77,17 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         return mana;
     }
 
+    public void setManaUnsynced(float unsyncedMana) {
+        this.mana = (Math.max(Math.min(unsyncedMana, this.getCapacity()), 0));
+    }
+
     @Override
     public void setMana(float mana) {
-        this.mana = (Math.max(Math.min(mana, this.getCapacity()), 0));
+        setManaUnsynced(mana);
         this.checkSync();
     }
 
     public void setMana(float mana, TransactionContext context) {
-        this.setMana(mana, this.needsSyncing(), context);
-    }
-
-    public void setMana(float mana, boolean syncToClient, TransactionContext context) {
         var newMana = Math.max(Math.min(mana, this.getCapacity()), 0);
         if (newMana != this.mana) {
             updateSnapshots(context);
@@ -116,6 +117,10 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     public float extractMana(float requestedExtraction, TransactionContext context) {
         if (requestedExtraction < 0) throw new IllegalArgumentException("Extraction amount is negative.");
 
+        if (entity instanceof PlayerEntity player) {
+            Nebula.LOGGER.info("{} has {} pres" , player.getClass().getSimpleName(), alternativePreManaSources.size());
+            Nebula.LOGGER.info("{} has {} posts" , player.getClass().getSimpleName(), alternativePostManaSources.size());
+        }
         // This local is going to get modified throughout this code and will be returned at the end.
         float extraction = extractAlternative(requestedExtraction, context, Phase.PRE);
         var mainRequestedExtraction = requestedExtraction - extraction;
@@ -172,7 +177,6 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         if (this.entity instanceof ServerPlayerEntity serverPlayerEntity) {
             if (serverPlayerEntity.networkHandler != null) {
                 float syncMana = this.getMana();
-                if (syncMana == this.lastSyncedMana) return true;
                 this.lastSyncedMana = syncMana;
                 ServerPlayNetworking.send(serverPlayerEntity, new SyncManaPayload(syncMana));
                 return true;
