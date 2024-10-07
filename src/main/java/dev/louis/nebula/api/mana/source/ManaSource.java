@@ -1,4 +1,4 @@
-package dev.louis.nebula.api.mana;
+package dev.louis.nebula.api.mana.source;
 
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;

@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.spell.source.BlockEntitySpellSource;
 import dev.louis.nebula.spell.source.EntitySpellSource;
 import net.minecraft.block.entity.BlockEntity;
@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 import java.util.Optional;
 
 public interface SpellSource<Caster> {
-    void castSpell(Spell<Caster> spell);
+    boolean castSpell(Spell<Caster> spell);
 
     World getWorld();
     Vec3d getPos();

@@ -67,7 +67,6 @@ public class CloudJumpSpellEffect extends SpellEffect {
 
     @Override
     public boolean shouldContinue() {
-        System.out.println(this.target.getWorld().isClient() + " " + this.target.getVelocity());
         return age < 15 && this.target.getVelocity().getY() > -0;
     }
 }

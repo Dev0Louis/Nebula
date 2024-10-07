@@ -1,6 +1,6 @@
 package dev.louis.nebula.mana;
 
-import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.constants.NbtConstants;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;

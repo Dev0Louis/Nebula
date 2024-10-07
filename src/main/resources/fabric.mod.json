@@ -33,8 +33,8 @@
         "dev/louis/nebula/api/spell/helper/PlayerEntitySpellCaster"
       ],
       "net/minecraft/class_1309": [
-        "dev/louis/nebula/api/mana/holder/ManaManagerHolder",
-        "dev/louis/nebula/api/mana/holder/ManaPoolHolder",
+        "dev/louis/nebula/api/mana/manager/ManaManagerHolder",
+        "dev/louis/nebula/api/mana/pool/ManaPoolHolder",
         "dev/louis/nebula/api/spell/holder/SpellEffectHolder",
         "dev/louis/nebula/api/spell/helper/LivingEntitySpellCaster"
       ]

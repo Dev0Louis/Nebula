@@ -1,8 +1,8 @@
 package dev.louis.nebula.mixin;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.mana.ManaPool;
-import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
+import dev.louis.nebula.api.mana.pool.ManaPool;
+import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.spell.SpellEffect;
 import dev.louis.nebula.api.spell.SpellEffectType;
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
@@ -30,15 +30,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
 
+import static dev.louis.nebula.constants.NbtConstants.*;
+
 @SuppressWarnings({"AddedMixinMembersNamePattern", "UnreachableCode"})
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements InternalManaManagerHolder, ManaPoolHolder, SpellEffectHolder {
-
     @Shadow public abstract float getHealth();
-
-    private static final String SPELL_EFFECTS = "SpellEffects";
-    private static final String SPELL_EFFECT_ID = "id";
-    private static final String SPELL_EFFECT_DATA = "data";
 
     protected LivingEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
@@ -60,8 +57,6 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         manaManager.setMana(this.getHealth());
     }
 
-
-
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
     public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
         NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
@@ -71,8 +66,8 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         NbtList spellEffectsNbt = new NbtList();
         spellEffects.forEach((spellEffectTypeRegistryEntry, spellEffect) -> {
             var spellEffectNbt = new NbtCompound();
-            spellEffectNbt.putString(SPELL_EFFECT_ID, spellEffectTypeRegistryEntry.getIdAsString());
-            spellEffectNbt.put(SPELL_EFFECT_DATA, spellEffect.writeNbt(new NbtCompound()));
+            spellEffectNbt.putString(ID, spellEffectTypeRegistryEntry.getIdAsString());
+            spellEffectNbt.put(DATA, spellEffect.writeNbt(new NbtCompound()));
             spellEffectsNbt.add(spellEffectNbt);
         });
         nebulaNbt.put(SPELL_EFFECTS, spellEffectsNbt);
@@ -89,10 +84,10 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
 
         for (NbtElement nbtElement : nebulaNbt.getList(SPELL_EFFECTS, NbtCompound.END_TYPE)) {
             var spellEffectNbt = (NbtCompound) nbtElement;
-            var id = Identifier.tryParse(spellEffectNbt.getString(SPELL_EFFECT_ID));
+            var id = Identifier.tryParse(spellEffectNbt.getString(ID));
             SpellEffectType.REGISTRY.getEntry(id).ifPresentOrElse(spellEffectType -> {
                 var spellEffect = spellEffectType.value().factory().create((LivingEntity) (Object) this);
-                spellEffect.readNbt(spellEffectNbt.getCompound(SPELL_EFFECT_DATA));
+                spellEffect.readNbt(spellEffectNbt.getCompound(DATA));
                 spellEffects.put(spellEffectType, spellEffect);
             }, () -> {
                 Nebula.LOGGER.warn("Spell effect " + id + " wasn't registered! This can happen if you remove Mods!");
@@ -153,7 +148,6 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     @Override
     public void stopSpellEffect(SpellEffect spellEffect) {
         this.spellEffects.remove(spellEffect.getRegistryEntry());
-
     }
 
     @Override

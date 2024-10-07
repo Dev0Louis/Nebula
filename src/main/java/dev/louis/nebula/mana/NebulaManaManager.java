@@ -1,8 +1,8 @@
 package dev.louis.nebula.mana;
 
-import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.mana.ManaManager;
-import dev.louis.nebula.api.mana.ManaSource;
+import dev.louis.nebula.api.mana.manager.ManaManager;
+import dev.louis.nebula.api.mana.source.ManaSource;
+import dev.louis.nebula.entrypoint.AlternativeManaSourceRegistererImpl;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import dev.louis.nebula.util.Phase;
 import net.fabricmc.api.EnvType;
@@ -13,7 +13,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
@@ -24,7 +23,7 @@ import static dev.louis.nebula.constants.NbtConstants.MANA;
 
 @ApiStatus.Internal
 public class NebulaManaManager extends SnapshotParticipant<Float> implements ManaManager  {
-    private static final float MANA_REGEN_RATE = 0.005f;
+    private static final float MANA_REGEN_RATE = 1/60f;
     protected LivingEntity entity;
     protected float mana;
     protected float lastSyncedMana = -1;
@@ -40,7 +39,11 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     }
 
     public static NebulaManaManager createManaManager(LivingEntity entity) {
-        return new NebulaManaManager(entity, Nebula.createManaSourcesFor(entity, Phase.PRE), Nebula.createManaSourcesFor(entity, Phase.POST));
+        return new NebulaManaManager(
+                entity,
+                AlternativeManaSourceRegistererImpl.INSTANCE.createManaSourcesFor(entity, Phase.PRE),
+                AlternativeManaSourceRegistererImpl.INSTANCE.createManaSourcesFor(entity, Phase.POST)
+        );
     }
 
     public void tick() {
@@ -117,10 +120,6 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     public float extractMana(float requestedExtraction, TransactionContext context) {
         if (requestedExtraction < 0) throw new IllegalArgumentException("Extraction amount is negative.");
 
-        if (entity instanceof PlayerEntity player) {
-            Nebula.LOGGER.info("{} has {} pres" , player.getClass().getSimpleName(), alternativePreManaSources.size());
-            Nebula.LOGGER.info("{} has {} posts" , player.getClass().getSimpleName(), alternativePostManaSources.size());
-        }
         // This local is going to get modified throughout this code and will be returned at the end.
         float extraction = extractAlternative(requestedExtraction, context, Phase.PRE);
         var mainRequestedExtraction = requestedExtraction - extraction;

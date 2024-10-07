@@ -1,31 +1,15 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.api.event.SpellCastEvent;
-import dev.louis.nebula.api.mana.ManaPool;
-import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
+import dev.louis.nebula.api.mana.pool.ManaPool;
+import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.spell.quick.SpellException;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 
 public interface Spell<Caster> {
 
-    default boolean tryCast(SpellSource<Caster> source) {
-        var allowed = SpellCastEvent.BEFORE.invoker().allowSpellCast(source, this);
-        if (!allowed) return false;
-
-        try {
-            cast(source);
-        } catch (SpellException e) {
-            e.onFail(source);
-            return false;
-        }
-
-        SpellCastEvent.AFTER.invoker().onSpellCast(source, this);
-        return true;
-    }
-
     /**
-     * This should not be called manually unless you are //TODO: Add stuff.
+     * This should not be called manually unless you are a SpellCaster.
      */
     void cast(SpellSource<Caster> source) throws SpellException;
 

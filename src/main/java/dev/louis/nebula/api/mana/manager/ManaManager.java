@@ -1,5 +1,6 @@
-package dev.louis.nebula.api.mana;
+package dev.louis.nebula.api.mana.manager;
 
+import dev.louis.nebula.api.mana.pool.ManaPool;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 @SuppressWarnings("UnusedReturnValue")

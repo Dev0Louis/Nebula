@@ -1,26 +1,20 @@
 package dev.louis.nebula;
 
 import com.mojang.logging.LogUtils;
-import dev.louis.nebula.api.entrypoint.AlternativeManaSourceRegisterer;
 import dev.louis.nebula.api.entrypoint.AlternativeManaSourceRegisteringEntrypoint;
-import dev.louis.nebula.api.mana.ManaSource;
-import dev.louis.nebula.api.mana.factory.EntityManaSourceFactory;
 import dev.louis.nebula.api.spell.SpellEffectType;
 import dev.louis.nebula.command.NebulaCommand;
+import dev.louis.nebula.entrypoint.AlternativeManaSourceRegistererImpl;
 import dev.louis.nebula.mana.CreativeInfiniteManaSource;
+import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
-import dev.louis.nebula.util.Phase;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Objects;
 
 @ApiStatus.Internal
 public class Nebula implements ModInitializer {
@@ -34,7 +28,7 @@ public class Nebula implements ModInitializer {
         SpellEffectType.init();
         this.registerPacketReceivers();
         LOGGER.info("Nebula has been initialized.");
-        AlternativeManaSourceRegisterer alternativeManaSourceRegisterer = new AlternativeManaSourceRegisterer();
+        AlternativeManaSourceRegistererImpl alternativeManaSourceRegisterer = AlternativeManaSourceRegistererImpl.INSTANCE;
         alternativeManaSourceRegisterer.registerPre(Identifier.of(MOD_ID, "creative"), CreativeInfiniteManaSource::new);
 
         FabricLoader.getInstance().invokeEntrypoints(
@@ -43,34 +37,16 @@ public class Nebula implements ModInitializer {
                 (entrypoint -> entrypoint.registerAlternativeManaSources(alternativeManaSourceRegisterer))
         );
 
+        ServerLivingEntityEvents.MOB_CONVERSION.register((previous, converted, keepEquipment) ->
+                InternalManaManagerHolder.getManaManager(previous).copyFrom(InternalManaManagerHolder.getManaManager(converted))
+        );
     }
 
     private void registerPacketReceivers() {
         PayloadTypeRegistry.playS2C().register(SyncManaPayload.ID, SyncManaPayload.CODEC);
     }
 
-    public static final HashMap<Identifier, EntityManaSourceFactory> preManaAlternativeFactories = new HashMap<>();
-    public static final HashMap<Identifier, EntityManaSourceFactory> postManaAlternativeFactories = new HashMap<>();
 
-    public static void registerManaAlternativeInPhase(Identifier id, EntityManaSourceFactory factory, Phase phase) {
-        var map = mapForPhase(phase);
-
-        var duplicateId = map.containsKey(id);
-        if (duplicateId) throw new IllegalStateException("Duplicate identifier in " + phase + "! (" + id + ")");
-
-        map.put(id, factory);
-    }
-
-    private static HashMap<Identifier, EntityManaSourceFactory> mapForPhase(Phase phase) {
-        return switch (phase) {
-            case PRE -> preManaAlternativeFactories;
-            case POST -> postManaAlternativeFactories;
-        };
-    }
-
-    public static Collection<ManaSource> createManaSourcesFor(LivingEntity entity, Phase phase) {
-        return mapForPhase(phase).values().stream().map(factory -> factory.create(entity)).filter(Objects::nonNull).toList();
-    }
 
 }
 

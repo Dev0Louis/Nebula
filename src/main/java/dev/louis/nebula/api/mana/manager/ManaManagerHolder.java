@@ -1,6 +1,5 @@
-package dev.louis.nebula.api.mana.holder;
+package dev.louis.nebula.api.mana.manager;
 
-import dev.louis.nebula.api.mana.ManaManager;
 import net.minecraft.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 

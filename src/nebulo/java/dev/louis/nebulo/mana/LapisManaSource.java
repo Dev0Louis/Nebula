@@ -1,6 +1,6 @@
 package dev.louis.nebulo.mana;
 
-import dev.louis.nebula.api.mana.ManaSource;
+import dev.louis.nebula.api.mana.source.ManaSource;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;

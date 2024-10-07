@@ -2,11 +2,9 @@ package dev.louis.nebula.api.spell.holder;
 
 import dev.louis.nebula.api.spell.SpellEffect;
 import net.minecraft.entity.LivingEntity;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 
-@ApiStatus.Experimental
 public interface SpellEffectHolder {
     default boolean startSpellEffect(SpellEffect spellEffect) {
         throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");

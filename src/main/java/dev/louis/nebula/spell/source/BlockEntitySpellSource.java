@@ -1,7 +1,8 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.mana.ManaPool;
-import dev.louis.nebula.api.mana.holder.ManaPoolHolder;
+import dev.louis.nebula.api.event.SpellCastEvent;
+import dev.louis.nebula.api.mana.pool.ManaPool;
+import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.spell.quick.SpellException;
@@ -28,14 +29,18 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public void castSpell(Spell<BE> spell) {
-        if (blockEntity.isRemoved()) return;
+    public boolean castSpell(Spell<BE> spell) {
+        var allowed = !blockEntity.isRemoved() && SpellCastEvent.BEFORE.invoker().allowSpellCast(this, spell);
+        if (!allowed) return false;
 
         try {
             spell.cast(this);
         } catch (SpellException e) {
-            e.onFail(this);
+            return false;
         }
+
+        SpellCastEvent.AFTER.invoker().onSpellCast(this, spell);
+        return true;
     }
 
 

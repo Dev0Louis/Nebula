@@ -1,6 +1,6 @@
-package dev.louis.nebula.api.mana.factory;
+package dev.louis.nebula.api.mana.source.factory;
 
-import dev.louis.nebula.api.mana.ManaSource;
+import dev.louis.nebula.api.mana.source.ManaSource;
 import net.minecraft.entity.LivingEntity;
 
 @FunctionalInterface

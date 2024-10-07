@@ -1,6 +1,6 @@
 package dev.louis.nebulo.block.entity;
 
-import dev.louis.nebula.api.mana.ManaPool;
+import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebulo.NebuloBlockEntities;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.Block;
