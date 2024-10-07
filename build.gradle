@@ -45,9 +45,6 @@ processResources {
 
 sourceSets {
     nebulo {
-        System.out.println("AAAAAAA")
-        //compileClasspath += main.compileClasspath
-        //runtimeClasspath += main.runtimeClasspath
         compileClasspath += main.compileClasspath
         compileClasspath += main.output
         runtimeClasspath += main.runtimeClasspath
