@@ -5,9 +5,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.ApiStatus;
 
-@ApiStatus.Internal
 public record CastSpellPayload(Identifier spellId) implements CustomPayload {
     public static final Id<CastSpellPayload> ID = new Id<>(Identifier.of(Nebulo.MOD_ID, "spell_cast"));
     public static final PacketCodec<PacketByteBuf, CastSpellPayload> CODEC = PacketCodec.of(CastSpellPayload::write, CastSpellPayload::read);
