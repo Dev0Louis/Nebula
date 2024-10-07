@@ -109,6 +109,7 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
             spellEffect.age++;
             if (!spellEffect.shouldContinue()) {
                 registryEntries.add(entry);
+                spellEffect.onEnd();
                 continue;
             }
             spellEffect.tick();
@@ -147,7 +148,8 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
 
     @Override
     public void stopSpellEffect(SpellEffect spellEffect) {
-        this.spellEffects.remove(spellEffect.getRegistryEntry());
+        var existed = this.spellEffects.remove(spellEffect.getRegistryEntry()) != null;
+        if (existed) spellEffect.onEnd();
     }
 
     @Override
