@@ -49,8 +49,6 @@ public class SpellKeybindManager {
                 var player = MinecraftClient.getInstance().player;
                 if (player != null) {
                     ClientPlayNetworking.send(new CastSpellPayload(SpellCreator.REGISTRY.getId(spellCreator)));
-
-                    player.castSpell(spellCreator.create(player));
                     COOLDOWN.put(spellCreator, 20);
                 }
             }

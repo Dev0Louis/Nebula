@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'fabric-loom' version '1.9-SNAPSHOT'
     id 'maven-publish'
     id 'idea'
 }
@@ -45,6 +45,8 @@ processResources {
 
 sourceSets {
     nebulo {
+        //compileClasspath += main.compileClasspath
+        //runtimeClasspath += main.runtimeClasspath
         compileClasspath += main.compileClasspath
         compileClasspath += main.output
         runtimeClasspath += main.runtimeClasspath

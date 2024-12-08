@@ -6,6 +6,7 @@ import dev.louis.nebula.spell.source.EntitySpellSource;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -22,19 +23,19 @@ public interface SpellSource<Caster> {
     Optional<ManaPool> getManaPool();
 
 
-    static <E extends Entity> SpellSource<E> of(E entity, World world, Vec3d pos, BlockPos blockPos) {
-        return new EntitySpellSource<>(entity, world, pos, blockPos);
+    static <E extends Entity> SpellSource<E> of(ServerWorld world, E entity, Vec3d castPos) {
+        return new EntitySpellSource<>(entity, world, castPos, BlockPos.ofFloored(castPos));
     }
 
-    static <E extends LivingEntity> SpellSource<E> of(E entity) {
-        return of(entity, entity.getWorld(), entity.getPos(), entity.getBlockPos());
+    static <E extends LivingEntity> SpellSource<E> of(ServerWorld world, E entity) {
+        return of(world, entity, entity.getPos());
     }
 
-    static <BE extends BlockEntity> SpellSource<BE> of(BE blockEntity) {
-        return of(blockEntity, blockEntity.getWorld(), blockEntity.getPos().toCenterPos(), blockEntity.getPos());
+    static <BE extends BlockEntity> SpellSource<BE> of(ServerWorld world, BE blockEntity) {
+        return of(world, blockEntity, blockEntity.getPos());
     }
 
-    static <BE extends BlockEntity> SpellSource<BE> of(BE blockEntity, World world, Vec3d pos, BlockPos blockPos) {
-        return new BlockEntitySpellSource<>(blockEntity, world, pos, blockPos);
+    static <BE extends BlockEntity> SpellSource<BE> of(ServerWorld world, BE blockEntity, BlockPos blockPos) {
+        return new BlockEntitySpellSource<>(blockEntity, world, blockPos);
     }
 }

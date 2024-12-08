@@ -1,6 +1,7 @@
 package dev.louis.nebulo;
 
 import com.mojang.logging.LogUtils;
+import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.event.SpellCastEvent;
 import dev.louis.nebulo.client.SpellCreator;
 import dev.louis.nebulo.networking.CastSpellPayload;
@@ -43,6 +44,6 @@ public class Nebulo implements ModInitializer {
     private static void receiveSpellCast(CastSpellPayload castSpellPayload, ServerPlayNetworking.Context context) {
         var spellCreator = SpellCreator.REGISTRY.get(castSpellPayload.spellId());
 
-        context.player().castSpell(spellCreator.create(context.player()));
+        SpellSource.of(context.player().getServerWorld(), context.player()).castSpell(spellCreator.create(context.player()));
     }
 }

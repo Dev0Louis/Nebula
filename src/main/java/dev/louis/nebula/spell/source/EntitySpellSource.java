@@ -1,11 +1,9 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.event.SpellCastEvent;
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
-import dev.louis.nebula.api.spell.quick.SpellException;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -30,17 +28,9 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
 
     @Override
     public boolean castSpell(Spell<E> spell) {
-        var allowed = entity.isAlive() && SpellCastEvent.BEFORE.invoker().allowSpellCast(this, spell);
-        if (!allowed) return false;
+        if (!entity.isAlive()) return false;
 
-        try {
-            spell.cast(this);
-        } catch (SpellException e) {
-            return false;
-        }
-
-        SpellCastEvent.AFTER.invoker().onSpellCast(this, spell);
-        return true;
+        return spell.tryCast(this);
     }
 
     @Override

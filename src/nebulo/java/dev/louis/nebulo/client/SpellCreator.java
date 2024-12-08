@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 public interface SpellCreator {
@@ -22,5 +23,5 @@ public interface SpellCreator {
 
     }
 
-    Spell<PlayerEntity> create(PlayerEntity caster);
+    Spell<ServerPlayerEntity> create(ServerPlayerEntity caster);
 }
