@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.spell.holder;
 
-import dev.louis.nebula.api.spell.SpellEffect;
+import dev.louis.nebula.api.spell.effect.SpellEffect;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.Collection;

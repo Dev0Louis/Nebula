@@ -12,11 +12,10 @@ public class CloudJumpSpell implements Spell<ServerPlayerEntity> {
     public boolean cast(SpellSource<? extends ServerPlayerEntity> source)  {
         try (Transaction t1 = Transaction.openOuter()){
             if (ManaHelper.drainManaOrFail(source.getManaPool(), 1, t1)) return false;
-            if (source.getCaster().startSpellEffect(new CloudJumpSpellEffect(source.getCaster()))) {
-                t1.commit();
-                return true;
-            }
-            return false;
+            if (!source.getCaster().startSpellEffect(new CloudJumpSpellEffect(source.getCaster()))) return false;
+
+            t1.commit();
+            return true;
         }
     }
 }

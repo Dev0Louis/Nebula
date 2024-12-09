@@ -2,7 +2,7 @@ package dev.louis.nebula;
 
 import com.mojang.logging.LogUtils;
 import dev.louis.nebula.api.entrypoint.AlternativeManaSourceRegisteringEntrypoint;
-import dev.louis.nebula.api.spell.SpellEffectType;
+import dev.louis.nebula.api.spell.effect.SpellEffects;
 import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.entrypoint.AlternativeManaSourceRegistererImpl;
 import dev.louis.nebula.mana.CreativeInfiniteManaSource;
@@ -25,7 +25,7 @@ public class Nebula implements ModInitializer {
     @Override
     public void onInitialize() {
         NebulaCommand.init();
-        SpellEffectType.init();
+        SpellEffects.init();
         this.registerPacketReceivers();
         LOGGER.info("Nebula has been initialized.");
         AlternativeManaSourceRegistererImpl alternativeManaSourceRegisterer = AlternativeManaSourceRegistererImpl.INSTANCE;

@@ -1,6 +1,6 @@
 package dev.louis.nebulo.client;
 
-import dev.louis.nebula.api.spell.SpellEffect;
+import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebulo.NebuloBlockEntities;
 import dev.louis.nebulo.client.block.entity.renderer.ManaExtractorBlockEntityRenderer;
 import net.fabricmc.api.ClientModInitializer;
@@ -95,7 +95,7 @@ public class NebuloClient implements ClientModInitializer {
             spellEffects.forEach(spellEffect -> {
                 drawContext.drawText(
                         MinecraftClient.getInstance().textRenderer,
-                        spellEffect.getRegistryEntry().getIdAsString(),
+                        spellEffect.getId().getIdAsString(),
                         x.get(),
                         y.getAndAdd(10),
                         0x03F6FF,
@@ -127,7 +127,7 @@ public class NebuloClient implements ClientModInitializer {
             serverSpellEffects.forEach(spellEffect -> {
                 drawContext.drawText(
                         MinecraftClient.getInstance().textRenderer,
-                        spellEffect.getRegistryEntry().getIdAsString(),
+                        spellEffect.getId().getIdAsString(),
                         x.get(),
                         y.getAndAdd(10),
                         0x03F6FF,

@@ -4,21 +4,20 @@ import com.google.common.collect.ImmutableList;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
-import dev.louis.nebula.api.spell.SpellEffect;
-import dev.louis.nebula.api.spell.SpellEffectType;
+import dev.louis.nebula.api.spell.effect.SpellEffect;
+import dev.louis.nebula.api.spell.effect.SpellEffects;
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
 import dev.louis.nebula.constants.NbtConstants;
 import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -46,7 +45,7 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     @Unique
     protected NebulaManaManager manaManager;
     @Unique
-    protected List<SpellEffect> spellEffects = new ArrayList<>();
+    protected HashMap<SpellEffect, Integer /* activityTime */> spellEffects = new HashMap<>();
 
 
     // We init just after health was set.
@@ -56,7 +55,6 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     )
     public void lateManaManagerInit(EntityType<?> entityType, World world, CallbackInfo ci) {
         manaManager = NebulaManaManager.createManaManager((LivingEntity) (Object) this);
-        manaManager.setMana(this.getHealth());
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
@@ -66,10 +64,10 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         this.manaManager.writeNbt(nebulaNbt);
 
         NbtList spellEffectsNbt = new NbtList();
-        spellEffects.forEach((spellEffect) -> {
+        spellEffects.forEach((spellEffect, activityTime) -> {
             var spellEffectNbt = new NbtCompound();
-            spellEffectNbt.putString(ID, spellEffect.getRegistryEntry().getIdAsString());
-            spellEffectNbt.put(DATA, spellEffect.writeNbt(new NbtCompound()));
+            spellEffectNbt.putString(ID, spellEffect.getId().toString());
+            spellEffectNbt.putInt(ACTIVITY_TIME, activityTime);
             spellEffectsNbt.add(spellEffectNbt);
         });
         nebulaNbt.put(SPELL_EFFECTS, spellEffectsNbt);
@@ -83,15 +81,16 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         this.manaManager.readNbt(nebulaNbt);
 
         var nbtList = nebulaNbt.getList(SPELL_EFFECTS, NbtCompound.END_TYPE);
-        var spellEffects = new ArrayList<SpellEffect>(nbtList.size());
+        var spellEffects = new HashMap<SpellEffect, Integer>(nbtList.size());
 
         for (NbtElement nbtElement : nbtList) {
             var spellEffectNbt = (NbtCompound) nbtElement;
             var id = Identifier.tryParse(spellEffectNbt.getString(ID));
-            SpellEffectType.REGISTRY.getEntry(id).ifPresentOrElse(spellEffectType -> {
-                var spellEffect = spellEffectType.value().factory().create((LivingEntity) (Object) this);
-                spellEffect.readNbt(spellEffectNbt.getCompound(DATA));
-                spellEffects.add(spellEffect);
+            SpellEffects.REGISTRY.getEntry(id).ifPresentOrElse(spellEffect -> {
+                spellEffects.put(
+                        spellEffect.value(),
+                        spellEffectNbt.getInt(ACTIVITY_TIME)
+                );
             }, () -> {
                 Nebula.LOGGER.warn("Spell effect {} wasn't registered! This can happen if you remove or update Mods!", id);
             });
@@ -105,17 +104,18 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     public void tickManaManagerAndSpellEffects(CallbackInfo ci) {
         this.manaManager.tick();
 
-        List<SpellEffect> registryEntries = new LinkedList<>();
-        for (SpellEffect spellEffect : spellEffects) {
-            spellEffect.age++;
-            if (!spellEffect.shouldContinue()) {
-                registryEntries.add(spellEffect);
-                spellEffect.onEnd();
+        var iterator = spellEffects.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            var spellEffect = entry.getKey();
+            if (this.getWorld() instanceof ServerWorld serverWorld && !spellEffect.shouldContinue(serverWorld, (LivingEntity) (Object) this)) {
+                iterator.remove();
+                onSpellEffectRemoved(spellEffect);
                 continue;
             }
-            spellEffect.tick();
+            spellEffect.tick((LivingEntity) (Object) this);
+            spellEffects.put(spellEffect, entry.getValue() + 1);
         }
-        registryEntries.forEach(this::removeSpellEffect);
     }
 
 
@@ -139,9 +139,9 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
 
     @Override
     public boolean startSpellEffect(SpellEffect spellEffect) {
-        if (spellEffect.canStart(this.getSpellEffects())) {
-            this.spellEffects.add(spellEffect);
-            spellEffect.onStart();
+        if ((this.getWorld() instanceof ClientWorld || spellEffect.canStart((ServerWorld) this.getWorld(),  this.getSpellEffects()))) {
+            this.spellEffects.put(spellEffect, 0);
+            spellEffect.onActivated((LivingEntity) (Object) this);
             return true;
         }
         return false;
@@ -149,20 +149,25 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
 
     @Override
     public void stopSpellEffect(SpellEffect spellEffect) {
-        var existed = removeSpellEffect(spellEffect);
-        if (existed) spellEffect.onEnd();
+        removeSpellEffect(spellEffect);
     }
 
     @Override
     public Collection<SpellEffect> getSpellEffects() {
-        return ImmutableList.copyOf(this.spellEffects);
+        return ImmutableList.copyOf(this.spellEffects.keySet());
     }
 
     // Internal
 
     @Unique
     protected boolean removeSpellEffect(SpellEffect spellEffect) {
-        return this.spellEffects.remove(spellEffect);
+        var tmp = this.spellEffects.remove(spellEffect) != null;
+        if (tmp) onSpellEffectRemoved(spellEffect);
+        return tmp;
+    }
+
+    protected void onSpellEffectRemoved(SpellEffect spellEffect) {
+        spellEffect.onEnd((LivingEntity) (Object) this);
     }
 
 }

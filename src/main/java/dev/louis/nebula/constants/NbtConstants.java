@@ -9,6 +9,7 @@ public class NbtConstants {
     public static final String SPELL_EFFECTS = "SpellEffects";
     public static final String ID = "id";
     public static final String DATA = "data";
+    public static final String ACTIVITY_TIME = "activityTime";
 
 
 }

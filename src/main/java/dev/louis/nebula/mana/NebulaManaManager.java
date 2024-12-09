@@ -36,6 +36,7 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
         this.entity = entity;
         this.alternativePreManaSources = alternativePreManaSources;
         this.alternativePostManaSources = alternativePostManaSources;
+        mana = this.getCapacity();
     }
 
     public static NebulaManaManager createManaManager(LivingEntity entity) {
