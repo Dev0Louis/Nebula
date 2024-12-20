@@ -10,6 +10,9 @@ import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
 import dev.louis.nebula.constants.NbtConstants;
 import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
+import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
+import dev.louis.nebula.networking.s2c.play.StopSpellEffectPayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -18,6 +21,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -110,7 +114,7 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
             var spellEffect = entry.getKey();
             if (this.getWorld() instanceof ServerWorld serverWorld && !spellEffect.shouldContinue(serverWorld, (LivingEntity) (Object) this)) {
                 iterator.remove();
-                onSpellEffectRemoved(spellEffect);
+                onSpellEffectStopped(spellEffect);
                 continue;
             }
             spellEffect.tick((LivingEntity) (Object) this);
@@ -139,9 +143,11 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
 
     @Override
     public boolean startSpellEffect(SpellEffect spellEffect) {
-        if ((this.getWorld() instanceof ClientWorld || spellEffect.canStart((ServerWorld) this.getWorld(),  this.getSpellEffects()))) {
-            this.spellEffects.put(spellEffect, 0);
-            spellEffect.onActivated((LivingEntity) (Object) this);
+        LivingEntity entity = (LivingEntity) (Object) this;
+        if ((this.getWorld() instanceof ClientWorld || spellEffect.canStart((ServerWorld) this.getWorld(), entity))) {
+            var currentlyActive = this.spellEffects.put(spellEffect, 0) == null;
+            if (currentlyActive) onSpellEffectStopped(spellEffect);
+            onSpellEffectStart(spellEffect);
             return true;
         }
         return false;
@@ -162,12 +168,21 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     @Unique
     protected boolean removeSpellEffect(SpellEffect spellEffect) {
         var tmp = this.spellEffects.remove(spellEffect) != null;
-        if (tmp) onSpellEffectRemoved(spellEffect);
+        if (tmp) onSpellEffectStopped(spellEffect);
         return tmp;
     }
 
-    protected void onSpellEffectRemoved(SpellEffect spellEffect) {
+    protected void onSpellEffectStopped(SpellEffect spellEffect) {
         spellEffect.onEnd((LivingEntity) (Object) this);
+        if (((Object) this) instanceof ServerPlayerEntity player) {
+            ServerPlayNetworking.send(player, new StopSpellEffectPayload(spellEffect));
+        }
     }
 
+    protected void onSpellEffectStart(SpellEffect spellEffect) {
+        spellEffect.onActivated((LivingEntity) (Object) this);
+        if (((Object) this) instanceof ServerPlayerEntity player) {
+            ServerPlayNetworking.send(player, new StartSpellEffectPayload(spellEffect));
+        }
+    }
 }

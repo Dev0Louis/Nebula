@@ -23,9 +23,7 @@ public abstract class ManaHelper {
 
     public static boolean drainManaOrFail(ManaPool manaPool, int amount, Transaction transaction) {
         var extracted = manaPool.extractMana(amount, transaction);
-        if (extracted < amount) return false;
-        transaction.commit();
-        return true;
+        return !(extracted < amount);
     }
 
     public static boolean drainManaOrFail(Optional<ManaPool> oManaPool, int amount) {

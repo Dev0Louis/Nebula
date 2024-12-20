@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 
@@ -32,8 +33,8 @@ public class Nebulo implements ModInitializer {
 
         SpellCastEvent.BEFORE.register((spellSource, spell) -> {
             if (spellSource.getWorld().getBlockState(spellSource.getBlockPos().down(1)).getBlock().equals(Blocks.BEDROCK)) {
-                if (spellSource.getCaster() instanceof LivingEntity entity) {
-                    entity.sendMessage(Text.of("Can't cast spells on Bedrock :>"));
+                if (spellSource.getCaster() instanceof PlayerEntity entity) {
+                    entity.sendMessage(Text.of("Can't cast spells on Bedrock :>"), false);
                 }
                 return false;
             }

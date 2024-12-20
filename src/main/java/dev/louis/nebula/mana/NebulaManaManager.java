@@ -3,6 +3,8 @@ package dev.louis.nebula.mana;
 import dev.louis.nebula.api.mana.manager.ManaManager;
 import dev.louis.nebula.api.mana.source.ManaSource;
 import dev.louis.nebula.entrypoint.AlternativeManaSourceRegistererImpl;
+import dev.louis.nebula.networking.s2c.play.StopSpellEffectPayload;
+import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import dev.louis.nebula.util.Phase;
 import net.fabricmc.api.EnvType;
@@ -190,6 +192,18 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
     @SuppressWarnings("resource")
     public static void receive(SyncManaPayload payload, ClientPlayNetworking.Context context) {
         context.client().executeSync(() -> context.player().getManaManager().setMana(payload.mana()));
+    }
+
+    @Environment(EnvType.CLIENT)
+    @SuppressWarnings("resource")
+    public static void receive(StartSpellEffectPayload payload, ClientPlayNetworking.Context context) {
+        context.client().executeSync(() -> context.player().startSpellEffect(payload.getSpellEffect()));
+    }
+
+    @Environment(EnvType.CLIENT)
+    @SuppressWarnings("resource")
+    public static void receive(StopSpellEffectPayload payload, ClientPlayNetworking.Context context) {
+        context.client().executeSync(() -> context.player().stopSpellEffect(payload.getSpellEffect()));
     }
 
     @Override

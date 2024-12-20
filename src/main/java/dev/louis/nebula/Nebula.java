@@ -7,6 +7,8 @@ import dev.louis.nebula.command.NebulaCommand;
 import dev.louis.nebula.entrypoint.AlternativeManaSourceRegistererImpl;
 import dev.louis.nebula.mana.CreativeInfiniteManaSource;
 import dev.louis.nebula.mana.InternalManaManagerHolder;
+import dev.louis.nebula.networking.s2c.play.StopSpellEffectPayload;
+import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
 import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -44,9 +46,8 @@ public class Nebula implements ModInitializer {
 
     private void registerPacketReceivers() {
         PayloadTypeRegistry.playS2C().register(SyncManaPayload.ID, SyncManaPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(StartSpellEffectPayload.ID, StartSpellEffectPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(StopSpellEffectPayload.ID, StopSpellEffectPayload.CODEC);
     }
-
-
-
 }
 

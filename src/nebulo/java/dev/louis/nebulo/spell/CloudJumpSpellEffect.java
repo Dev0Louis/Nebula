@@ -4,6 +4,8 @@ package dev.louis.nebulo.spell;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
+import dev.louis.nebula.api.spell.effect.SpellEffects;
+import dev.louis.nebulo.Nebulo;
 import dev.louis.nebulo.NebuloSpellEffects;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particle.ParticleTypes;

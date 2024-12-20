@@ -27,7 +27,7 @@ public abstract class SpellEffect {
         return true;
     }
 
-    public boolean canStart(ServerWorld world, Collection<SpellEffect> activeSpellEffects) {
+    public boolean canStart(ServerWorld world, LivingEntity livingEntity) {
         return true;
     }
 

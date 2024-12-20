@@ -95,7 +95,7 @@ public class NebuloClient implements ClientModInitializer {
             spellEffects.forEach(spellEffect -> {
                 drawContext.drawText(
                         MinecraftClient.getInstance().textRenderer,
-                        spellEffect.getId().getIdAsString(),
+                        spellEffect.getId().toString(),
                         x.get(),
                         y.getAndAdd(10),
                         0x03F6FF,
@@ -127,7 +127,7 @@ public class NebuloClient implements ClientModInitializer {
             serverSpellEffects.forEach(spellEffect -> {
                 drawContext.drawText(
                         MinecraftClient.getInstance().textRenderer,
-                        spellEffect.getId().getIdAsString(),
+                        spellEffect.getId().toString(),
                         x.get(),
                         y.getAndAdd(10),
                         0x03F6FF,
