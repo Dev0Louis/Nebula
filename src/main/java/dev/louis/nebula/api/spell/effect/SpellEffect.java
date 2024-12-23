@@ -1,12 +1,9 @@
 package dev.louis.nebula.api.spell.effect;
 
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Collection;
 
 @ApiStatus.Experimental
 public abstract class SpellEffect {

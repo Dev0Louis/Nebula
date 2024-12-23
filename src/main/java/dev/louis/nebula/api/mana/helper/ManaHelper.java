@@ -7,6 +7,10 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import java.util.Optional;
 
 public abstract class ManaHelper {
+    private ManaHelper() {
+
+    }
+
     public static boolean drainManaOrFail(ManaPoolHolder manaManagerHolder, int amount) {
         return drainManaOrFail(manaManagerHolder.getManaPool(), amount);
     }

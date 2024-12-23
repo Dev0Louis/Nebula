@@ -12,6 +12,7 @@ import dev.louis.nebula.mana.InternalManaManagerHolder;
 import dev.louis.nebula.mana.NebulaManaManager;
 import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
 import dev.louis.nebula.networking.s2c.play.StopSpellEffectPayload;
+import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -21,6 +22,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -172,17 +174,21 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         return tmp;
     }
 
-    protected void onSpellEffectStopped(SpellEffect spellEffect) {
-        spellEffect.onEnd((LivingEntity) (Object) this);
-        if (((Object) this) instanceof ServerPlayerEntity player) {
-            ServerPlayNetworking.send(player, new StopSpellEffectPayload(spellEffect));
-        }
-    }
-
+    @Unique
     protected void onSpellEffectStart(SpellEffect spellEffect) {
         spellEffect.onActivated((LivingEntity) (Object) this);
         if (((Object) this) instanceof ServerPlayerEntity player) {
-            ServerPlayNetworking.send(player, new StartSpellEffectPayload(spellEffect));
+            var payload = new StartSpellEffectPayload(player.getId(), spellEffect);
+            player.getServerWorld().getChunkManager().sendToNearbyPlayers(this, ServerPlayNetworking.createS2CPacket(payload));
+        }
+    }
+
+    @Unique
+    protected void onSpellEffectStopped(SpellEffect spellEffect) {
+        spellEffect.onEnd((LivingEntity) (Object) this);
+        if (((Object) this) instanceof ServerPlayerEntity player) {
+            var payload = new StopSpellEffectPayload(player.getId(), spellEffect);
+            player.getServerWorld().getChunkManager().sendToNearbyPlayers(this, ServerPlayNetworking.createS2CPacket(payload));
         }
     }
 }

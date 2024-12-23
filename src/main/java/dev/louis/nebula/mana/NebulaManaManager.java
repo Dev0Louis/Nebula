@@ -180,7 +180,8 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
             if (serverPlayerEntity.networkHandler != null) {
                 float syncMana = this.getMana();
                 this.lastSyncedMana = syncMana;
-                ServerPlayNetworking.send(serverPlayerEntity, new SyncManaPayload(syncMana));
+                var payload = new SyncManaPayload(serverPlayerEntity.getId(), syncMana);
+                serverPlayerEntity.getServerWorld().getChunkManager().sendToNearbyPlayers(serverPlayerEntity, ServerPlayNetworking.createS2CPacket(payload));
                 return true;
             }
             //Hm didn't work
@@ -190,21 +191,10 @@ public class NebulaManaManager extends SnapshotParticipant<Float> implements Man
 
     @Environment(EnvType.CLIENT)
     @SuppressWarnings("resource")
-    public static void receive(SyncManaPayload payload, ClientPlayNetworking.Context context) {
+    public static void receiveMana(SyncManaPayload payload, ClientPlayNetworking.Context context) {
         context.client().executeSync(() -> context.player().getManaManager().setMana(payload.mana()));
     }
 
-    @Environment(EnvType.CLIENT)
-    @SuppressWarnings("resource")
-    public static void receive(StartSpellEffectPayload payload, ClientPlayNetworking.Context context) {
-        context.client().executeSync(() -> context.player().startSpellEffect(payload.getSpellEffect()));
-    }
-
-    @Environment(EnvType.CLIENT)
-    @SuppressWarnings("resource")
-    public static void receive(StopSpellEffectPayload payload, ClientPlayNetworking.Context context) {
-        context.client().executeSync(() -> context.player().stopSpellEffect(payload.getSpellEffect()));
-    }
 
     @Override
     public void writeNbt(NbtCompound nbt) {

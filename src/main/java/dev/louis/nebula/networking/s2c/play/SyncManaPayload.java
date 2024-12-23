@@ -8,15 +8,16 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public record SyncManaPayload(float mana) implements CustomPayload {
+public record SyncManaPayload(int entityId, float mana) implements CustomPayload {
     public static final Id<SyncManaPayload> ID = new CustomPayload.Id<>(Identifier.of(Nebula.MOD_ID, "synchronize_mana"));
     public static final PacketCodec<PacketByteBuf, SyncManaPayload> CODEC = PacketCodec.of(SyncManaPayload::write, SyncManaPayload::read);
 
     public static SyncManaPayload read(PacketByteBuf buf) {
-        return new SyncManaPayload(buf.readFloat());
+        return new SyncManaPayload(buf.readVarInt(), buf.readFloat());
     }
 
     public void write(PacketByteBuf buf) {
+        buf.writeVarInt(entityId);
         buf.writeFloat(mana);
     }
 
