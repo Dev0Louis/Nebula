@@ -50,7 +50,7 @@ public class NebuloClient implements ClientModInitializer {
             var player = server.getPlayerManager().getPlayer(cplayer.getUuid());
             if (player == null) return;
             this.serverMana = player.getManaManager().getMana();
-            this.serverCapacity = player.getManaManager().getCapacity();
+            this.serverCapacity = Float.POSITIVE_INFINITY;
             this.serverSpellEffects = player.getSpellEffects();
         });
     }
@@ -69,7 +69,7 @@ public class NebuloClient implements ClientModInitializer {
             var manaManager = player.getManaManager();
             var spellEffects = player.getSpellEffects();
             var mana = String.valueOf(manaManager.getMana());
-            var maxMana = String.valueOf(manaManager.getCapacity());
+            var maxMana = Float.POSITIVE_INFINITY;
             AtomicInteger x = new AtomicInteger(10);
             AtomicInteger y = new AtomicInteger(10);
 

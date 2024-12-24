@@ -1,22 +1,7 @@
 package dev.louis.nebula.api.mana.manager;
 
-import dev.louis.nebula.api.mana.pool.ManaPool;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+public interface ManaManager {
+    float getMana();
 
-@SuppressWarnings("UnusedReturnValue")
-public interface ManaManager extends ManaPool {
-    void setMana(float mana);
-
-    void setMana(float mana, TransactionContext transaction);
-
-    /**
-     * Querys the ManaManager's state to be synced to the client.
-     */
-    void checkSync();
-
-    /**
-     * Sends the ManaManager's state to the client.
-     * @return If the state was successfully send.
-     */
-    boolean sendSync();
+    void tick();
 }

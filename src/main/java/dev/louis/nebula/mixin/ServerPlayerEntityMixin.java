@@ -1,6 +1,7 @@
 package dev.louis.nebula.mixin;
 
-import dev.louis.nebula.mana.InternalManaManagerHolder;
+import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
+import dev.louis.nebula.api.mana.manager.ServerManaManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,7 +20,7 @@ public abstract class ServerPlayerEntityMixin extends LivingEntityMixin {
     @Inject(method = "copyFrom", at = @At("RETURN"))
     public void copyNebulaStuffFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         if (alive) {
-            InternalManaManagerHolder.getManaManager(((ServerPlayerEntity) (Object) this)).copyFrom(InternalManaManagerHolder.getManaManager(oldPlayer));
+            ((ServerManaManager) ManaManagerHolder.getManaManager(((ServerPlayerEntity) (Object) this))).copyFrom((ServerManaManager) ManaManagerHolder.getManaManager(oldPlayer));
         }
     }
 }

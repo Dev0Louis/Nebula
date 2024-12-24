@@ -1,9 +1,7 @@
 package dev.louis.nebula;
 
-import dev.louis.nebula.mana.NebulaManaManager;
 import dev.louis.nebula.networking.s2c.play.StopSpellEffectPayload;
 import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
-import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,7 +18,7 @@ public class NebulaClient implements ClientModInitializer {
     }
 
     public void registerPacketReceivers() {
-        ClientPlayNetworking.registerGlobalReceiver(SyncManaPayload.ID, NebulaManaManager::receiveMana);
+        //ClientPlayNetworking.registerGlobalReceiver(SyncManaPayload.ID, NebulaManaManager::receiveMana);
         ClientPlayNetworking.registerGlobalReceiver(StartSpellEffectPayload.ID, NebulaClient::receiveStartSpellEffect);
         ClientPlayNetworking.registerGlobalReceiver(StopSpellEffectPayload.ID, NebulaClient::receiveStopSpellEffect);
     }

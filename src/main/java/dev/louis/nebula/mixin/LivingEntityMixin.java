@@ -2,27 +2,25 @@ package dev.louis.nebula.mixin;
 
 import com.google.common.collect.ImmutableList;
 import dev.louis.nebula.Nebula;
+import dev.louis.nebula.api.mana.manager.ClientManaManager;
+import dev.louis.nebula.api.mana.manager.ManaManager;
+import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebula.api.spell.effect.SpellEffects;
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
 import dev.louis.nebula.constants.NbtConstants;
-import dev.louis.nebula.mana.InternalManaManagerHolder;
-import dev.louis.nebula.mana.NebulaManaManager;
+import dev.louis.nebula.api.mana.manager.ServerManaManager;
 import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
 import dev.louis.nebula.networking.s2c.play.StopSpellEffectPayload;
-import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -41,15 +39,13 @@ import static dev.louis.nebula.constants.NbtConstants.*;
 
 @SuppressWarnings({"AddedMixinMembersNamePattern", "UnreachableCode"})
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements InternalManaManagerHolder, ManaPoolHolder, SpellEffectHolder {
-    @Shadow public abstract float getHealth();
-
+public abstract class LivingEntityMixin extends Entity implements ManaManagerHolder, SpellEffectHolder {
     protected LivingEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
 
     @Unique
-    protected NebulaManaManager manaManager;
+    protected ManaManager manaManager;
     @Unique
     protected HashMap<SpellEffect, Integer /* activityTime */> spellEffects = new HashMap<>();
 
@@ -60,14 +56,12 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
             at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setHealth(F)V", shift = At.Shift.AFTER)
     )
     public void lateManaManagerInit(EntityType<?> entityType, World world, CallbackInfo ci) {
-        manaManager = NebulaManaManager.createManaManager((LivingEntity) (Object) this);
+        manaManager = world.isClient ? ClientManaManager.createManaManager(((LivingEntity) (Object) this))  : ServerManaManager.createManaManager((LivingEntity) (Object) this);
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
     public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
         NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
-
-        this.manaManager.writeNbt(nebulaNbt);
 
         NbtList spellEffectsNbt = new NbtList();
         spellEffects.forEach((spellEffect, activityTime) -> {
@@ -84,7 +78,6 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
     @Inject(method = "readCustomDataFromNbt",at = @At("RETURN"))
     public void readManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
         NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
-        this.manaManager.readNbt(nebulaNbt);
 
         var nbtList = nebulaNbt.getList(SPELL_EFFECTS, NbtCompound.END_TYPE);
         var spellEffects = new HashMap<SpellEffect, Integer>(nbtList.size());
@@ -124,29 +117,15 @@ public abstract class LivingEntityMixin extends Entity implements InternalManaMa
         }
     }
 
-
-    @Inject(
-            method = "drop",
-            at = @At("RETURN")
-    )
-    public void voidManaAtDeath(ServerWorld world, DamageSource damageSource, CallbackInfo ci) {
-        this.getManaManager().setMana(0);
-    }
-
     @Override
-    public @NotNull NebulaManaManager getManaManager() {
-        return this.manaManager;
-    }
-
-    @Override
-    public @NotNull ManaPool getManaPool() {
+    public @NotNull ManaManager getManaManager() {
         return this.manaManager;
     }
 
     @Override
     public boolean startSpellEffect(SpellEffect spellEffect) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        if ((this.getWorld() instanceof ClientWorld || spellEffect.canStart((ServerWorld) this.getWorld(), entity))) {
+        if ((!(this.getWorld() instanceof ServerWorld) || spellEffect.canStart((ServerWorld) this.getWorld(), entity))) {
             var currentlyActive = this.spellEffects.put(spellEffect, 0) == null;
             if (currentlyActive) onSpellEffectStopped(spellEffect);
             onSpellEffectStart(spellEffect);

@@ -5,6 +5,7 @@ import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -15,10 +16,10 @@ import java.util.Optional;
 @ApiStatus.Internal
 public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSource<BE> {
     private final BE blockEntity;
-    private final World world;
+    private final ServerWorld world;
     private final BlockPos blockPos;
 
-    public BlockEntitySpellSource(BE blockEntity, World world, BlockPos blockPos) {
+    public BlockEntitySpellSource(BE blockEntity, ServerWorld world, BlockPos blockPos) {
         this.blockEntity = blockEntity;
         this.world = world;
         this.blockPos = blockPos;
@@ -33,7 +34,7 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
 
 
     @Override
-    public World getWorld() {
+    public ServerWorld getWorld() {
         return world;
     }
 

@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface SpellSource<Caster> {
     boolean castSpell(Spell<Caster> spell);
 
-    World getWorld();
+    ServerWorld getWorld();
     Vec3d getPos();
     BlockPos getBlockPos();
     Caster getCaster();

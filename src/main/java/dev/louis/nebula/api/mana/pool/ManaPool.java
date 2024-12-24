@@ -1,44 +1,36 @@
 package dev.louis.nebula.api.mana.pool;
 
+import dev.louis.nebula.api.mana.consumer.ManaConsumer;
 import dev.louis.nebula.api.mana.source.ManaSource;
-import dev.louis.nebula.mana.SimpleManaContainer;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 
 /**
  * A ManaContainer can store capacity, give capacity,
  */
 @SuppressWarnings("UnusedReturnValue")
-public interface ManaPool extends ManaSource {
-    float getCapacity();
+public interface ManaPool extends ManaSource, ManaConsumer {
     float getMana();
 
-    default float insertMana(float insertion) {
-
+    default float insertMana(ServerWorld world, float insertion) {
         try (var t1 = Transaction.openOuter()) {
-            float returnValue = insertMana(insertion, t1);
+            float returnValue = insertMana(world, insertion, t1);
             t1.commit();
             return returnValue;
         }
     }
 
-    float insertMana(float insertion, TransactionContext context);
+    float insertMana(ServerWorld world, float insertion, TransactionContext context);
 
-    default float extractMana(float extraction) {
+    default float extractMana(ServerWorld world, float extraction) {
         try (var t1 = Transaction.openOuter()) {
-            float returnValue = extractMana(extraction, t1);
+            float returnValue = extractMana(world, extraction, t1);
             t1.commit();
             return returnValue;
         }
     }
 
-    float extractMana(float extraction, TransactionContext context);
+    float extractMana(ServerWorld world, float extraction, TransactionContext context);
 
-    void readNbt(NbtCompound nbtCompound);
-    void writeNbt(NbtCompound nbtCompound);
-
-    static ManaPool createSimple(int baseMana, int maxMana) {
-        return new SimpleManaContainer(baseMana, maxMana);
-    }
 }

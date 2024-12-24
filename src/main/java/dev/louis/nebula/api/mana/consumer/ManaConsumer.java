@@ -1,18 +1,17 @@
-package dev.louis.nebula.api.mana.source;
+package dev.louis.nebula.api.mana.consumer;
 
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.server.world.ServerWorld;
 
-public interface ManaSource {
-
-    default float extractMana(ServerWorld world, float extraction) {
+public interface ManaConsumer {
+    default float insertMana(ServerWorld world, float insertion) {
         try (var t1 = Transaction.openOuter()) {
-            float returnValue = extractMana(world, extraction, t1);
+            float returnValue = insertMana(world, insertion, t1);
             t1.commit();
             return returnValue;
         }
     }
 
-    float extractMana(ServerWorld world, float extraction, TransactionContext context);
+    float insertMana(ServerWorld world, float insertion, TransactionContext context);
 }

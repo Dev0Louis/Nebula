@@ -1,6 +1,7 @@
 package dev.louis.nebula.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import dev.louis.nebula.api.mana.manager.ServerManaManager;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.command.CommandRegistryAccess;
@@ -52,7 +53,7 @@ public class NebulaCommand {
     private static int addMana(ServerCommandSource source, Collection<? extends Entity> entities, float mana) {
         entities.stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(livingEntity -> {
             try(Transaction transaction = Transaction.openOuter()) {
-                var insertion = livingEntity.getManaManager().insertMana(mana, transaction);
+                var insertion = ((ServerManaManager) livingEntity.getManaManager()).insertMana(source.getWorld(), mana, transaction);
                 source.sendMessage(Text.of("Inserted " + insertion + " mana into " + livingEntity.getName().getString() + "."));
                 transaction.commit();
             }

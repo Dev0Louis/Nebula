@@ -25,9 +25,9 @@ public class ManaExtractorBlockEntityRenderer implements BlockEntityRenderer<Man
         matrices.push();
         matrices.translate(0.5, 3, 0.5);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(entity.getWorld().getTime()));
-        renderText(Text.literal(String.format("%.2f", entity.manaPool.getMana())), matrices, vertexConsumers, light);
+        renderText(Text.literal(String.format("%.2f", entity.manaContainer.getMana())), matrices, vertexConsumers, light);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
-        renderText(Text.literal(String.format("%.2f", entity.manaPool.getMana())), matrices, vertexConsumers, light);
+        renderText(Text.literal(String.format("%.2f", entity.manaContainer.getMana())), matrices, vertexConsumers, light);
         matrices.pop();
     }
 

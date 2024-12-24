@@ -2,8 +2,6 @@ package dev.louis.nebula.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
-import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -28,8 +26,8 @@ public class EntityTrackerEntryMixin {
     )
     public void sendManaPackets(ServerPlayerEntity player, CallbackInfo ci, @Local List<Packet<? super ClientPlayPacketListener>> list) {
         if (this.entity instanceof ManaPoolHolder holder) {
-            var packet = ServerPlayNetworking.createS2CPacket(new SyncManaPayload(this.entity.getId(), holder.getManaPool().getMana()));
-            list.add(packet);
+            //var packet = ServerPlayNetworking.createS2CPacket(new SyncManaPayload(this.entity.getId(), holder.getManaPool().getMana()));
+            //list.add(packet);
         }
     }
 }

@@ -1,16 +1,17 @@
 package dev.louis.nebula.mana;
 
-import dev.louis.nebula.api.mana.pool.ManaPool;
+import dev.louis.nebula.api.mana.container.ManaContainer;
 import dev.louis.nebula.constants.NbtConstants;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import org.jetbrains.annotations.ApiStatus;
 
 import static dev.louis.nebula.constants.NbtConstants.MANA;
 
 @ApiStatus.Experimental
-public class SimpleManaContainer extends SnapshotParticipant<Float> implements ManaPool {
+public class SimpleManaContainer extends SnapshotParticipant<Float> implements ManaContainer {
     private final float capacity;
     private float mana;
 
@@ -34,7 +35,7 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
     }
 
     @Override
-    public float insertMana(float amount, TransactionContext context) {
+    public float insertMana(ServerWorld world, float amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Insertion amount is negative.");
         float insertion = Math.min(amount, getCapacity());
 
@@ -50,7 +51,7 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
     }
 
     @Override
-    public float extractMana(float amount, TransactionContext context) {
+    public float extractMana(ServerWorld world, float amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Extraction amount is negative.");
         float extraction = Math.min(amount, getCapacity());
 
