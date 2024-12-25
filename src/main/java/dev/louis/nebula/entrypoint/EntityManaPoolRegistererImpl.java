@@ -3,6 +3,7 @@ package dev.louis.nebula.entrypoint;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.entrypoint.ManaPoolRegisterer;
 import dev.louis.nebula.api.mana.pool.ManaPool;
+import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
@@ -38,8 +39,8 @@ public final class EntityManaPoolRegistererImpl implements ManaPoolRegisterer {
         Registry.register(REGISTRY, id, type);
     }
 
-    public HashMap<RegistryEntry<EntityManaPoolType>, ManaPool> createManaPool(LivingEntity entity) {
-        HashMap<RegistryEntry<EntityManaPoolType>, ManaPool> map = new HashMap<>(REGISTRY.size());
+    public HashMap<RegistryEntry<EntityManaPoolType>, EntityManaPool> createManaPool(LivingEntity entity) {
+        HashMap<RegistryEntry<EntityManaPoolType>, EntityManaPool> map = new HashMap<>(REGISTRY.size());
         REGISTRY.streamEntries().forEach(ref -> {
             var entry = REGISTRY.getOptional(ref.registryKey()).orElseThrow();
             var value = ref.value();

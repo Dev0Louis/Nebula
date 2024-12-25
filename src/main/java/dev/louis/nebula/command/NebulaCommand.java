@@ -53,7 +53,7 @@ public class NebulaCommand {
     private static int addMana(ServerCommandSource source, Collection<? extends Entity> entities, float mana) {
         entities.stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(livingEntity -> {
             try(Transaction transaction = Transaction.openOuter()) {
-                var insertion = ((ServerManaManager) livingEntity.getManaManager()).insertMana(source.getWorld(), mana, transaction);
+                var insertion = ((ServerManaManager) livingEntity.getManaManager()).insertMana(mana, transaction);
                 source.sendMessage(Text.of("Inserted " + insertion + " mana into " + livingEntity.getName().getString() + "."));
                 transaction.commit();
             }

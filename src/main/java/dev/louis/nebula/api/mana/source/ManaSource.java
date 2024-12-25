@@ -6,13 +6,13 @@ import net.minecraft.server.world.ServerWorld;
 
 public interface ManaSource {
 
-    default float extractMana(ServerWorld world, float extraction) {
+    default float extractMana(float extraction) {
         try (var t1 = Transaction.openOuter()) {
-            float returnValue = extractMana(world, extraction, t1);
+            float returnValue = extractMana(extraction, t1);
             t1.commit();
             return returnValue;
         }
     }
 
-    float extractMana(ServerWorld world, float extraction, TransactionContext context);
+    float extractMana(float extraction, TransactionContext context);
 }

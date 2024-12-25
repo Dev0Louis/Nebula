@@ -5,5 +5,5 @@ import net.minecraft.entity.LivingEntity;
 
 @FunctionalInterface
 public interface EntityManaPoolFactory {
-    ManaPool create(LivingEntity entity);
+    EntityManaPool create(LivingEntity entity);
 }

@@ -13,7 +13,7 @@ import dev.louis.nebula.mana.CreativeInfiniteManaSource;
 import dev.louis.nebula.api.mana.manager.ServerManaManager;
 import dev.louis.nebula.networking.s2c.play.StopSpellEffectPayload;
 import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
-import dev.louis.nebula.networking.s2c.play.SyncManaPayload;
+import dev.louis.nebula.networking.s2c.play.ManaPayload;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
+import java.util.*;
 
 @ApiStatus.Internal
 public class Nebula implements ModInitializer {
@@ -44,7 +44,7 @@ public class Nebula implements ModInitializer {
         this.registerPacketReceivers();
         LOGGER.info("Nebula has been initialized.");
         EntityManaPoolRegistererImpl alternativeManaSourceRegisterer = EntityManaPoolRegistererImpl.INSTANCE;
-        alternativeManaSourceRegisterer.register(Identifier.of(MOD_ID, "creative"), EntityManaPoolType.create(CreativeInfiniteManaSource::new));
+        alternativeManaSourceRegisterer.register(Identifier.of(MOD_ID, "creative"), CreativeInfiniteManaSource.TYPE);
 
         FabricLoader.getInstance().invokeEntrypoints(
                 "entityManaPool",
@@ -70,7 +70,7 @@ public class Nebula implements ModInitializer {
                         var string = id.toString().replace("entity_mana_pool/","");
                         var manaPoolId = Identifier.tryParse(string.substring(0, string.length() - 5));
 
-                        JsonObject data = JsonParser.parseReader(new InputStreamReader(resource.getInputStream())).getAsJsonObject();
+                        var data = JsonParser.parseReader(new InputStreamReader(resource.getInputStream())).getAsJsonObject();
                         var enabled = data.get("enabled").getAsBoolean();
                         var priority = data.get("priority").getAsInt();
                         System.out.println(enabled);
@@ -120,7 +120,7 @@ public class Nebula implements ModInitializer {
     }*/
 
     private void registerPacketReceivers() {
-        PayloadTypeRegistry.playS2C().register(SyncManaPayload.ID, SyncManaPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ManaPayload.ID, ManaPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(StartSpellEffectPayload.ID, StartSpellEffectPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(StopSpellEffectPayload.ID, StopSpellEffectPayload.CODEC);
     }

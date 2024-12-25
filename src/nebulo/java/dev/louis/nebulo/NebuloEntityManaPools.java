@@ -10,6 +10,6 @@ public class NebuloEntityManaPools implements EntityManaPoolEntrypoint {
 
     @Override
     public void registerEntityManaPool(EntityManaPoolRegistererImpl registerer) {
-        registerer.register(Identifier.of(Nebulo.MOD_ID, "lapis"), EntityManaPoolType.create(LapisManaSource::create));
+        registerer.register(Identifier.of(Nebulo.MOD_ID, "lapis"), LapisManaSource.TYPE);
     }
 }

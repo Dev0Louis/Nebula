@@ -50,7 +50,7 @@ public class NebuloClient implements ClientModInitializer {
             var player = server.getPlayerManager().getPlayer(cplayer.getUuid());
             if (player == null) return;
             this.serverMana = player.getManaManager().getMana();
-            this.serverCapacity = Float.POSITIVE_INFINITY;
+            this.serverCapacity = player.getManaManager().getCapacity();
             this.serverSpellEffects = player.getSpellEffects();
         });
     }
@@ -65,11 +65,11 @@ public class NebuloClient implements ClientModInitializer {
     private void registerRenderCallback() {
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
             var player = MinecraftClient.getInstance().player;
-            if(player == null)return;
+            if (player == null) return;
             var manaManager = player.getManaManager();
             var spellEffects = player.getSpellEffects();
             var mana = String.valueOf(manaManager.getMana());
-            var maxMana = Float.POSITIVE_INFINITY;
+            var maxMana = String.valueOf(manaManager.getCapacity());
             AtomicInteger x = new AtomicInteger(10);
             AtomicInteger y = new AtomicInteger(10);
 

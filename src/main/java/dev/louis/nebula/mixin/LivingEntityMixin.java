@@ -6,7 +6,6 @@ import dev.louis.nebula.api.mana.manager.ClientManaManager;
 import dev.louis.nebula.api.mana.manager.ManaManager;
 import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
 import dev.louis.nebula.api.mana.pool.ManaPool;
-import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebula.api.spell.effect.SpellEffects;
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
@@ -27,7 +26,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -56,7 +54,7 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
             at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setHealth(F)V", shift = At.Shift.AFTER)
     )
     public void lateManaManagerInit(EntityType<?> entityType, World world, CallbackInfo ci) {
-        manaManager = world.isClient ? ClientManaManager.createManaManager(((LivingEntity) (Object) this))  : ServerManaManager.createManaManager((LivingEntity) (Object) this);
+        manaManager = world.isClient ? ClientManaManager.createManaManager(((LivingEntity) (Object) this)) : ServerManaManager.createManaManager((LivingEntity) (Object) this);
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))

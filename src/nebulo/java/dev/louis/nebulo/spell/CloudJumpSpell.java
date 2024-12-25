@@ -15,8 +15,8 @@ public class CloudJumpSpell implements Spell<ServerPlayerEntity> {
 
     @Override
     public boolean cast(SpellSource<? extends ServerPlayerEntity> source)  {
-        try (Transaction t1 = Transaction.openOuter()){
-            if (!ManaHelper.drainManaOrFail(source.getWorld(), source.getManaPool(), 1, t1)) return false;
+        try (Transaction t1 = Transaction.openOuter()) {
+            if (!ManaHelper.drainManaOrFail(source.getManaPool(), 1, t1)) return false;
             if (!source.getCaster().startSpellEffect(NebuloSpellEffects.CLOUD_JUMP)) return false;
 
             t1.commit();

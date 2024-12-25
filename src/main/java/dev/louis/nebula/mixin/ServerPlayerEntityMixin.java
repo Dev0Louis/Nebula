@@ -1,7 +1,8 @@
 package dev.louis.nebula.mixin;
 
 import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
-import dev.louis.nebula.api.mana.manager.ServerManaManager;
+import dev.louis.nebula.networking.s2c.play.ManaPayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -13,14 +14,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends LivingEntityMixin {
+
+    private float lastSyncedMana;
+    private float lastSyncedCapacity;
+
     protected ServerPlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At("RETURN")
+    )
+    public void checkManaSync(CallbackInfo ci) {
+        var mana = this.getManaManager().getMana();
+        var capacity = this.getManaManager().getCapacity();
+
+        if (mana != lastSyncedMana || capacity != lastSyncedCapacity) {
+            var srvrPlyr = ((ServerPlayerEntity) (Object) this);
+            ServerPlayNetworking.send(srvrPlyr, new ManaPayload(srvrPlyr.getId(), mana, capacity));
+            this.lastSyncedCapacity = capacity;
+            this.lastSyncedMana = mana;
+        }
     }
 
     @Inject(method = "copyFrom", at = @At("RETURN"))
     public void copyNebulaStuffFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         if (alive) {
-            ((ServerManaManager) ManaManagerHolder.getManaManager(((ServerPlayerEntity) (Object) this))).copyFrom((ServerManaManager) ManaManagerHolder.getManaManager(oldPlayer));
+            ManaManagerHolder.getManaManager(((ServerPlayerEntity) (Object) this)).copyFrom(ManaManagerHolder.getManaManager(oldPlayer));
         }
     }
 }

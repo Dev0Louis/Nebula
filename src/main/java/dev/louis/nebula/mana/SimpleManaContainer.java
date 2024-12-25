@@ -35,7 +35,7 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
     }
 
     @Override
-    public float insertMana(ServerWorld world, float amount, TransactionContext context) {
+    public float insertMana(float amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Insertion amount is negative.");
         float insertion = Math.min(amount, getCapacity());
 
@@ -51,7 +51,7 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
     }
 
     @Override
-    public float extractMana(ServerWorld world, float amount, TransactionContext context) {
+    public float extractMana(float amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Extraction amount is negative.");
         float extraction = Math.min(amount, getCapacity());
 
@@ -67,10 +67,11 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
         nebulaNbt.putFloat(MANA, this.getMana());
         nbt.put(NbtConstants.NEBULA, nebulaNbt);
+        return nbt;
     }
 
     @Override

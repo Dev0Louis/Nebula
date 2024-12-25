@@ -34,12 +34,12 @@ public class ManaExtractorBlockEntity extends BlockEntity {
 
 
     public void tick(World world, BlockPos pos, BlockState state) {
-        if (!(world instanceof ServerWorld serverWorld)) return;
+        if (!(world instanceof ServerWorld)) return;
         world.getOtherEntities(null, new Box(pos).expand(6)).stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(entity -> {
             try(Transaction transaction = Transaction.openOuter()) {
                 var requestedMana = 0.1f;
-                var extraction = ((ServerManaManager) entity.getManaManager()).extractMana(serverWorld, requestedMana, transaction);
-                var hasInserted = manaContainer.insertMana(serverWorld, extraction, transaction) > 0;
+                var extraction = ((ServerManaManager) entity.getManaManager()).extractMana(requestedMana, transaction);
+                var hasInserted = manaContainer.insertMana(extraction, transaction) > 0;
                 if (hasInserted) {
                     this.markDirty();
                     this.world.updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), Block.NOTIFY_ALL);

@@ -4,6 +4,7 @@ import net.minecraft.entity.LivingEntity;
 
 public class ClientManaManager implements ManaManager {
     private float mana;
+    private float capacity;
 
     public ClientManaManager(float mana) {
         this.mana = mana;
@@ -18,6 +19,14 @@ public class ClientManaManager implements ManaManager {
         return mana;
     }
 
+    public void setCapacity(float capacity) {
+        this.capacity = capacity;
+    }
+
+    public float getCapacity() {
+        return capacity;
+    }
+
     @Override
     public void tick() {
 
@@ -25,5 +34,9 @@ public class ClientManaManager implements ManaManager {
 
     public void setMana(float mana) {
         this.mana = mana;
+    }
+
+    public void copyFrom(ClientManaManager manaManager) {
+        this.mana = manaManager.mana;
     }
 }

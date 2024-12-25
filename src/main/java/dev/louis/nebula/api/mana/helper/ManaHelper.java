@@ -12,32 +12,32 @@ public abstract class ManaHelper {
 
     }
 
-    public static boolean drainManaOrFail(ServerWorld world, ManaPoolHolder manaManagerHolder, int amount) {
-        return drainManaOrFail(world, manaManagerHolder.getManaPool(), amount);
+    public static boolean drainManaOrFail(ManaPoolHolder manaManagerHolder, int amount) {
+        return drainManaOrFail(manaManagerHolder.getManaPool(), amount);
     }
 
-    public static boolean drainManaOrFail(ServerWorld world, ManaPoolHolder manaManagerHolder, int amount, Transaction transaction) {
-        return drainManaOrFail(world, manaManagerHolder.getManaPool(), amount, transaction);
+    public static boolean drainManaOrFail(ManaPoolHolder manaManagerHolder, int amount, Transaction transaction) {
+        return drainManaOrFail(manaManagerHolder.getManaPool(), amount, transaction);
     }
 
-    public static boolean drainManaOrFail(ServerWorld world, ManaPool manaPool, int amount) {
+    public static boolean drainManaOrFail(ManaPool manaPool, int amount) {
         try(Transaction transaction = Transaction.openOuter()) {
-            return drainManaOrFail(world, manaPool, amount, transaction);
+            return drainManaOrFail(manaPool, amount, transaction);
         }
     }
 
-    public static boolean drainManaOrFail(ServerWorld world, ManaPool manaPool, int amount, Transaction transaction) {
-        var extracted = manaPool.extractMana(world, amount, transaction);
+    public static boolean drainManaOrFail(ManaPool manaPool, int amount, Transaction transaction) {
+        var extracted = manaPool.extractMana(amount, transaction);
         return !(extracted < amount);
     }
 
-    public static boolean drainManaOrFail(ServerWorld world, Optional<ManaPool> oManaPool, int amount) {
+    public static boolean drainManaOrFail(Optional<ManaPool> oManaPool, int amount) {
         if (oManaPool.isEmpty()) return false;
-        return drainManaOrFail(world, oManaPool.get(), amount);
+        return drainManaOrFail(oManaPool.get(), amount);
     }
 
-    public static boolean drainManaOrFail(ServerWorld world, Optional<ManaPool> oManaPool, int amount, Transaction transaction) {
+    public static boolean drainManaOrFail(Optional<ManaPool> oManaPool, int amount, Transaction transaction) {
         if (oManaPool.isEmpty()) return false;
-        return drainManaOrFail(world, oManaPool.get(), amount, transaction);
+        return drainManaOrFail(oManaPool.get(), amount, transaction);
     }
 }

@@ -1,5 +1,8 @@
 package dev.louis.nebula;
 
+import dev.louis.nebula.api.mana.manager.ClientManaManager;
+import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
+import dev.louis.nebula.networking.s2c.play.ManaPayload;
 import dev.louis.nebula.networking.s2c.play.StopSpellEffectPayload;
 import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
 import net.fabricmc.api.ClientModInitializer;
@@ -18,9 +21,19 @@ public class NebulaClient implements ClientModInitializer {
     }
 
     public void registerPacketReceivers() {
-        //ClientPlayNetworking.registerGlobalReceiver(SyncManaPayload.ID, NebulaManaManager::receiveMana);
+        ClientPlayNetworking.registerGlobalReceiver(ManaPayload.ID, NebulaClient::receiveMana);
         ClientPlayNetworking.registerGlobalReceiver(StartSpellEffectPayload.ID, NebulaClient::receiveStartSpellEffect);
         ClientPlayNetworking.registerGlobalReceiver(StopSpellEffectPayload.ID, NebulaClient::receiveStopSpellEffect);
+    }
+
+    private static void receiveMana(ManaPayload manaPayload, ClientPlayNetworking.Context context) {
+        context.client().executeSync(() -> {
+            var entity = context.client().world.getEntityById(manaPayload.entityId());
+            if (entity instanceof ManaManagerHolder manaManagerHolder) {
+                ((ClientManaManager) manaManagerHolder.getManaManager()).setMana(manaPayload.mana());
+                ((ClientManaManager) manaManagerHolder.getManaManager()).setCapacity(manaPayload.capacity());
+            }
+        });
     }
 
     @Environment(EnvType.CLIENT)

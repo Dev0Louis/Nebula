@@ -11,6 +11,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @ApiStatus.Internal
@@ -56,6 +57,7 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
 
     @Override
     public Optional<ManaPool> getManaPool() {
+        System.out.println(entity instanceof ManaPoolHolder);
         if (entity instanceof ManaPoolHolder manaPoolHolder) return Optional.of(manaPoolHolder.getManaPool());
         return Optional.empty();
     }
