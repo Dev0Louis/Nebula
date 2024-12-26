@@ -12,14 +12,6 @@ public abstract class ManaHelper {
 
     }
 
-    public static boolean drainManaOrFail(ManaPoolHolder manaManagerHolder, int amount) {
-        return drainManaOrFail(manaManagerHolder.getManaPool(), amount);
-    }
-
-    public static boolean drainManaOrFail(ManaPoolHolder manaManagerHolder, int amount, Transaction transaction) {
-        return drainManaOrFail(manaManagerHolder.getManaPool(), amount, transaction);
-    }
-
     public static boolean drainManaOrFail(ManaPool manaPool, int amount) {
         try(Transaction transaction = Transaction.openOuter()) {
             return drainManaOrFail(manaPool, amount, transaction);

@@ -2,6 +2,7 @@ package dev.louis.nebula.spell.source;
 
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
+import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
 import net.minecraft.entity.Entity;
@@ -57,8 +58,7 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
 
     @Override
     public Optional<ManaPool> getManaPool() {
-        System.out.println(entity instanceof ManaPoolHolder);
-        if (entity instanceof ManaPoolHolder manaPoolHolder) return Optional.of(manaPoolHolder.getManaPool());
+        if (entity instanceof ManaStorageHolder manaStorageHolder && manaStorageHolder.getManaStorage() instanceof ManaPool manaPool) return Optional.of(manaPool);
         return Optional.empty();
     }
 }

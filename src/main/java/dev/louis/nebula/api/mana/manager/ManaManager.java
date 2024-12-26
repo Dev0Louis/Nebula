@@ -1,6 +1,8 @@
 package dev.louis.nebula.api.mana.manager;
 
-public interface ManaManager {
+import dev.louis.nebula.api.mana.storage.ManaStorage;
+
+public interface ManaManager extends ManaStorage {
     float getMana();
     float getCapacity();
     void tick();

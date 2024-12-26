@@ -6,6 +6,8 @@ import dev.louis.nebula.api.mana.manager.ClientManaManager;
 import dev.louis.nebula.api.mana.manager.ManaManager;
 import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
 import dev.louis.nebula.api.mana.pool.ManaPool;
+import dev.louis.nebula.api.mana.storage.ManaStorage;
+import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebula.api.spell.effect.SpellEffects;
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
@@ -25,6 +27,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,8 +39,9 @@ import java.util.*;
 import static dev.louis.nebula.constants.NbtConstants.*;
 
 @SuppressWarnings({"AddedMixinMembersNamePattern", "UnreachableCode"})
+@Debug(export = true)
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements ManaManagerHolder, SpellEffectHolder {
+public abstract class LivingEntityMixin extends Entity implements ManaManagerHolder, ManaStorageHolder, SpellEffectHolder {
     protected LivingEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -117,6 +121,11 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
 
     @Override
     public @NotNull ManaManager getManaManager() {
+        return this.manaManager;
+    }
+
+    @Override
+    public @NotNull ManaStorage getManaStorage() {
         return this.manaManager;
     }
 

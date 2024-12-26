@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Collection;
@@ -62,14 +63,22 @@ public class NebuloClient implements ClientModInitializer {
         });
     }
 
+    private static @NotNull String formatFloat(float mana) {
+        if (Float.isInfinite(mana)) {
+            return mana < 0 ? "-∞" : "+∞";
+        } else {
+            return String.format("%.2f", MinecraftClient.getInstance().player.getManaManager().getMana());
+        }
+    }
+
     private void registerRenderCallback() {
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
             var player = MinecraftClient.getInstance().player;
             if (player == null) return;
             var manaManager = player.getManaManager();
             var spellEffects = player.getSpellEffects();
-            var mana = String.valueOf(manaManager.getMana());
-            var maxMana = String.valueOf(manaManager.getCapacity());
+            var mana = formatFloat(manaManager.getMana());
+            var maxMana = formatFloat(manaManager.getCapacity());
             AtomicInteger x = new AtomicInteger(10);
             AtomicInteger y = new AtomicInteger(10);
 
@@ -108,7 +117,7 @@ public class NebuloClient implements ClientModInitializer {
 
             drawContext.drawText(
                     MinecraftClient.getInstance().textRenderer,
-                    "(Server) Mana: " + serverMana + "/" + serverCapacity,
+                    "(Server) Mana: " + formatFloat(serverMana) + "/" + formatFloat(serverCapacity),
                     x.get(),
                     y.getAndAdd(10),
                     0xc000FF,

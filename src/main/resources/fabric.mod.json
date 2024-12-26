@@ -31,7 +31,6 @@
     "loom:injected_interfaces": {
       "net/minecraft/class_1309": [
         "dev/louis/nebula/api/mana/manager/ManaManagerHolder",
-        "dev/louis/nebula/api/mana/pool/ManaPoolHolder",
         "dev/louis/nebula/api/spell/holder/SpellEffectHolder"
       ]
     },

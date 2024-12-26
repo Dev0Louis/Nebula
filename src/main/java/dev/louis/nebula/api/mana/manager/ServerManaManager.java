@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class ServerManaManager implements ManaPool, ManaManager {
     private Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools;
 
+    @ApiStatus.Internal
     public ServerManaManager(List<EntityManaPool> entityManaPools) {
         this(createMapFromList(entityManaPools));
     }
@@ -37,10 +39,12 @@ public class ServerManaManager implements ManaPool, ManaManager {
         return map;
     }
 
+    @ApiStatus.Internal
     public ServerManaManager(Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools) {
         this.manaPools = manaPools;
     }
 
+    @ApiStatus.Internal
     public static ServerManaManager createManaManager(LivingEntity entity) {
         return new ServerManaManager(
                 EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity)
@@ -120,8 +124,8 @@ public class ServerManaManager implements ManaPool, ManaManager {
     @Override
     public void readNbt(NbtCompound nbt) {
         NbtList nbtList = nbt.getList("entityManaPools", NbtElement.LIST_TYPE);
-        nbtList.forEach((nbt1) -> {
-            var type = EntityManaPoolRegistererImpl.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1).getOrThrow().getFirst();
+        nbtList.stream().map(nbtElement -> (NbtCompound) nbtElement).forEach((nbt1) -> {
+            var type = EntityManaPoolRegistererImpl.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1.getCompound("type")).getOrThrow().getFirst();
             var manaPool = this.manaPools.get(type);
             if (manaPool == null) {
                 Nebula.LOGGER.warn("Didn't find manaPool for type {}", type);
