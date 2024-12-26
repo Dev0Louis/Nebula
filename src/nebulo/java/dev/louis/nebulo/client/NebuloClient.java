@@ -111,7 +111,7 @@ public class NebuloClient implements ClientModInitializer {
                         true
                 );
             });
-
+            if (!MinecraftClient.getInstance().isConnectedToLocalServer()) return;
             x.addAndGet(200);
             y.set(10);
 

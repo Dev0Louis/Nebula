@@ -1,14 +1,11 @@
 package dev.louis.nebula.api.mana.manager;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import dev.louis.nebula.entrypoint.EntityManaPoolRegistererImpl;
+import dev.louis.nebula.mana.EntityManaPoolOrderer;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -18,18 +15,12 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServerManaManager implements ManaPool, ManaManager {
+    private final LivingEntity entity;
+    private int knownTruth;
     private Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools;
-
-    @ApiStatus.Internal
-    public ServerManaManager(List<EntityManaPool> entityManaPools) {
-        this(createMapFromList(entityManaPools));
-    }
 
     private static Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> createMapFromList(List<EntityManaPool> entityManaPools) {
         Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> map = new HashMap<>(entityManaPools.size());
@@ -40,15 +31,29 @@ public class ServerManaManager implements ManaPool, ManaManager {
     }
 
     @ApiStatus.Internal
-    public ServerManaManager(Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools) {
+    public ServerManaManager(LivingEntity entity, Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools, int truth) {
+        this.entity = entity;
         this.manaPools = manaPools;
     }
 
     @ApiStatus.Internal
     public static ServerManaManager createManaManager(LivingEntity entity) {
         return new ServerManaManager(
-                EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity)
+                entity,
+                EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity),
+                EntityManaPoolOrderer.TRUTH
         );
+    }
+
+    @ApiStatus.Internal
+    public void ensureState() {
+        if (knownTruth != EntityManaPoolOrderer.TRUTH) {
+            knownTruth = EntityManaPoolOrderer.TRUTH;
+            NbtCompound nbt = new NbtCompound();
+            writeNbt(nbt);
+            manaPools = EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity);
+            readNbt(nbt);
+        }
     }
 
     public void tick() {
@@ -57,22 +62,26 @@ public class ServerManaManager implements ManaPool, ManaManager {
     }
 
     public EntityManaPool getManaPool(RegistryEntry<EntityManaPoolType> entry) {
+        ensureState();
         return manaPools.get(entry);
     }
 
     @Override
     public float getMana() {
+        ensureState();
         return (float) manaPools.values().stream().mapToDouble((manaPool) -> (double) manaPool.getMana()).sum();
     }
 
     @Override
     public float getCapacity() {
+        ensureState();
         return (float) manaPools.values().stream().mapToDouble((manaPool) -> (double) manaPool.getCapacity()).sum();
     }
 
     @Override
     public float insertMana(float requestedInsertion, TransactionContext context) {
         if (requestedInsertion < 0) throw new IllegalArgumentException("Insertion amount is negative.");
+        ensureState();
         // This local is going to get modified throughout this code and will be returned at the end.
         float insertedMana = 0;
         for (ManaPool manaPool : manaPools.values()) {
@@ -92,7 +101,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
     @Override
     public float extractMana(float requestedExtraction, TransactionContext context) {
         if (requestedExtraction < 0) throw new IllegalArgumentException("Extraction amount is negative.");
-
+        ensureState();
         // This local is going to get modified throughout this code and will be returned at the end.
         float extractedMana = 0;
         for (ManaPool manaPool : manaPools.values()) {
@@ -110,6 +119,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
+        ensureState();
         NbtList nbtList = new NbtList();
         this.manaPools.forEach((entry, manaPool) -> {
             NbtCompound nbt1 = new NbtCompound();
@@ -123,6 +133,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
 
     @Override
     public void readNbt(NbtCompound nbt) {
+        ensureState();
         NbtList nbtList = nbt.getList("entityManaPools", NbtElement.LIST_TYPE);
         nbtList.stream().map(nbtElement -> (NbtCompound) nbtElement).forEach((nbt1) -> {
             var type = EntityManaPoolRegistererImpl.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1.getCompound("type")).getOrThrow().getFirst();

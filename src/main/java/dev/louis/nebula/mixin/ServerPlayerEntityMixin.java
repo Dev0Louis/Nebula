@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends LivingEntityMixin {
 
-    private float lastSyncedMana;
-    private float lastSyncedCapacity;
+    private float lastSyncedMana = Float.NaN;
+    private float lastSyncedCapacity = Float.NaN;
 
     protected ServerPlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
