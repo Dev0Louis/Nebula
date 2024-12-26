@@ -1,18 +1,16 @@
 package dev.louis.nebula.spell.source;
 
 import dev.louis.nebula.api.mana.pool.ManaPool;
-import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 @ApiStatus.Internal
@@ -60,5 +58,10 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     public Optional<ManaPool> getManaPool() {
         if (entity instanceof ManaStorageHolder manaStorageHolder && manaStorageHolder.getManaStorage() instanceof ManaPool manaPool) return Optional.of(manaPool);
         return Optional.empty();
+    }
+
+    @Override
+    public boolean drainMana(int amount, TransactionContext context) {
+        return getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).orElse(false);
     }
 }

@@ -45,7 +45,6 @@ public class EntityManaPoolOrderer {
                         EntityManaPoolRegistererImpl.REGISTRY.getOptionalValue(manaPoolId).ifPresent(type -> {
                             poolTypePriorityMap.put(type, new Data(enabled, priority));
                         });
-                        System.out.println(poolTypePriorityMap);
                     } catch (IOException e) {
                         Nebula.LOGGER.error("An error occured while loading data {}", id, e);
                     }

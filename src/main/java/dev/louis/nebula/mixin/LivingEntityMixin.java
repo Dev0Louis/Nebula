@@ -65,6 +65,8 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
     public void writeManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
         NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
 
+        nebulaNbt.put("manaManager", ((ServerManaManager) this.manaManager).writeNbt(new NbtCompound()));
+
         NbtList spellEffectsNbt = new NbtList();
         spellEffects.forEach((spellEffect, activityTime) -> {
             var spellEffectNbt = new NbtCompound();
@@ -80,6 +82,8 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
     @Inject(method = "readCustomDataFromNbt",at = @At("RETURN"))
     public void readManaAndSpellToNbt(NbtCompound nbt, CallbackInfo ci) {
         NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
+
+        ((ServerManaManager) this.manaManager).readNbt(nebulaNbt.getCompound("manaManager"));
 
         var nbtList = nebulaNbt.getList(SPELL_EFFECTS, NbtCompound.END_TYPE);
         var spellEffects = new HashMap<SpellEffect, Integer>(nbtList.size());

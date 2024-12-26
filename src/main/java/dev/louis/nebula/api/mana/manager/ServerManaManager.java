@@ -6,6 +6,7 @@ import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import dev.louis.nebula.entrypoint.EntityManaPoolRegistererImpl;
 import dev.louis.nebula.mana.EntityManaPoolOrderer;
+import jdk.jfr.StackTrace;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -14,6 +15,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -47,12 +49,21 @@ public class ServerManaManager implements ManaPool, ManaManager {
 
     @ApiStatus.Internal
     public void ensureState() {
+        ensureState(true);
+    }
+
+    @ApiStatus.Internal
+    public void ensureState(boolean transferData) {
         if (knownTruth != EntityManaPoolOrderer.TRUTH) {
             knownTruth = EntityManaPoolOrderer.TRUTH;
-            NbtCompound nbt = new NbtCompound();
-            writeNbt(nbt);
-            manaPools = EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity);
-            readNbt(nbt);
+            if (transferData) {
+                NbtCompound nbt = new NbtCompound();
+                writeNbt(nbt);
+                this.manaPools = EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity);
+                readNbt(nbt);
+            } else {
+                this.manaPools = EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity);
+            }
         }
     }
 
@@ -61,9 +72,13 @@ public class ServerManaManager implements ManaPool, ManaManager {
 
     }
 
-    public EntityManaPool getManaPool(RegistryEntry<EntityManaPoolType> entry) {
+    public Optional<EntityManaPool> getManaPool(EntityManaPoolType type) {
+        return getManaPool(EntityManaPoolRegistererImpl.REGISTRY.getEntry(type));
+    }
+
+    public Optional<EntityManaPool> getManaPool(RegistryEntry<EntityManaPoolType> entry) {
         ensureState();
-        return manaPools.get(entry);
+        return Optional.ofNullable(manaPools.get(entry));
     }
 
     @Override
@@ -133,16 +148,16 @@ public class ServerManaManager implements ManaPool, ManaManager {
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        ensureState();
-        NbtList nbtList = nbt.getList("entityManaPools", NbtElement.LIST_TYPE);
+        ensureState(false);
+        NbtList nbtList = nbt.getList("entityManaPools", NbtElement.COMPOUND_TYPE);
         nbtList.stream().map(nbtElement -> (NbtCompound) nbtElement).forEach((nbt1) -> {
-            var type = EntityManaPoolRegistererImpl.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1.getCompound("type")).getOrThrow().getFirst();
+            var type = EntityManaPoolRegistererImpl.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1.get("type")).getOrThrow().getFirst();
             var manaPool = this.manaPools.get(type);
             if (manaPool == null) {
                 Nebula.LOGGER.warn("Didn't find manaPool for type {}", type);
                 return;
             }
-            manaPool.readNbt(nbt.getCompound("data"));
+            manaPool.readNbt(nbt1.getCompound("data"));
         });
     }
 

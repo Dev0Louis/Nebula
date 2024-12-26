@@ -20,6 +20,7 @@ public class LapisManaSource extends SnapshotParticipant<Integer> implements Ent
     public static final EntityManaPoolType TYPE = EntityManaPoolType.create(LapisManaSource::create);
     private final PlayerEntity player;
     private int consumedLapis;
+    private boolean enabled = true;
 
     public LapisManaSource(PlayerEntity player) {
         this.player = player;
@@ -37,6 +38,7 @@ public class LapisManaSource extends SnapshotParticipant<Integer> implements Ent
 
     @Override
     public float extractMana(float extraction, TransactionContext context) {
+        if (!enabled) return 0;
         updateSnapshots(context);
         var consumedLapis = MathHelper.ceil(extraction);
         long available = PlayerInventoryStorage.of(player).extract(ItemVariant.of(Items.LAPIS_LAZULI), consumedLapis, context);
@@ -47,21 +49,24 @@ public class LapisManaSource extends SnapshotParticipant<Integer> implements Ent
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
+        nbt.putBoolean("enabled", enabled);
         return nbt;
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
-
+        this.enabled = nbt.getBoolean("enabled");
     }
 
     @Override
     public float getMana() {
+        if (!enabled) return 0;
         return player.getInventory().count(Items.LAPIS_LAZULI);
     }
 
     @Override
     public float getCapacity() {
+        if (!enabled) return 0;
         return player.getInventory().count(Items.LAPIS_LAZULI);
     }
 
@@ -78,5 +83,9 @@ public class LapisManaSource extends SnapshotParticipant<Integer> implements Ent
     @Override
     public EntityManaPoolType getType() {
         return TYPE;
+    }
+
+    public void toggleEnabled() {
+        this.enabled = !this.enabled;
     }
 }

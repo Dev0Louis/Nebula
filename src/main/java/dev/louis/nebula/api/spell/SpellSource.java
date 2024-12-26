@@ -3,13 +3,13 @@ package dev.louis.nebula.api.spell;
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.spell.source.BlockEntitySpellSource;
 import dev.louis.nebula.spell.source.EntitySpellSource;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 import java.util.Optional;
 
@@ -21,6 +21,7 @@ public interface SpellSource<Caster> {
     BlockPos getBlockPos();
     Caster getCaster();
     Optional<ManaPool> getManaPool();
+    boolean drainMana(int amount, TransactionContext context);
 
 
     static <E extends Entity> SpellSource<E> of(ServerWorld world, E entity, Vec3d castPos) {
