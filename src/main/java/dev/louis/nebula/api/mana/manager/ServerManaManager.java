@@ -6,7 +6,6 @@ import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import dev.louis.nebula.entrypoint.EntityManaPoolRegistererImpl;
 import dev.louis.nebula.mana.EntityManaPoolOrderer;
-import jdk.jfr.StackTrace;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -15,7 +14,6 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 

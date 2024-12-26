@@ -5,6 +5,7 @@ import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -58,5 +59,10 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     public Optional<ManaPool> getManaPool() {
         if (blockEntity instanceof ManaStorageHolder manaStorageHolder && manaStorageHolder.getManaStorage() instanceof ManaPool manaPool) return Optional.of(manaPool);
         return Optional.empty();
+    }
+
+    @Override
+    public boolean drainMana(int amount, TransactionContext context) {
+        return getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).orElse(false);
     }
 }
