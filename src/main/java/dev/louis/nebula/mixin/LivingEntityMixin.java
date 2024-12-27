@@ -5,7 +5,6 @@ import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.manager.ClientManaManager;
 import dev.louis.nebula.api.mana.manager.ManaManager;
 import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
-import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.storage.ManaStorage;
 import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.effect.SpellEffect;

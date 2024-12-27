@@ -1,10 +1,7 @@
 package dev.louis.nebula.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
-import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
-import dev.louis.nebula.networking.s2c.play.ManaPayload;
 import dev.louis.nebula.networking.s2c.play.StartSpellEffectPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;

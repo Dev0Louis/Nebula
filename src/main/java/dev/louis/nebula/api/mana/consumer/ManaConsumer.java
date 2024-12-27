@@ -2,7 +2,6 @@ package dev.louis.nebula.api.mana.consumer;
 
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.server.world.ServerWorld;
 
 public interface ManaConsumer {
     default long insertMana(long insertion) {

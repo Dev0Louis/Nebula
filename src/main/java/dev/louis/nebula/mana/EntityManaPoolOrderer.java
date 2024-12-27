@@ -4,7 +4,6 @@ import com.google.gson.JsonParser;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import dev.louis.nebula.entrypoint.EntityManaPoolRegistererImpl;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.ResourceManager;

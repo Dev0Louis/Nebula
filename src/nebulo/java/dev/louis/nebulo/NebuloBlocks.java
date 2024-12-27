@@ -1,13 +1,10 @@
 package dev.louis.nebulo;
 
 import dev.louis.nebulo.block.ManaExtractorBlock;
-import dev.louis.nebulo.block.entity.ManaExtractorBlockEntity;
-import dev.louis.nebulo.client.block.entity.renderer.ManaExtractorBlockEntityRenderer;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 

@@ -1,6 +1,5 @@
 package dev.louis.nebulo.block.entity;
 
-import dev.louis.nebula.api.mana.container.ManaContainer;
 import dev.louis.nebula.api.mana.manager.ServerManaManager;
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebulo.NebuloBlockEntities;

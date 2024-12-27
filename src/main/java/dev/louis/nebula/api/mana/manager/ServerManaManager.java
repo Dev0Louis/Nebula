@@ -13,7 +13,6 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
@@ -35,6 +34,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
     public ServerManaManager(LivingEntity entity, Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools, int truth) {
         this.entity = entity;
         this.manaPools = manaPools;
+        this.knownTruth = truth;
     }
 
     @ApiStatus.Internal
@@ -167,37 +167,6 @@ public class ServerManaManager implements ManaPool, ManaManager {
             manaPool.readNbt(nbt1.getCompound("data"));
         });
     }
-
-    //In the case I ever decide to make stateful ManaPools
-    /**@Override
-    public void writeNbt(NbtCompound nbt) {
-        NbtList manaPoolsNbt = new NbtList();
-        manaPools.forEach((entry, manaPool) ->  {
-            entry.getKey().map(RegistryKey::getValue).ifPresent(id -> {
-                NbtCompound poolNbt = new NbtCompound();
-                poolNbt.putString("id", id.toString());
-
-                NbtCompound data = new NbtCompound();
-                manaPool.writeNbt(data);
-                poolNbt.put("data", data);
-
-                manaPoolsNbt.add(poolNbt);
-            });
-        });
-        nbt.put("manaPoolsData", manaPoolsNbt);
-    }
-
-    @Override
-    public void readNbt(NbtCompound nbt) {
-        var nbtList = nbt.getList("manaPoolsData", NbtElement.COMPOUND_TYPE);
-        nbtList.forEach(nbtElement -> {
-            var com = ((NbtCompound) nbtElement);
-            var id = Identifier.tryParse(com.getString("id"));
-            EntityManaPoolRegistererImpl.REGISTRY.getEntry(id).flatMap(entry -> Optional.ofNullable(manaPools.get(entry))).ifPresent(manaPool -> {
-                manaPool.readNbt(com.getCompound("data"));
-            });
-        });
-    }**/
 
     public void copyFrom(ServerManaManager manaManager) {
         this.manaPools = manaManager.manaPools;

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Experimental
 public abstract class SpellEffect {
 
-    private Identifier id;
+    private final Identifier id;
 
     protected SpellEffect(Identifier id) {
         this.id = id;

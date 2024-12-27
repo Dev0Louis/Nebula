@@ -2,7 +2,6 @@ package dev.louis.nebulo;
 
 import com.mojang.logging.LogUtils;
 import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
-import dev.louis.nebula.api.mana.manager.ServerManaManager;
 import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.event.SpellCastEvent;
 import dev.louis.nebulo.client.SpellCreator;
@@ -13,10 +12,8 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import org.slf4j.Logger;

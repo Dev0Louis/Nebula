@@ -1,11 +1,9 @@
 package dev.louis.nebula.api.mana.helper;
 
-import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.source.ManaSource;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 public abstract class ManaHelper {
     private static final BigDecimal BIG1000 = BigDecimal.TEN.pow(3);
