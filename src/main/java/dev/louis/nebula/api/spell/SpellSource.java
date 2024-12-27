@@ -21,7 +21,10 @@ public interface SpellSource<Caster> {
     BlockPos getBlockPos();
     Caster getCaster();
     Optional<ManaPool> getManaPool();
-    boolean drainMana(int amount, TransactionContext context);
+    boolean drainMana(long amount, TransactionContext context);
+    default boolean drainKilomana(int amount, TransactionContext context) {
+        return drainMana(amount * 1000L, context);
+    }
 
 
     static <E extends Entity> SpellSource<E> of(ServerWorld world, E entity, Vec3d castPos) {

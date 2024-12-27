@@ -61,7 +61,7 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     }
 
     @Override
-    public boolean drainMana(int amount, TransactionContext context) {
+    public boolean drainMana(long amount, TransactionContext context) {
         return getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).orElse(false);
     }
 }
