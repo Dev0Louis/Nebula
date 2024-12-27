@@ -4,7 +4,7 @@ import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
-import dev.louis.nebula.entrypoint.EntityManaPoolRegistererImpl;
+import dev.louis.nebula.entrypoint.EntityManaPoolRegistrarImpl;
 import dev.louis.nebula.mana.EntityManaPoolOrderer;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.entity.LivingEntity;
@@ -25,7 +25,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
     private static Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> createMapFromList(List<EntityManaPool> entityManaPools) {
         Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> map = new HashMap<>(entityManaPools.size());
         for (EntityManaPool entityManaPool : entityManaPools) {
-            map.put(EntityManaPoolRegistererImpl.REGISTRY.getEntry(entityManaPool.getType()), entityManaPool);
+            map.put(EntityManaPoolRegistrarImpl.REGISTRY.getEntry(entityManaPool.getType()), entityManaPool);
         }
         return map;
     }
@@ -41,7 +41,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
     public static ServerManaManager createManaManager(LivingEntity entity) {
         return new ServerManaManager(
                 entity,
-                EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity),
+                EntityManaPoolRegistrarImpl.INSTANCE.createManaPool(entity),
                 EntityManaPoolOrderer.TRUTH
         );
     }
@@ -58,10 +58,10 @@ public class ServerManaManager implements ManaPool, ManaManager {
             if (transferData) {
                 NbtCompound nbt = new NbtCompound();
                 writeNbt(nbt);
-                this.manaPools = EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity);
+                this.manaPools = EntityManaPoolRegistrarImpl.INSTANCE.createManaPool(entity);
                 readNbt(nbt);
             } else {
-                this.manaPools = EntityManaPoolRegistererImpl.INSTANCE.createManaPool(entity);
+                this.manaPools = EntityManaPoolRegistrarImpl.INSTANCE.createManaPool(entity);
             }
         }
     }
@@ -72,7 +72,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
     }
 
     public Optional<EntityManaPool> getManaPool(EntityManaPoolType type) {
-        return getManaPool(EntityManaPoolRegistererImpl.REGISTRY.getEntry(type));
+        return getManaPool(EntityManaPoolRegistrarImpl.REGISTRY.getEntry(type));
     }
 
     public Optional<EntityManaPool> getManaPool(RegistryEntry<EntityManaPoolType> entry) {
@@ -145,7 +145,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
         NbtList nbtList = new NbtList();
         this.manaPools.forEach((entry, manaPool) -> {
             NbtCompound nbt1 = new NbtCompound();
-            nbt1.put("type", EntityManaPoolRegistererImpl.REGISTRY.getEntryCodec().encodeStart(NbtOps.INSTANCE, entry).getOrThrow());
+            nbt1.put("type", EntityManaPoolRegistrarImpl.REGISTRY.getEntryCodec().encodeStart(NbtOps.INSTANCE, entry).getOrThrow());
             nbt1.put("data", manaPool.writeNbt(new NbtCompound()));
             nbtList.add(nbt1);
         });
@@ -158,7 +158,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
         ensureState(false);
         NbtList nbtList = nbt.getList("entityManaPools", NbtElement.COMPOUND_TYPE);
         nbtList.stream().map(nbtElement -> (NbtCompound) nbtElement).forEach((nbt1) -> {
-            var type = EntityManaPoolRegistererImpl.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1.get("type")).getOrThrow().getFirst();
+            var type = EntityManaPoolRegistrarImpl.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1.get("type")).getOrThrow().getFirst();
             var manaPool = this.manaPools.get(type);
             if (manaPool == null) {
                 Nebula.LOGGER.warn("Didn't find manaPool for type {}", type);

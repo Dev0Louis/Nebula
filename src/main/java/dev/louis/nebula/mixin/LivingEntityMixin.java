@@ -26,7 +26,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +37,6 @@ import java.util.*;
 import static dev.louis.nebula.constants.NbtConstants.*;
 
 @SuppressWarnings({"AddedMixinMembersNamePattern", "UnreachableCode"})
-@Debug(export = true)
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ManaManagerHolder, ManaStorageHolder, SpellEffectHolder {
     protected LivingEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {

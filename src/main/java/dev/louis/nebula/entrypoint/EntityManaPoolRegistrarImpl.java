@@ -1,8 +1,7 @@
 package dev.louis.nebula.entrypoint;
 
 import dev.louis.nebula.Nebula;
-import dev.louis.nebula.api.entrypoint.ManaPoolRegisterer;
-import dev.louis.nebula.api.mana.pool.ManaPool;
+import dev.louis.nebula.api.entrypoint.EntityManaPoolRegistrar;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import dev.louis.nebula.mana.EntityManaPoolOrderer;
@@ -23,18 +22,18 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 @ApiStatus.Internal
-public final class EntityManaPoolRegistererImpl implements ManaPoolRegisterer {
+public final class EntityManaPoolRegistrarImpl implements EntityManaPoolRegistrar {
     public static final RegistryKey<Registry<EntityManaPoolType>> REGISTRY_KEY =
             RegistryKey.ofRegistry(Identifier.of(Nebula.MOD_ID, "mana_pool"));
     public static final SimpleRegistry<EntityManaPoolType> REGISTRY =
             FabricRegistryBuilder.createSimple(REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
     public static final PacketCodec<RegistryByteBuf, RegistryEntry<EntityManaPoolType>> ENTRY_PACKET_CODEC = PacketCodecs.registryEntry(REGISTRY_KEY);
 
-    public static EntityManaPoolRegistererImpl INSTANCE = new EntityManaPoolRegistererImpl();
+    public static EntityManaPoolRegistrarImpl INSTANCE = new EntityManaPoolRegistrarImpl();
 
 
 
-    private EntityManaPoolRegistererImpl() {
+    private EntityManaPoolRegistrarImpl() {
     }
 
     public void register(Identifier id, EntityManaPoolType type) {

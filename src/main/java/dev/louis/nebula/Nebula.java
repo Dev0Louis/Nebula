@@ -5,7 +5,7 @@ import dev.louis.nebula.api.entrypoint.EntityManaPoolEntrypoint;
 import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
 import dev.louis.nebula.api.spell.effect.SpellEffects;
 import dev.louis.nebula.command.NebulaCommand;
-import dev.louis.nebula.entrypoint.EntityManaPoolRegistererImpl;
+import dev.louis.nebula.entrypoint.EntityManaPoolRegistrarImpl;
 import dev.louis.nebula.mana.CreativeInfiniteManaSource;
 import dev.louis.nebula.api.mana.manager.ServerManaManager;
 import dev.louis.nebula.mana.EntityManaPoolOrderer;
@@ -32,7 +32,7 @@ public class Nebula implements ModInitializer {
         SpellEffects.init();
         this.registerPacketReceivers();
         LOGGER.info("Nebula has been initialized.");
-        EntityManaPoolRegistererImpl alternativeManaSourceRegisterer = EntityManaPoolRegistererImpl.INSTANCE;
+        EntityManaPoolRegistrarImpl alternativeManaSourceRegisterer = EntityManaPoolRegistrarImpl.INSTANCE;
         alternativeManaSourceRegisterer.register(Identifier.of(MOD_ID, "creative"), CreativeInfiniteManaSource.TYPE);
         EntityManaPoolOrderer.init();
         FabricLoader.getInstance().invokeEntrypoints(
