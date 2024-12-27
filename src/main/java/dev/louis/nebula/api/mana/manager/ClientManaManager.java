@@ -3,27 +3,27 @@ package dev.louis.nebula.api.mana.manager;
 import net.minecraft.entity.LivingEntity;
 
 public class ClientManaManager implements ManaManager {
-    private float mana;
-    private float capacity;
+    private long mana;
+    private long capacity;
 
-    public ClientManaManager(float mana) {
-        this.mana = mana;
+    public ClientManaManager() {
+
     }
 
     public static ClientManaManager createManaManager(LivingEntity livingEntity) {
-        return new ClientManaManager(Float.NaN);
+        return new ClientManaManager();
     }
 
     @Override
-    public float getMana() {
+    public long getMana() {
         return mana;
     }
 
-    public void setCapacity(float capacity) {
+    public void setCapacity(long capacity) {
         this.capacity = capacity;
     }
 
-    public float getCapacity() {
+    public long getCapacity() {
         return capacity;
     }
 
@@ -32,7 +32,7 @@ public class ClientManaManager implements ManaManager {
 
     }
 
-    public void setMana(float mana) {
+    public void setMana(long mana) {
         this.mana = mana;
     }
 

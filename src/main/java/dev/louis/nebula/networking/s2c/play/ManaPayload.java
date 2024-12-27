@@ -8,18 +8,18 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public record ManaPayload(int entityId, float mana, float capacity) implements CustomPayload {
+public record ManaPayload(int entityId, long mana, long capacity) implements CustomPayload {
     public static final Id<ManaPayload> ID = new CustomPayload.Id<>(Identifier.of(Nebula.MOD_ID, "mana"));
     public static final PacketCodec<PacketByteBuf, ManaPayload> CODEC = PacketCodec.of(ManaPayload::write, ManaPayload::read);
 
     public static ManaPayload read(PacketByteBuf buf) {
-        return new ManaPayload(buf.readVarInt(), buf.readFloat(), buf.readFloat());
+        return new ManaPayload(buf.readVarInt(), buf.readLong() , buf.readLong());
     }
 
     public void write(PacketByteBuf buf) {
         buf.writeVarInt(entityId);
-        buf.writeFloat(mana);
-        buf.writeFloat(capacity);
+        buf.writeLong(mana);
+        buf.writeLong(capacity);
     }
 
     @Override

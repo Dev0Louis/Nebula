@@ -2,6 +2,7 @@ package dev.louis.nebulo.block.entity;
 
 import dev.louis.nebula.api.mana.container.ManaContainer;
 import dev.louis.nebula.api.mana.manager.ServerManaManager;
+import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebulo.NebuloBlockEntities;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.Block;
@@ -17,7 +18,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
 public class ManaExtractorBlockEntity extends BlockEntity {
-    public ManaContainer manaContainer = ManaContainer.createSimple(0, Integer.MAX_VALUE);
+    public ManaPool manaContainer = ManaPool.createSimple(0, Integer.MAX_VALUE);
 
     public ManaExtractorBlockEntity(BlockPos pos, BlockState state) {
         super(NebuloBlockEntities.MANA_EXTRACTOR, pos, state);
@@ -37,7 +38,7 @@ public class ManaExtractorBlockEntity extends BlockEntity {
         if (!(world instanceof ServerWorld)) return;
         world.getOtherEntities(null, new Box(pos).expand(6)).stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(entity -> {
             try(Transaction transaction = Transaction.openOuter()) {
-                var requestedMana = 0.1f;
+                long requestedMana = 10;
                 var extraction = ((ServerManaManager) entity.getManaManager()).extractMana(requestedMana, transaction);
                 var hasInserted = manaContainer.insertMana(extraction, transaction) > 0;
                 if (hasInserted) {

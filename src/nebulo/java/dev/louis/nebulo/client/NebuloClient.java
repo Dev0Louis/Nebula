@@ -1,5 +1,6 @@
 package dev.louis.nebulo.client;
 
+import dev.louis.nebula.api.mana.helper.ManaHelper;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebulo.NebuloBlockEntities;
 import dev.louis.nebulo.client.block.entity.renderer.ManaExtractorBlockEntityRenderer;
@@ -11,7 +12,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Collection;
@@ -20,8 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class NebuloClient implements ClientModInitializer {
     private Collection<SpellEffect> serverSpellEffects = Collections.emptyList();
-    private float serverMana;
-    private float serverCapacity;
+    private long serverMana;
+    private long serverCapacity;
 
     @Override
     public void onInitializeClient() {
@@ -63,13 +63,10 @@ public class NebuloClient implements ClientModInitializer {
         });
     }
 
-    private static @NotNull String formatFloat(float mana) {
-        if (Float.isInfinite(mana)) {
-            return mana < 0 ? "-∞" : "+∞";
-        } else {
-            return String.format("%.2f", MinecraftClient.getInstance().player.getManaManager().getMana());
-        }
+    private static String formatLong(long mana) {
+        return ManaHelper.formatKilomana(mana);
     }
+
 
     private void registerRenderCallback() {
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
@@ -77,8 +74,8 @@ public class NebuloClient implements ClientModInitializer {
             if (player == null) return;
             var manaManager = player.getManaManager();
             var spellEffects = player.getSpellEffects();
-            var mana = formatFloat(manaManager.getMana());
-            var maxMana = formatFloat(manaManager.getCapacity());
+            var mana = formatLong(manaManager.getMana());
+            var maxMana = formatLong(manaManager.getCapacity());
             AtomicInteger x = new AtomicInteger(10);
             AtomicInteger y = new AtomicInteger(10);
 
@@ -117,7 +114,7 @@ public class NebuloClient implements ClientModInitializer {
 
             drawContext.drawText(
                     MinecraftClient.getInstance().textRenderer,
-                    "(Server) Mana: " + formatFloat(serverMana) + "/" + formatFloat(serverCapacity),
+                    "(Server) Mana: " + formatLong(serverMana) + "/" + formatLong(serverCapacity) + " Kilomana",
                     x.get(),
                     y.getAndAdd(10),
                     0xc000FF,

@@ -1,5 +1,6 @@
 package dev.louis.nebulo.client.block.entity.renderer;
 
+import dev.louis.nebula.api.mana.helper.ManaHelper;
 import dev.louis.nebulo.block.entity.ManaExtractorBlockEntity;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -23,16 +24,15 @@ public class ManaExtractorBlockEntityRenderer implements BlockEntityRenderer<Man
     @Override
     public void render(ManaExtractorBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         matrices.push();
-        matrices.translate(0.5, 3, 0.5);
+        matrices.translate(0.5, 4, 0.5);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(entity.getWorld().getTime()));
-        renderText(Text.literal(String.format("%.2f", entity.manaContainer.getMana())), matrices, vertexConsumers, light);
+        renderText(Text.literal(ManaHelper.formatKilomana(entity.manaContainer.getMana())), matrices, vertexConsumers, light);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
-        renderText(Text.literal(String.format("%.2f", entity.manaContainer.getMana())), matrices, vertexConsumers, light);
+        renderText(Text.literal(ManaHelper.formatKilomana(entity.manaContainer.getMana())), matrices, vertexConsumers, light);
         matrices.pop();
     }
 
     private void setTextAngles(MatrixStack matrices, Vec3d translation) {
-
         float scale = 0.15625F;
         matrices.translate(translation.x, translation.y, translation.z);
         matrices.scale(scale, -scale, scale);

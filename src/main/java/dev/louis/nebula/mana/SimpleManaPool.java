@@ -1,45 +1,43 @@
 package dev.louis.nebula.mana;
 
-import dev.louis.nebula.api.mana.container.ManaContainer;
+import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.constants.NbtConstants;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
 import org.jetbrains.annotations.ApiStatus;
 
 import static dev.louis.nebula.constants.NbtConstants.MANA;
 
 @ApiStatus.Experimental
-public class SimpleManaContainer extends SnapshotParticipant<Float> implements ManaContainer {
-    private final float capacity;
-    private float mana;
+public class SimpleManaPool extends SnapshotParticipant<Long> implements ManaPool {
+    private final long capacity;
+    private long mana;
 
-    public SimpleManaContainer(int startingMana, float capacity) {
+    public SimpleManaPool(long startingMana, long capacity) {
         this.mana = startingMana;
         this.capacity = capacity;
     }
 
     @Override
-    public float getCapacity() {
+    public long getCapacity() {
         return capacity;
     }
 
     @Override
-    public float getMana() {
+    public long getMana() {
         return mana;
     }
 
-    public void setMana(float mana) {
+    public void setMana(long mana) {
         this.mana = Math.clamp(mana, 0, capacity);
     }
 
     @Override
-    public float insertMana(float amount, TransactionContext context) {
+    public long insertMana(long amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Insertion amount is negative.");
-        float insertion = Math.min(amount, getCapacity());
+        long insertion = Math.min(amount, getCapacity());
 
-        // implicit NaN check (as NaN > x = false)
         var shouldInsert = insertion > 0;
 
         if (shouldInsert) {
@@ -51,11 +49,10 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
     }
 
     @Override
-    public float extractMana(float amount, TransactionContext context) {
+    public long extractMana(long amount, TransactionContext context) {
         if (amount < 0) throw new IllegalArgumentException("Extraction amount is negative.");
-        float extraction = Math.min(amount, getCapacity());
+        long extraction = Math.min(amount, getCapacity());
 
-        // implicit NaN check (as NaN > x = false)
         var shouldExtract = extraction > 0;
 
         if (shouldExtract) {
@@ -69,7 +66,7 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
-        nebulaNbt.putFloat(MANA, this.getMana());
+        nebulaNbt.putLong(MANA, this.getMana());
         nbt.put(NbtConstants.NEBULA, nebulaNbt);
         return nbt;
     }
@@ -77,16 +74,16 @@ public class SimpleManaContainer extends SnapshotParticipant<Float> implements M
     @Override
     public void readNbt(NbtCompound nbt) {
         NbtCompound nebulaNbt = nbt.getCompound(NbtConstants.NEBULA);
-        this.setMana(nebulaNbt.getFloat(MANA));
+        this.setMana(nebulaNbt.getLong(MANA));
     }
 
     @Override
-    protected Float createSnapshot() {
+    protected Long createSnapshot() {
         return mana;
     }
 
     @Override
-    protected void readSnapshot(Float snapshot) {
+    protected void readSnapshot(Long snapshot) {
         this.mana = snapshot;
     }
 }

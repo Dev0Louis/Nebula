@@ -5,13 +5,13 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.server.world.ServerWorld;
 
 public interface ManaConsumer {
-    default float insertMana(float insertion) {
+    default long insertMana(long insertion) {
         try (var t1 = Transaction.openOuter()) {
-            float returnValue = insertMana(insertion, t1);
+            long returnValue = insertMana(insertion, t1);
             t1.commit();
             return returnValue;
         }
     }
 
-    float insertMana(float insertion, TransactionContext context);
+    long insertMana(long insertion, TransactionContext context);
 }

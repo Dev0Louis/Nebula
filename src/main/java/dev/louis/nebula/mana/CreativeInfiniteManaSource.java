@@ -22,22 +22,22 @@ public class CreativeInfiniteManaSource implements EntityManaPool {
     }
 
     @Override
-    public float getMana() {
-        return entity.isInCreativeMode() ? Float.POSITIVE_INFINITY : 0;
+    public long getMana() {
+        return entity.isInCreativeMode() ? Long.MAX_VALUE : 0;
     }
 
     @Override
-    public float getCapacity() {
-        return entity.isInCreativeMode() ? Float.POSITIVE_INFINITY : 0;
+    public long getCapacity() {
+        return entity.isInCreativeMode() ? Long.MAX_VALUE : 0;
     }
 
     @Override
-    public float insertMana(float insertion, TransactionContext context) {
+    public long insertMana(long insertion, TransactionContext context) {
         return 0;
     }
 
     @Override
-    public float extractMana(float extraction, TransactionContext context) {
+    public long extractMana(long extraction, TransactionContext context) {
         return entity.isInCreativeMode() ? extraction : 0;
     }
 

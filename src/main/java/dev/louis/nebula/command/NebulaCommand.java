@@ -1,6 +1,7 @@
 package dev.louis.nebula.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import dev.louis.nebula.api.mana.manager.ServerManaManager;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -36,11 +37,11 @@ public class NebulaCommand {
                                 .executes(context -> getMana(context.getSource(), getPlayers(context, "players")))))
                 .then(literal("insertMana")
                         .then(argument("entities", entities())
-                                .then(argument("insertion", floatArg(0))
+                                .then(argument("insertion", LongArgumentType.longArg(0))
                                         .executes(context -> addMana(
                                                 context.getSource(),
                                                 getEntities(context, "entities"),
-                                                getFloat(context, "insertion"))
+                                                LongArgumentType.getLong(context, "insertion"))
                                         )
                                 )
                         )
@@ -50,7 +51,7 @@ public class NebulaCommand {
         dispatcher.register(command);
     }
 
-    private static int addMana(ServerCommandSource source, Collection<? extends Entity> entities, float mana) {
+    private static int addMana(ServerCommandSource source, Collection<? extends Entity> entities, long mana) {
         entities.stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(livingEntity -> {
             try(Transaction transaction = Transaction.openOuter()) {
                 var insertion = ((ServerManaManager) livingEntity.getManaManager()).insertMana(mana, transaction);

@@ -1,13 +1,13 @@
 package dev.louis.nebula.api.mana.helper;
 
 import dev.louis.nebula.api.mana.pool.ManaPool;
-import dev.louis.nebula.api.mana.pool.ManaPoolHolder;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.server.world.ServerWorld;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public abstract class ManaHelper {
+    private static final BigDecimal BIG1000 = BigDecimal.TEN.pow(3);
     private ManaHelper() {
 
     }
@@ -31,5 +31,15 @@ public abstract class ManaHelper {
     public static boolean drainManaOrFail(Optional<ManaPool> oManaPool, int amount, Transaction transaction) {
         if (oManaPool.isEmpty()) return false;
         return drainManaOrFail(oManaPool.get(), amount, transaction);
+    }
+
+    public static String formatKilomana(long mana) {
+        if (mana == Long.MAX_VALUE) {
+            return "∞";
+        } else if (mana == Long.MIN_VALUE) {
+            return "-∞";
+        } else {
+            return new BigDecimal(mana).divide(BIG1000).toString();
+        }
     }
 }

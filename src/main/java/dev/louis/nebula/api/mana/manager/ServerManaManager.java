@@ -13,6 +13,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
@@ -79,24 +80,32 @@ public class ServerManaManager implements ManaPool, ManaManager {
         return Optional.ofNullable(manaPools.get(entry));
     }
 
-    @Override
-    public float getMana() {
-        ensureState();
-        return (float) manaPools.values().stream().mapToDouble((manaPool) -> (double) manaPool.getMana()).sum();
+    private static long sumSafe(long a, long b) {
+        long result = a + b;
+        if (result < Math.min(a, b)) {
+            result = Long.MAX_VALUE;
+        }
+        return result;
     }
 
     @Override
-    public float getCapacity() {
+    public long getMana() {
         ensureState();
-        return (float) manaPools.values().stream().mapToDouble((manaPool) -> (double) manaPool.getCapacity()).sum();
+        return manaPools.values().stream().mapToLong(ManaPool::getMana).reduce(0, ServerManaManager::sumSafe);
     }
 
     @Override
-    public float insertMana(float requestedInsertion, TransactionContext context) {
+    public long getCapacity() {
+        ensureState();
+        return manaPools.values().stream().mapToLong(ManaPool::getCapacity).reduce(0, ServerManaManager::sumSafe);
+    }
+
+    @Override
+    public long insertMana(long requestedInsertion, TransactionContext context) {
         if (requestedInsertion < 0) throw new IllegalArgumentException("Insertion amount is negative.");
         ensureState();
         // This local is going to get modified throughout this code and will be returned at the end.
-        float insertedMana = 0;
+        long insertedMana = 0;
         for (ManaPool manaPool : manaPools.values()) {
             var toInsert = requestedInsertion - insertedMana;
 
@@ -112,11 +121,11 @@ public class ServerManaManager implements ManaPool, ManaManager {
 
     // Very sane code ;v; Update: It got better
     @Override
-    public float extractMana(float requestedExtraction, TransactionContext context) {
+    public long extractMana(long requestedExtraction, TransactionContext context) {
         if (requestedExtraction < 0) throw new IllegalArgumentException("Extraction amount is negative.");
         ensureState();
         // This local is going to get modified throughout this code and will be returned at the end.
-        float extractedMana = 0;
+        long extractedMana = 0;
         for (ManaPool manaPool : manaPools.values()) {
             var toExtract = requestedExtraction - extractedMana;
 
