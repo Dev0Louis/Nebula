@@ -1,6 +1,6 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.api.spell.exception.SpellFumble;
+import dev.louis.nebula.api.spell.fumble.SpellFumble;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 public interface Spell<Caster> {

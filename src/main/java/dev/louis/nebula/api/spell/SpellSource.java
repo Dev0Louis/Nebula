@@ -2,16 +2,13 @@ package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
-import dev.louis.nebula.api.spell.effect.transaction.SpellEffectWrapper;
-import dev.louis.nebula.api.spell.exception.SpellFumble;
+import dev.louis.nebula.api.spell.fumble.SpellFumble;
 import dev.louis.nebula.spell.source.BlockEntitySpellSource;
 import dev.louis.nebula.spell.source.EntitySpellSource;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;

@@ -13,7 +13,7 @@ public record ManaPayload(int entityId, long mana, long capacity) implements Cus
     public static final PacketCodec<PacketByteBuf, ManaPayload> CODEC = PacketCodec.of(ManaPayload::write, ManaPayload::read);
 
     public static ManaPayload read(PacketByteBuf buf) {
-        return new ManaPayload(buf.readVarInt(), buf.readLong() , buf.readLong());
+        return new ManaPayload(buf.readVarInt(), buf.readLong(), buf.readLong());
     }
 
     public void write(PacketByteBuf buf) {

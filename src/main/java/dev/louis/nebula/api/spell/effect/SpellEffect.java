@@ -1,34 +1,31 @@
 package dev.louis.nebula.api.spell.effect;
 
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
 public abstract class SpellEffect {
 
-    private final Identifier id;
+    private final RegistryKey<SpellEffect> key;
 
-    protected SpellEffect(Identifier id) {
-        this.id = id;
+    protected SpellEffect(RegistryKey<SpellEffect> key) {
+        this.key = key;
     }
 
     public abstract void onActivated(LivingEntity target);
 
-    public abstract void tick(LivingEntity target);
+    public abstract Action tick(LivingEntity target, int age);
 
-    public abstract void onEnd(LivingEntity target);
+    public abstract void onDeactivated(LivingEntity target);
 
-    public boolean shouldContinue(ServerWorld serverWorld, LivingEntity livingEntity) {
-        return true;
-    }
 
-    public boolean canStart(ServerWorld world, LivingEntity livingEntity) {
-        return true;
+    public RegistryKey<SpellEffect> getKey() {
+        return key;
     }
 
     public Identifier getId() {
-        return this.id;
+        return this.key.getValue();
     }
 }

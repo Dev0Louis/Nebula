@@ -22,14 +22,6 @@ public class ServerManaManager implements ManaPool, ManaManager {
     private int knownTruth;
     private Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools;
 
-    private static Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> createMapFromList(List<EntityManaPool> entityManaPools) {
-        Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> map = new HashMap<>(entityManaPools.size());
-        for (EntityManaPool entityManaPool : entityManaPools) {
-            map.put(EntityManaPoolRegistrarImpl.REGISTRY.getEntry(entityManaPool.getType()), entityManaPool);
-        }
-        return map;
-    }
-
     @ApiStatus.Internal
     public ServerManaManager(LivingEntity entity, Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools, int truth) {
         this.entity = entity;
@@ -72,7 +64,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
     }
 
     public Optional<EntityManaPool> getManaPool(EntityManaPoolType type) {
-        return getManaPool(EntityManaPoolRegistrarImpl.REGISTRY.getEntry(type));
+        return getManaPool(EntityManaPoolType.REGISTRY.getEntry(type));
     }
 
     public Optional<EntityManaPool> getManaPool(RegistryEntry<EntityManaPoolType> entry) {
@@ -145,7 +137,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
         NbtList nbtList = new NbtList();
         this.manaPools.forEach((entry, manaPool) -> {
             NbtCompound nbt1 = new NbtCompound();
-            nbt1.put("type", EntityManaPoolRegistrarImpl.REGISTRY.getEntryCodec().encodeStart(NbtOps.INSTANCE, entry).getOrThrow());
+            nbt1.put("type", EntityManaPoolType.REGISTRY.getEntryCodec().encodeStart(NbtOps.INSTANCE, entry).getOrThrow());
             nbt1.put("data", manaPool.writeNbt(new NbtCompound()));
             nbtList.add(nbt1);
         });
@@ -158,7 +150,7 @@ public class ServerManaManager implements ManaPool, ManaManager {
         ensureState(false);
         NbtList nbtList = nbt.getList("entityManaPools", NbtElement.COMPOUND_TYPE);
         nbtList.stream().map(nbtElement -> (NbtCompound) nbtElement).forEach((nbt1) -> {
-            var type = EntityManaPoolRegistrarImpl.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1.get("type")).getOrThrow().getFirst();
+            var type = EntityManaPoolType.REGISTRY.getEntryCodec().decode(NbtOps.INSTANCE, nbt1.get("type")).getOrThrow().getFirst();
             var manaPool = this.manaPools.get(type);
             if (manaPool == null) {
                 Nebula.LOGGER.warn("Didn't find manaPool for type {}", type);

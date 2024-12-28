@@ -2,9 +2,7 @@ package dev.louis.nebulo.spell;
 
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
-import dev.louis.nebula.api.spell.effect.SpellEffect;
-import dev.louis.nebula.api.spell.effect.transaction.SpellEffectWrapper;
-import dev.louis.nebula.api.spell.exception.SpellFumble;
+import dev.louis.nebula.api.spell.fumble.SpellFumble;
 import dev.louis.nebulo.NebuloSpellEffects;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.server.network.ServerPlayerEntity;

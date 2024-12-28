@@ -3,7 +3,6 @@ package dev.louis.nebula.mana;
 import com.google.gson.JsonParser;
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
-import dev.louis.nebula.entrypoint.EntityManaPoolRegistrarImpl;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.ResourceManager;
@@ -38,13 +37,13 @@ public class EntityManaPoolOrderer {
                 poolTypePriorityMap.clear();
                 manager.findResources("entity_mana_pool", id -> id.getPath().endsWith(".json")).forEach((id, resource) -> {
                     try {
-                        var string = id.toString().replace("entity_mana_pool/","");
-                        var manaPoolId = Identifier.tryParse(string.substring(0, string.length() - 5));
+                        var string = id.toString();
+                        var manaPoolId = Identifier.tryParse(string.substring(17, string.length() - 5));
 
                         var data = JsonParser.parseReader(new InputStreamReader(resource.getInputStream())).getAsJsonObject();
                         var enabled = data.get("enabled").getAsBoolean();
                         var priority = data.get("priority").getAsInt();
-                        EntityManaPoolRegistrarImpl.REGISTRY.getOptionalValue(manaPoolId).ifPresent(type -> {
+                        EntityManaPoolType.REGISTRY.getOptionalValue(manaPoolId).ifPresent(type -> {
                             poolTypePriorityMap.put(type, new Data(enabled, priority));
                         });
                     } catch (IOException e) {

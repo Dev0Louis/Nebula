@@ -30,12 +30,12 @@ public class SpellEffects {
         return Registry.register(
                 REGISTRY,
                 id,
-                factory.create(id)
+                factory.create(RegistryKey.of(REGISTRY_KEY, id))
         );
     }
 
     public interface Factory<T extends SpellEffect> {
-        T create(Identifier id);
+        T create(RegistryKey<SpellEffect> id);
     }
 
     public static void init() {

@@ -5,7 +5,7 @@ import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
-import dev.louis.nebula.api.spell.exception.SpellFumble;
+import dev.louis.nebula.api.spell.fumble.SpellFumble;
 import dev.louis.nebula.spell.SpellCastHelper;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;

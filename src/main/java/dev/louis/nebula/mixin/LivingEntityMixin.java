@@ -9,6 +9,7 @@ import dev.louis.nebula.api.mana.storage.ManaStorage;
 import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebula.api.spell.effect.SpellEffects;
+import dev.louis.nebula.api.spell.effect.Action;
 import dev.louis.nebula.api.spell.holder.SpellEffectHolder;
 import dev.louis.nebula.constants.NbtConstants;
 import dev.louis.nebula.api.mana.manager.ServerManaManager;
@@ -21,9 +22,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -67,7 +68,8 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
         NbtList spellEffectsNbt = new NbtList();
         spellEffects.forEach((spellEffect, activityTime) -> {
             var spellEffectNbt = new NbtCompound();
-            spellEffectNbt.putString(ID, spellEffect.getId().toString());
+            ;
+            spellEffectNbt.put(ID, SpellEffects.REGISTRY.getCodec().encodeStart(NbtOps.INSTANCE, spellEffect).getOrThrow());
             spellEffectNbt.putInt(ACTIVITY_TIME, activityTime);
             spellEffectsNbt.add(spellEffectNbt);
         });
@@ -87,16 +89,14 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
 
         for (NbtElement nbtElement : nbtList) {
             var spellEffectNbt = (NbtCompound) nbtElement;
-            var id = Identifier.tryParse(spellEffectNbt.getString(ID));
-            SpellEffects.REGISTRY.getEntry(id).ifPresentOrElse(spellEffect -> {
+            var id = SpellEffects.REGISTRY.getCodec().decode(NbtOps.INSTANCE, spellEffectNbt.get(ID)).ifSuccess(pair -> {
                 spellEffects.put(
-                        spellEffect.value(),
+                        pair.getFirst(),
                         spellEffectNbt.getInt(ACTIVITY_TIME)
                 );
-            }, () -> {
-                Nebula.LOGGER.warn("Spell effect {} wasn't registered! This can happen if you remove or update Mods!", id);
+            }).ifError((error) -> {
+                Nebula.LOGGER.warn("Spell effect wasn't registered! This should only happen if you remove or update Mods!\n {}", error.message());
             });
-
         }
 
         this.spellEffects = spellEffects;
@@ -110,12 +110,12 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
         while (iterator.hasNext()) {
             var entry = iterator.next();
             var spellEffect = entry.getKey();
-            if (this.getWorld() instanceof ServerWorld serverWorld && !spellEffect.shouldContinue(serverWorld, (LivingEntity) (Object) this)) {
+            var status = spellEffect.tick((LivingEntity) (Object) this, entry.getValue());
+            if (!this.getWorld().isClient() && status == Action.STOP) {
                 iterator.remove();
                 nebula$onSpellEffectStoppedInternal(spellEffect);
                 continue;
             }
-            spellEffect.tick((LivingEntity) (Object) this);
             spellEffects.put(spellEffect, entry.getValue() + 1);
         }
     }
@@ -153,11 +153,7 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
     }
 
     public boolean canStartSpellEffect(ServerWorld world, SpellEffect spellEffect) {
-        return !this.spellEffects.containsKey(spellEffect) &&
-                spellEffect.canStart(
-                        world,
-                        ((LivingEntity) (Object) this)
-                );
+        return !this.spellEffects.containsKey(spellEffect);
     }
 
 
@@ -188,7 +184,7 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
     }
 
     public void nebula$onSpellEffectStoppedInternal(SpellEffect spellEffect) {
-        spellEffect.onEnd((LivingEntity) (Object) this);
+        spellEffect.onDeactivated((LivingEntity) (Object) this);
         if (((Object) this) instanceof ServerPlayerEntity player) {
             var payload = new StopSpellEffectPayload(player.getId(), spellEffect);
             player.getServerWorld().getChunkManager().sendToNearbyPlayers(this, ServerPlayNetworking.createS2CPacket(payload));

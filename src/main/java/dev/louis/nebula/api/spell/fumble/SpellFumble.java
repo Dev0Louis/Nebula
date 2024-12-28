@@ -1,4 +1,4 @@
-package dev.louis.nebula.api.spell.exception;
+package dev.louis.nebula.api.spell.fumble;
 
 import net.minecraft.text.Text;
 

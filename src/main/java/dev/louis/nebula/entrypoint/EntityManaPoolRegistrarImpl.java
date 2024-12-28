@@ -1,57 +1,43 @@
 package dev.louis.nebula.entrypoint;
 
-import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.entrypoint.EntityManaPoolRegistrar;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import dev.louis.nebula.mana.EntityManaPoolOrderer;
-import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Map;
 
 @ApiStatus.Internal
 public final class EntityManaPoolRegistrarImpl implements EntityManaPoolRegistrar {
-    public static final RegistryKey<Registry<EntityManaPoolType>> REGISTRY_KEY =
-            RegistryKey.ofRegistry(Identifier.of(Nebula.MOD_ID, "mana_pool"));
-    public static final SimpleRegistry<EntityManaPoolType> REGISTRY =
-            FabricRegistryBuilder.createSimple(REGISTRY_KEY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
-    public static final PacketCodec<RegistryByteBuf, RegistryEntry<EntityManaPoolType>> ENTRY_PACKET_CODEC = PacketCodecs.registryEntry(REGISTRY_KEY);
-
     public static EntityManaPoolRegistrarImpl INSTANCE = new EntityManaPoolRegistrarImpl();
-
-
 
     private EntityManaPoolRegistrarImpl() {
     }
 
     public void register(Identifier id, EntityManaPoolType type) {
-        Registry.register(REGISTRY, id, type);
+        Registry.register(EntityManaPoolType.REGISTRY, id, type);
     }
 
-    public HashMap<RegistryEntry<EntityManaPoolType>, EntityManaPool> createManaPool(LivingEntity entity) {
-        HashMap<RegistryEntry<EntityManaPoolType>, EntityManaPool> map = new HashMap<>(REGISTRY.size());
-        REGISTRY.streamEntries()
+    public Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> createManaPool(LivingEntity entity) {
+        //This needs to be an ordered ist as to ensure that the order of mana pools is constant.
+        Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> map = new Object2ObjectLinkedOpenHashMap<>(EntityManaPoolType.REGISTRY.size());
+        EntityManaPoolType.REGISTRY.streamEntries()
                 .filter(ref -> EntityManaPoolOrderer.getData(ref.value()).enabled())
                 .sorted(Comparator.comparingInt(ref -> EntityManaPoolOrderer.getData(ref.value()).priority()))
-                .forEach(ref -> {
-            var entry = REGISTRY.getOptional(ref.registryKey()).orElseThrow();
-            var value = ref.value();
-            var pool = value.entityManaPoolFactory().create(entity);
-            if (pool == null) return;
-            map.put(entry, pool);
-        });
+                .forEachOrdered(ref -> {
+                    var entry = EntityManaPoolType.REGISTRY.getOptional(ref.registryKey()).orElseThrow();
+                    var value = ref.value();
+                    var pool = value.entityManaPoolFactory().create(entity);
+                    if (pool == null) return;
+                    map.put(entry, pool);
+                });
         return map;
     }
 }

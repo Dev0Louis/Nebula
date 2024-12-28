@@ -43,7 +43,18 @@ public class NebulaCommand {
                                         )
                                 )
                         )
-                );
+                )
+                .then(literal("extractMana")
+                        .then(argument("entities", entities())
+                                .then(argument("extraction", LongArgumentType.longArg(0))
+                                        .executes(context -> extractMana(
+                                                context.getSource(),
+                                                getEntities(context, "entities"),
+                                                LongArgumentType.getLong(context, "extraction"))
+                                        )
+                                )
+                        )
+                );;
 
 
         dispatcher.register(command);
@@ -54,6 +65,18 @@ public class NebulaCommand {
             try(Transaction transaction = Transaction.openOuter()) {
                 var insertion = ((ServerManaManager) livingEntity.getManaManager()).insertMana(mana, transaction);
                 source.sendMessage(Text.of("Inserted " + insertion + " mana into " + livingEntity.getName().getString() + "."));
+                transaction.commit();
+            }
+        });
+
+        return 1;
+    }
+
+    private static int extractMana(ServerCommandSource source, Collection<? extends Entity> entities, long mana) {
+        entities.stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(livingEntity -> {
+            try(Transaction transaction = Transaction.openOuter()) {
+                var insertion = ((ServerManaManager) livingEntity.getManaManager()).extractMana(mana, transaction);
+                source.sendMessage(Text.of("Extracted " + insertion + " mana from " + livingEntity.getName().getString() + "."));
                 transaction.commit();
             }
         });

@@ -54,16 +54,8 @@ public class SpellEffectWrapper extends SnapshotParticipant<SpellEffectWrapper.D
     }
 
     @Override
-    protected void releaseSnapshot(Data snapshot) {
-        System.out.println("Release: " + snapshot);
-        super.releaseSnapshot(snapshot);
-    }
-
-    @Override
     protected Data createSnapshot() {
-        var data = new Data(ImmutableMap.copyOf(player.nebula$getSpellEffectsInternal()), ImmutableList.copyOf(spellEffectModifications));
-        System.out.println("Created: " + data);
-        return data;
+        return new Data(ImmutableMap.copyOf(player.nebula$getSpellEffectsInternal()), ImmutableList.copyOf(spellEffectModifications));
     }
 
     @Override

@@ -2,16 +2,17 @@ package dev.louis.nebulo.spell;
 
 
 import dev.louis.nebula.api.spell.effect.SpellEffect;
+import dev.louis.nebula.api.spell.effect.Action;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
 
 public class CloudJumpSpellEffect extends SpellEffect {
 
-    public CloudJumpSpellEffect(Identifier id) {
-        super(id);
+    public CloudJumpSpellEffect(RegistryKey<SpellEffect> key) {
+        super(key);
     }
 
     @Override
@@ -23,31 +24,28 @@ public class CloudJumpSpellEffect extends SpellEffect {
     }
 
     @Override
-    public void tick(LivingEntity entity) {
-        var world = entity.getWorld();
-        /*if (age % 2 == 0)*/ entity.playSound(SoundEvents.BLOCK_GLASS_HIT, 2f, -1f);
-
-        if (entity.isSneaking() && entity.getVelocity().getY() > -0.1) {
+    public Action tick(LivingEntity entity, int age) {
+        if (age > 20) return Action.STOP;
+        if (entity.isSneaking()) {
+            if (entity.getVelocity().getY() <= 0) return Action.STOP;
             entity.addVelocity(0, -0.1, 0);
         }
 
-        if(!entity.getWorld().isClient()) {
-            ((ServerWorld) entity.getWorld()).spawnParticles(
-                    ParticleTypes.CLOUD,
-                    entity.getX(),
-                    entity.getY(),
-                    entity.getZ(),
-                    2,
-                    0,
-                    1,
-                    0,
-                    0.1
-            );
-        }
+        entity.playSound(SoundEvents.BLOCK_GLASS_HIT, 2f, -1f);
+        entity.getWorld().addParticle(
+                ParticleTypes.CLOUD,
+                entity.getX(),
+                entity.getY(),
+                entity.getZ(),
+                (entity.getWorld().random.nextFloat() - 0.5) / 4,
+                0,
+                (entity.getWorld().random.nextFloat() - 0.5) / 4
+        );
+        return Action.CONTINUE;
     }
 
     @Override
-    public void onEnd(LivingEntity entity) {
+    public void onDeactivated(LivingEntity entity) {
         entity.playSound(SoundEvents.ENTITY_CAMEL_DASH, 2f, -1f);
         if(!entity.getWorld().isClient()) {
             ((ServerWorld) entity.getWorld()).spawnParticles(
@@ -63,10 +61,5 @@ public class CloudJumpSpellEffect extends SpellEffect {
             );
 
         }
-    }
-
-    @Override
-    public boolean shouldContinue(ServerWorld serverWorld, LivingEntity entity) {
-        return /*age < 15 &&*/ entity.getVelocity().getY() > -0;
     }
 }
