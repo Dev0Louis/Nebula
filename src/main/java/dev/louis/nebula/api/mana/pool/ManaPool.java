@@ -38,7 +38,7 @@ public interface ManaPool extends ManaSource, ManaConsumer {
     NbtCompound writeNbt(NbtCompound nbt);
     void readNbt(NbtCompound nbt);
 
-    static ManaPool createSimple(int baseMana, int maxMana) {
+    static ManaPool createSimple(long baseMana, long maxMana) {
         return new SimpleManaPool(baseMana, maxMana);
     }
 
