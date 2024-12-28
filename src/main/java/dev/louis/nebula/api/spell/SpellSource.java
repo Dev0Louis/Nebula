@@ -39,7 +39,7 @@ public interface SpellSource<Caster> {
      * @param amount The amount of kilomana to drain.
      * @throws SpellFumble Thrown if mana resources are insufficient.
      */
-    default void drainKilomana(int amount, TransactionContext context) throws SpellFumble {
+    default void drainKilomana(long amount, TransactionContext context) throws SpellFumble {
         drainMana(amount * 1000L, context);
     }
     void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
