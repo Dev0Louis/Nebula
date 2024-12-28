@@ -148,7 +148,6 @@ publishing {
                 def version_range = property("publish_version_range").toString().split("-")
                 def from = version_range[0]
                 def to = version_range[1]
-                final def dry = false
                 if (providers.gradleProperty('louisModrinthToken').present) {
                     modrinth {
                         projectId = "D4OgkVp4"
