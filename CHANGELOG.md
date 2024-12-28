@@ -5,4 +5,5 @@
 - Fix EntityManaPool ordering
 - Change SpellEffects slightly
 - Add /nebula extractMana
-- 
+- Supply Text to `SpellFumble` in all default usages.  
+- New lang entries

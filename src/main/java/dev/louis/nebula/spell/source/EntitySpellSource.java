@@ -69,7 +69,7 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
 
     @Override
     public void drainMana(long amount, TransactionContext context) throws SpellFumble {
-        getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).filter(Boolean::booleanValue).orElseThrow(SpellFumble::new);
+        getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).filter(Boolean::booleanValue).orElseThrow(SpellFumble::manaFumble);
     }
 
     @Contract
@@ -77,7 +77,7 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     public void startSpellEffect(SpellEffect spellEffect, TransactionContext context) throws SpellFumble {
         if (this.getCaster() instanceof LivingEntity livingEntity) {
             var storage = new SpellEffectWrapper(this.getWorld(), livingEntity);
-            if (!storage.startSpellEffect(spellEffect, context)) throw new SpellFumble();
+            if (!storage.startSpellEffect(spellEffect, context)) throw SpellFumble.spellEffectFumble();
         }
     }
 }

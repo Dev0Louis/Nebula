@@ -1,3 +1,5 @@
 {
-  "spell_exception.nebula.unknown": "Unknown Spell "
+  "spell_fumble.nebula.unknown": "Unknown spell fumble",
+  "spell_fumble.nebula.insufficient_mana": "Insufficient mana resources",
+  "spell_fumble.nebula.already_running_spell_effect": "Spell Effect already running"
 }
