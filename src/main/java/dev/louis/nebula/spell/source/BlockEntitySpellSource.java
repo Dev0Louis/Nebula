@@ -4,6 +4,10 @@ import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
+import dev.louis.nebula.api.spell.effect.SpellEffect;
+import dev.louis.nebula.api.spell.exception.SpellFumble;
+import dev.louis.nebula.spell.SpellCastHelper;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -26,12 +30,11 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public boolean castSpell(Spell<BE> spell) {
+    public boolean castSpell(Spell<BE> spell, Transaction transaction) {
         if (blockEntity.isRemoved()) return false;
 
-        return spell.tryCast(this);
+        return SpellCastHelper.tryCast(this, spell, transaction);
     }
-
 
     @Override
     public ServerWorld getWorld() {
@@ -60,7 +63,12 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public boolean drainMana(long amount, TransactionContext context) {
-        return getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).orElse(false);
+    public void drainMana(long amount, TransactionContext context) throws SpellFumble {
+        getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).filter(Boolean::booleanValue).orElseThrow(SpellFumble::new);
+    }
+
+    @Override
+    public void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble {
+        throw new SpellFumble();
     }
 }

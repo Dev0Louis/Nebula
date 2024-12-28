@@ -1,4 +1,6 @@
-# Nebula V. 7 Beta 2
-This is the second beta for Nebula, a lot has changed since the latest beta. Likely more than in between any alpha previously. 
-
-A full explanation will follow when the full Release is published.
+# Nebula V. 7 Beta 3
+- A spell transaction is now passed throughout the entire call chain
+- add more Documentation
+- Extract Helper method out of SpellCastHelper
+- Add Experimental SpellEffectWrapper for Transaction api
+- Bump Version to 7-beta.3

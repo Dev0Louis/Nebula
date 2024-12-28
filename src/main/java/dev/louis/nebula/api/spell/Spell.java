@@ -1,23 +1,12 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.api.event.SpellCastEvent;
+import dev.louis.nebula.api.spell.exception.SpellFumble;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 public interface Spell<Caster> {
-
-    default boolean tryCast(SpellSource<? extends Caster> source) {
-        var allowed = SpellCastEvent.BEFORE.invoker().allowSpellCast(source, this);
-        if (!allowed) return false;
-
-        if (cast(source)) {
-            SpellCastEvent.AFTER.invoker().onSpellCast(source, this);
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * This should not be called manually unless you are a SpellCaster.
      */
-    boolean cast(SpellSource<? extends Caster> source);
+    void cast(SpellSource<? extends Caster> source, TransactionContext context) throws SpellFumble;
 }

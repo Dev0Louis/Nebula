@@ -4,12 +4,20 @@ import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
+import dev.louis.nebula.api.spell.effect.SpellEffect;
+import dev.louis.nebula.api.spell.effect.transaction.SpellEffectWrapper;
+import dev.louis.nebula.api.spell.exception.SpellFumble;
+import dev.louis.nebula.spell.SpellCastHelper;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 
 import java.util.Optional;
 
@@ -28,10 +36,10 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     }
 
     @Override
-    public boolean castSpell(Spell<E> spell) {
+    public boolean castSpell(Spell<E> spell, Transaction transaction) {
         if (!entity.isAlive()) return false;
 
-        return spell.tryCast(this);
+        return SpellCastHelper.tryCast(this, spell, transaction);
     }
 
     @Override
@@ -61,7 +69,16 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     }
 
     @Override
-    public boolean drainMana(long amount, TransactionContext context) {
-        return getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).orElse(false);
+    public void drainMana(long amount, TransactionContext context) throws SpellFumble {
+        getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).filter(Boolean::booleanValue).orElseThrow(SpellFumble::new);
+    }
+
+    @Contract
+    @Override
+    public void startSpellEffect(SpellEffect spellEffect, TransactionContext context) throws SpellFumble {
+        if (this.getCaster() instanceof LivingEntity livingEntity) {
+            var storage = new SpellEffectWrapper(this.getWorld(), livingEntity);
+            if (!storage.startSpellEffect(spellEffect, context)) throw new SpellFumble();
+        }
     }
 }

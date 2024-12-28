@@ -130,53 +130,59 @@ publishing {
             version = version
 
             from components.java
+            publishMods {
+                file = remapJar.archiveFile
+                changelog = getRootProject().file("CHANGELOG.md").text
+
+                ReleaseType releaseType;
+                if (mod_version.toLowerCase().contains("beta")) {
+                    releaseType = ReleaseType.BETA
+                } else if (version.toLowerCase().contains("alpha")) {
+                    releaseType = ReleaseType.ALPHA
+                } else {
+                    releaseType = ReleaseType.STABLE
+                }
+                type = releaseType
+                modLoaders.add("fabric")
+
+                def version_range = property("publish_version_range").toString().split("-")
+                def from = version_range[0]
+                def to = version_range[1]
+                final def dry = false
+                if (providers.gradleProperty('louisModrinthToken').present) {
+                    modrinth {
+                        projectId = "D4OgkVp4"
+                        accessToken = property("louisModrinthToken")
+                        minecraftVersionRange {
+                            start = from
+                            end = to
+                        }
+                        dryRun = dry
+                        requires("fabric-api")
+                    }
+                }
+                if (providers.gradleProperty('louisModrinthToken').present) {
+                    curseforge {
+                        projectId = "927916"
+                        projectSlug = "nebula"
+                        accessToken = property("louisCurseforgeToken")
+                        minecraftVersionRange {
+                            start = from
+                            end = to
+                        }
+                        displayName = this.version
+                        dryRun = dry;
+                        requires("fabric-api")
+                    }
+                }
+                if (providers.gradleProperty('modPublishWebHook').present) {
+                    discord {
+                         dryRun = dry
+                         webhookUrl = modPublishWebHook
+                    }
+                }
+            }
         }
     }
 }
 
-publishMods {
-    file = remapJar.archiveFile
-    changelog = getRootProject().file("CHANGELOG.md").text
-
-    ReleaseType releaseType;
-    if (mod_version.toLowerCase().contains("beta")) {
-        releaseType = ReleaseType.BETA
-    } else if (version.toLowerCase().contains("alpha")) {
-        releaseType = ReleaseType.ALPHA
-    } else {
-        releaseType = ReleaseType.STABLE
-    }
-    type = releaseType
-    modLoaders.add("fabric")
-
-    def version_range = property("publish_version_range").toString().split("-")
-    def from = version_range[0]
-    def to = version_range[1]
-    final def dry = false;
-    curseforge {
-        projectId = "927916"
-        projectSlug = "nebula"
-        accessToken = property("louisCurseforgeToken")
-        minecraftVersionRange {
-            start = from
-            end = to
-        }
-        displayName = this.version
-        dryRun = dry;
-        requires("fabric-api")
-    }
-    modrinth {
-        projectId = "D4OgkVp4"
-        accessToken = property("louisModrinthToken")
-        minecraftVersionRange {
-            start = from
-            end = to
-        }
-        dryRun = dry
-        requires("fabric-api")
-    }
-    /*discord {
-        dryRun = dry
-        webhookUrl = modPublishWebHook
-    }*/
-}

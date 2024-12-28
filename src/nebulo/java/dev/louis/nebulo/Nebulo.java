@@ -11,6 +11,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -61,7 +62,10 @@ public class Nebulo implements ModInitializer {
 
     private static void receiveSpellCast(CastSpellPayload castSpellPayload, ServerPlayNetworking.Context context) {
         var spellCreator = SpellCreator.REGISTRY.get(castSpellPayload.spellId());
-
-        SpellSource.of(context.player().getServerWorld(), context.player()).castSpell(spellCreator.create(context.player()));
+        context.server().executeSync(() -> {
+            try (Transaction t1 = Transaction.openOuter()) {
+                SpellSource.of(context.player().getServerWorld(), context.player()).castSpell(spellCreator.create(context.player()), t1);
+            }
+        });
     }
 }

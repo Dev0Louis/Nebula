@@ -112,7 +112,7 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
             var spellEffect = entry.getKey();
             if (this.getWorld() instanceof ServerWorld serverWorld && !spellEffect.shouldContinue(serverWorld, (LivingEntity) (Object) this)) {
                 iterator.remove();
-                onSpellEffectStopped(spellEffect);
+                nebula$onSpellEffectStoppedInternal(spellEffect);
                 continue;
             }
             spellEffect.tick((LivingEntity) (Object) this);
@@ -133,10 +133,10 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
     @Override
     public boolean startSpellEffect(SpellEffect spellEffect) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        if ((!(this.getWorld() instanceof ServerWorld) || spellEffect.canStart((ServerWorld) this.getWorld(), entity))) {
+        if ((this.getWorld().isClient() || (canStartSpellEffect((ServerWorld) this.getWorld(), spellEffect)))) {
             var currentlyActive = this.spellEffects.put(spellEffect, 0) == null;
-            if (currentlyActive) onSpellEffectStopped(spellEffect);
-            onSpellEffectStart(spellEffect);
+            if (currentlyActive) nebula$onSpellEffectStoppedInternal(spellEffect);
+            nebula$onSpellEffectStartInternal(spellEffect);
             return true;
         }
         return false;
@@ -152,17 +152,34 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
         return ImmutableList.copyOf(this.spellEffects.keySet());
     }
 
+    public boolean canStartSpellEffect(ServerWorld world, SpellEffect spellEffect) {
+        return !this.spellEffects.containsKey(spellEffect) &&
+                spellEffect.canStart(
+                        world,
+                        ((LivingEntity) (Object) this)
+                );
+    }
+
+
     // Internal
+
+    @Override
+    public HashMap<SpellEffect, Integer> nebula$getSpellEffectsInternal() {
+        return this.spellEffects;
+    }
+    @Override
+    public void nebula$setSpellEffectsInternal(HashMap<SpellEffect, Integer> map) {
+        this.spellEffects = map;
+    }
 
     @Unique
     protected boolean removeSpellEffect(SpellEffect spellEffect) {
         var tmp = this.spellEffects.remove(spellEffect) != null;
-        if (tmp) onSpellEffectStopped(spellEffect);
+        if (tmp) nebula$onSpellEffectStoppedInternal(spellEffect);
         return tmp;
     }
 
-    @Unique
-    protected void onSpellEffectStart(SpellEffect spellEffect) {
+    public void nebula$onSpellEffectStartInternal(SpellEffect spellEffect) {
         spellEffect.onActivated((LivingEntity) (Object) this);
         if (((Object) this) instanceof ServerPlayerEntity player) {
             var payload = new StartSpellEffectPayload(player.getId(), spellEffect);
@@ -170,8 +187,7 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
         }
     }
 
-    @Unique
-    protected void onSpellEffectStopped(SpellEffect spellEffect) {
+    public void nebula$onSpellEffectStoppedInternal(SpellEffect spellEffect) {
         spellEffect.onEnd((LivingEntity) (Object) this);
         if (((Object) this) instanceof ServerPlayerEntity player) {
             var payload = new StopSpellEffectPayload(player.getId(), spellEffect);

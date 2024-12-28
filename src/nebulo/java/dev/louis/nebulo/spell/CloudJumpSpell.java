@@ -2,20 +2,19 @@ package dev.louis.nebulo.spell;
 
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
+import dev.louis.nebula.api.spell.effect.SpellEffect;
+import dev.louis.nebula.api.spell.effect.transaction.SpellEffectWrapper;
+import dev.louis.nebula.api.spell.exception.SpellFumble;
 import dev.louis.nebulo.NebuloSpellEffects;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class CloudJumpSpell implements Spell<ServerPlayerEntity> {
 
     @Override
-    public boolean cast(SpellSource<? extends ServerPlayerEntity> source)  {
-        try (Transaction t1 = Transaction.openOuter()) {
-            if (!source.drainMana(1, t1)) return false;
-            if (!source.getCaster().startSpellEffect(NebuloSpellEffects.CLOUD_JUMP)) return false;
-
-            t1.commit();
-            return true;
-        }
+    public void cast(SpellSource<? extends ServerPlayerEntity> source, TransactionContext context) throws SpellFumble {
+        source.drainKilomana(1, context);
+        source.startSpellEffect(NebuloSpellEffects.CLOUD_JUMP, context);
     }
+
 }

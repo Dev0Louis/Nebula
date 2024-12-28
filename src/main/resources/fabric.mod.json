@@ -33,9 +33,6 @@
         "dev/louis/nebula/api/mana/manager/ManaManagerHolder",
         "dev/louis/nebula/api/spell/holder/SpellEffectHolder"
       ]
-    },
-    "cardinal-components": [
-      "nebula:spells"
-    ]
+    }
   }
 }
