@@ -157,7 +157,6 @@ publishing {
                             start = from
                             end = to
                         }
-                        dryRun = dry
                         requires("fabric-api")
                     }
                 }
@@ -171,13 +170,11 @@ publishing {
                             end = to
                         }
                         displayName = this.version
-                        dryRun = dry;
                         requires("fabric-api")
                     }
                 }
                 if (providers.gradleProperty('modPublishWebHook').present) {
                     discord {
-                         dryRun = dry
                          webhookUrl = modPublishWebHook
                     }
                 }
