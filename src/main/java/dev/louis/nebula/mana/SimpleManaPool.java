@@ -9,7 +9,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import static dev.louis.nebula.constants.NbtConstants.MANA;
 
-@ApiStatus.Experimental
 public class SimpleManaPool extends SnapshotParticipant<Long> implements ManaPool {
     private final long capacity;
     private long mana;

@@ -5,12 +5,11 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
-@ApiStatus.Experimental
 public abstract class SpellEffect {
 
     private final RegistryKey<SpellEffect> key;
 
-    protected SpellEffect(RegistryKey<SpellEffect> key) {
+    public SpellEffect(RegistryKey<SpellEffect> key) {
         this.key = key;
     }
 

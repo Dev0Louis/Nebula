@@ -78,6 +78,11 @@ public class LapisManaSource implements EntityManaPool {
         return TYPE;
     }
 
+    @Override
+    public void tick() {
+        this.storedMana--;
+    }
+
     public void toggleEnabled() {
         this.enabled = !this.enabled;
     }

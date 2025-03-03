@@ -50,4 +50,9 @@ public class CreativeInfiniteManaSource implements EntityManaPool {
     public EntityManaPoolType getType() {
         return TYPE;
     }
+
+    @Override
+    public void tick() {
+
+    }
 }

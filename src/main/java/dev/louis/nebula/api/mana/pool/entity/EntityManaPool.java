@@ -5,4 +5,5 @@ import dev.louis.nebula.api.mana.pool.ManaPool;
 
 public interface EntityManaPool extends ManaPool {
     EntityManaPoolType getType();
+    void tick();
 }
