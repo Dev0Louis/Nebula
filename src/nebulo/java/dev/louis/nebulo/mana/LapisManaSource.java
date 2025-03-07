@@ -14,7 +14,7 @@ import net.minecraft.util.math.MathHelper;
 public class LapisManaSource implements EntityManaPool {
     public static final EntityManaPoolType TYPE = EntityManaPoolType.create(LapisManaSource::create);
     private final PlayerEntity player;
-    private long storedMana;
+    private long storedThaum;
     private boolean enabled = true;
 
     public LapisManaSource(PlayerEntity player) {
@@ -27,50 +27,50 @@ public class LapisManaSource implements EntityManaPool {
     }
 
     @Override
-    public long insertMana(long insertion, TransactionContext context) {
+    public long insertThaum(long insertion, TransactionContext context) {
         return 0;
     }
 
     @Override
-    public long extractMana(long extraction, TransactionContext context) {
+    public long extractThaum(long extraction, TransactionContext context) {
         if (!enabled) return 0;
-        if (storedMana < extraction) {
-            var lapisExtraction = extraction - storedMana;
+        if (storedThaum < extraction) {
+            var lapisExtraction = extraction - storedThaum;
             var consumedLapis = MathHelper.ceil(lapisExtraction / 1000f);
 
             long available = PlayerInventoryStorage.of(player).extract(ItemVariant.of(Items.LAPIS_LAZULI), consumedLapis, context) * 1000;
-            storedMana = storedMana + available;
+            storedThaum = storedThaum + available;
         }
 
         // We shall never return more than extraction!
-        var result = Math.min(storedMana, extraction);
-        this.storedMana = this.storedMana - result;
+        var result = Math.min(storedThaum, extraction);
+        this.storedThaum = this.storedThaum - result;
         return result;
     }
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putBoolean("enabled", enabled);
-        nbt.putLong("storedMana", storedMana);
+        nbt.putLong("storedMana", storedThaum);
         return nbt;
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         this.enabled = nbt.getBoolean("enabled");
-        this.storedMana = nbt.getLong("storedMana");
+        this.storedThaum = nbt.getLong("storedMana");
     }
 
     @Override
-    public long getMana() {
+    public long getThaum() {
         if (!enabled) return 0;
-        return player.getInventory().count(Items.LAPIS_LAZULI) * 1000L + storedMana;
+        return player.getInventory().count(Items.LAPIS_LAZULI) * 1000L + storedThaum;
     }
 
     @Override
-    public long getCapacity() {
+    public long getThaumCapacity() {
         if (!enabled) return 0;
-        return player.getInventory().count(Items.LAPIS_LAZULI) * 1000L + storedMana;
+        return player.getInventory().count(Items.LAPIS_LAZULI) * 1000L + storedThaum;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class LapisManaSource implements EntityManaPool {
 
     @Override
     public void tick() {
-        this.storedMana--;
+        this.storedThaum--;
     }
 
     public void toggleEnabled() {

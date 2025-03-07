@@ -12,34 +12,34 @@ import net.minecraft.nbt.NbtCompound;
  */
 @SuppressWarnings("UnusedReturnValue")
 public interface ManaPool extends ManaSource, ManaConsumer {
-    long getMana();
-    long getCapacity();
+    long getThaum();
+    long getThaumCapacity();
 
-    default long insertMana(long insertion) {
+    default long insertThaum(long insertion) {
         try (var t1 = Transaction.openOuter()) {
-            long returnValue = insertMana(insertion, t1);
+            long returnValue = insertThaum(insertion, t1);
             t1.commit();
             return returnValue;
         }
     }
 
-    long insertMana(long insertion, TransactionContext context);
+    long insertThaum(long insertion, TransactionContext context);
 
-    default long extractMana(long extraction) {
+    default long extractThaum(long extraction) {
         try (var t1 = Transaction.openOuter()) {
-            long returnValue = extractMana(extraction, t1);
+            long returnValue = extractThaum(extraction, t1);
             t1.commit();
             return returnValue;
         }
     }
 
-    long extractMana(long extraction, TransactionContext context);
+    long extractThaum(long extraction, TransactionContext context);
 
     NbtCompound writeNbt(NbtCompound nbt);
     void readNbt(NbtCompound nbt);
 
-    static ManaPool createSimple(long baseMana, long maxMana) {
-        return new SimpleManaPool(baseMana, maxMana);
+    static ManaPool createSimple(long baseThaum, long maxThaum) {
+        return new SimpleManaPool(baseThaum, maxThaum);
     }
 
 }

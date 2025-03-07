@@ -29,11 +29,11 @@ public class NebulaCommand {
 
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         var command = literal("nebula").requires(source -> source.hasPermissionLevel(4))
-                .then(literal("getMana")
-                        .executes(context -> getMana(context.getSource()))
+                .then(literal("getThaum")
+                        .executes(context -> getThaum(context.getSource()))
                         .then(argument("players", players())
-                                .executes(context -> getMana(context.getSource(), getPlayers(context, "players")))))
-                .then(literal("insertMana")
+                                .executes(context -> getThaum(context.getSource(), getPlayers(context, "players")))))
+                .then(literal("insertThaum")
                         .then(argument("entities", entities())
                                 .then(argument("insertion", LongArgumentType.longArg(0))
                                         .executes(context -> addMana(
@@ -44,7 +44,7 @@ public class NebulaCommand {
                                 )
                         )
                 )
-                .then(literal("extractMana")
+                .then(literal("extractThaum")
                         .then(argument("entities", entities())
                                 .then(argument("extraction", LongArgumentType.longArg(0))
                                         .executes(context -> extractMana(
@@ -60,11 +60,11 @@ public class NebulaCommand {
         dispatcher.register(command);
     }
 
-    private static int addMana(ServerCommandSource source, Collection<? extends Entity> entities, long mana) {
+    private static int addMana(ServerCommandSource source, Collection<? extends Entity> entities, long thaum) {
         entities.stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(livingEntity -> {
             try(Transaction transaction = Transaction.openOuter()) {
-                var insertion = ((ServerManaManager) livingEntity.getManaManager()).insertMana(mana, transaction);
-                source.sendMessage(Text.of("Inserted " + insertion + " mana into " + livingEntity.getName().getString() + "."));
+                var insertion = ((ServerManaManager) livingEntity.getManaManager()).insertThaum(thaum, transaction);
+                source.sendMessage(Text.of("Inserted " + insertion + " thaum into " + livingEntity.getName().getString() + "."));
                 transaction.commit();
             }
         });
@@ -72,11 +72,11 @@ public class NebulaCommand {
         return 1;
     }
 
-    private static int extractMana(ServerCommandSource source, Collection<? extends Entity> entities, long mana) {
+    private static int extractMana(ServerCommandSource source, Collection<? extends Entity> entities, long thaum) {
         entities.stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(livingEntity -> {
             try(Transaction transaction = Transaction.openOuter()) {
-                var insertion = ((ServerManaManager) livingEntity.getManaManager()).extractMana(mana, transaction);
-                source.sendMessage(Text.of("Extracted " + insertion + " mana from " + livingEntity.getName().getString() + "."));
+                var insertion = ((ServerManaManager) livingEntity.getManaManager()).extractThaum(thaum, transaction);
+                source.sendMessage(Text.of("Extracted " + insertion + " thaum from " + livingEntity.getName().getString() + "."));
                 transaction.commit();
             }
         });
@@ -84,16 +84,16 @@ public class NebulaCommand {
         return 1;
     }
 
-    private static int getMana(ServerCommandSource source) {
+    private static int getThaum(ServerCommandSource source) {
         if(source.getPlayer() != null) {
-            return getMana(source, List.of(source.getPlayer()));
+            return getThaum(source, List.of(source.getPlayer()));
         }
         return 0;
     }
 
-    private static int getMana(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
+    private static int getThaum(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for (ServerPlayerEntity player : players) {
-            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getMana() + " mana."));
+            source.sendMessage(Text.of(player.getName().getString() + " has " + source.getPlayer().getManaManager().getThaum() + " thaum."));
         }
         return 1;
     }

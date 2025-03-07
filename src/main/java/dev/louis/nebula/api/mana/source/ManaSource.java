@@ -5,13 +5,13 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 public interface ManaSource {
 
-    default long extractMana(long extraction) {
+    default long extractThaum(long extraction) {
         try (var t1 = Transaction.openOuter()) {
-            long returnValue = extractMana(extraction, t1);
+            long returnValue = extractThaum(extraction, t1);
             t1.commit();
             return returnValue;
         }
     }
 
-    long extractMana(long extraction, TransactionContext context);
+    long extractThaum(long extraction, TransactionContext context);
 }

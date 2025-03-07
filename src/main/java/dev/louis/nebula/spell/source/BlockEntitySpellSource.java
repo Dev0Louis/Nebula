@@ -63,8 +63,8 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public void drainMana(long amount, TransactionContext context) throws SpellFumble {
-        getManaPool().map(manaPool -> (manaPool.extractMana(amount, context) == amount)).filter(Boolean::booleanValue).orElseThrow(SpellFumble::manaFumble);
+    public void drainThaum(long amount, TransactionContext context) throws SpellFumble {
+        getManaPool().map(manaPool -> (manaPool.extractThaum(amount, context) == amount)).filter(Boolean::booleanValue).orElseThrow(SpellFumble::manaFumble);
     }
 
     @Override

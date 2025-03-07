@@ -81,54 +81,54 @@ public class ServerManaManager implements ManaPool, ManaManager {
     }
 
     @Override
-    public long getMana() {
+    public long getThaum() {
         ensureState();
-        return manaPools.values().stream().mapToLong(ManaPool::getMana).reduce(0, ServerManaManager::sumSafe);
+        return manaPools.values().stream().mapToLong(ManaPool::getThaum).reduce(0, ServerManaManager::sumSafe);
     }
 
     @Override
-    public long getCapacity() {
+    public long getThaumCapacity() {
         ensureState();
-        return manaPools.values().stream().mapToLong(ManaPool::getCapacity).reduce(0, ServerManaManager::sumSafe);
+        return manaPools.values().stream().mapToLong(ManaPool::getThaumCapacity).reduce(0, ServerManaManager::sumSafe);
     }
 
     @Override
-    public long insertMana(long requestedInsertion, TransactionContext context) {
+    public long insertThaum(long requestedInsertion, TransactionContext context) {
         if (requestedInsertion < 0) throw new IllegalArgumentException("Insertion amount is negative.");
         ensureState();
         // This local is going to get modified throughout this code and will be returned at the end.
-        long insertedMana = 0;
+        long insertedThaum = 0;
         for (ManaPool manaPool : manaPools.values()) {
-            var toInsert = requestedInsertion - insertedMana;
+            var toInsert = requestedInsertion - insertedThaum;
 
             // implicit NaN check (as NaN < 0 = false)
             if (toInsert < 0) throw new IllegalStateException("toInsert should never be < 0. It is " + toInsert + "!");
             if (toInsert == 0) break;
 
-            insertedMana += manaPool.insertMana(toInsert, context);
+            insertedThaum += manaPool.insertThaum(toInsert, context);
         }
 
-        return insertedMana;
+        return insertedThaum;
     }
 
     // Very sane code ;v; Update: It got better
     @Override
-    public long extractMana(long requestedExtraction, TransactionContext context) {
+    public long extractThaum(long requestedExtraction, TransactionContext context) {
         if (requestedExtraction < 0) throw new IllegalArgumentException("Extraction amount is negative.");
         ensureState();
         // This local is going to get modified throughout this code and will be returned at the end.
-        long extractedMana = 0;
+        long extractedThaum = 0;
         for (ManaPool manaPool : manaPools.values()) {
-            var toExtract = requestedExtraction - extractedMana;
+            var toExtract = requestedExtraction - extractedThaum;
 
             // implicit NaN check (as NaN < 0 = false)
             if (toExtract < 0) throw new IllegalStateException("toExtract should never be < 0. It is " + toExtract + "!");
             if (toExtract == 0) break;
 
-            extractedMana += manaPool.extractMana(toExtract, context);
+            extractedThaum += manaPool.extractThaum(toExtract, context);
         }
 
-        return extractedMana;
+        return extractedThaum;
     }
 
     @Override

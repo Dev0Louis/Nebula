@@ -1,6 +1,6 @@
 package dev.louis.nebulo.client;
 
-import dev.louis.nebula.api.mana.helper.ManaHelper;
+import dev.louis.nebula.api.mana.helper.ThaumHelper;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebulo.NebuloBlockEntities;
 import dev.louis.nebulo.client.block.entity.renderer.ManaExtractorBlockEntityRenderer;
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class NebuloClient implements ClientModInitializer {
     private Collection<SpellEffect> serverSpellEffects = Collections.emptyList();
-    private long serverMana;
+    private long serverThaum;
     private long serverCapacity;
 
     @Override
@@ -50,8 +50,8 @@ public class NebuloClient implements ClientModInitializer {
             if (cplayer == null) return;
             var player = server.getPlayerManager().getPlayer(cplayer.getUuid());
             if (player == null) return;
-            this.serverMana = player.getManaManager().getMana();
-            this.serverCapacity = player.getManaManager().getCapacity();
+            this.serverThaum = player.getManaManager().getThaum();
+            this.serverCapacity = player.getManaManager().getThaumCapacity();
             this.serverSpellEffects = player.getSpellEffects();
         });
     }
@@ -64,7 +64,7 @@ public class NebuloClient implements ClientModInitializer {
     }
 
     private static String formatLong(long mana) {
-        return ManaHelper.formatKilomana(mana);
+        return ThaumHelper.formatKilothaum(mana);
     }
 
 
@@ -74,14 +74,14 @@ public class NebuloClient implements ClientModInitializer {
             if (player == null) return;
             var manaManager = player.getManaManager();
             var spellEffects = player.getSpellEffects();
-            var mana = formatLong(manaManager.getMana());
-            var maxMana = formatLong(manaManager.getCapacity());
+            var thaum = formatLong(manaManager.getThaum());
+            var maxThaum = formatLong(manaManager.getThaumCapacity());
             AtomicInteger x = new AtomicInteger(10);
             AtomicInteger y = new AtomicInteger(10);
 
             drawContext.drawText(
                     MinecraftClient.getInstance().textRenderer,
-                    "Mana: " + mana + "/" + maxMana,
+                    "Thaum: " + thaum + "/" + maxThaum,
                     x.get(),
                     y.getAndAdd(10),
                     0x00c0FF,
@@ -114,7 +114,7 @@ public class NebuloClient implements ClientModInitializer {
 
             drawContext.drawText(
                     MinecraftClient.getInstance().textRenderer,
-                    "(Server) Mana: " + formatLong(serverMana) + "/" + formatLong(serverCapacity) + " Kilomana",
+                    "(Server) Mana: " + formatLong(serverThaum) + "/" + formatLong(serverCapacity) + " Kilomana",
                     x.get(),
                     y.getAndAdd(10),
                     0xc000FF,

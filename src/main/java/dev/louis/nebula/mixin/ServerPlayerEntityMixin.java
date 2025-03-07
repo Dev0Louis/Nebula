@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ServerPlayerEntityMixin extends LivingEntityMixin {
 
     @Unique
-    private long lastSyncedMana = -1;
+    private long lastSyncedThaum = -1;
     @Unique
     private long lastSyncedCapacity = -1;
 
@@ -30,14 +30,14 @@ public abstract class ServerPlayerEntityMixin extends LivingEntityMixin {
             at = @At("RETURN")
     )
     public void checkManaSync(CallbackInfo ci) {
-        var mana = this.getManaManager().getMana();
-        var capacity = this.getManaManager().getCapacity();
+        var thaum = this.getManaManager().getThaum();
+        var capacity = this.getManaManager().getThaumCapacity();
 
-        if (mana != lastSyncedMana || capacity != lastSyncedCapacity) {
+        if (thaum != lastSyncedThaum || capacity != lastSyncedCapacity) {
             var srvrPlyr = ((ServerPlayerEntity) (Object) this);
-            ServerPlayNetworking.send(srvrPlyr, new ManaPayload(srvrPlyr.getId(), mana, capacity));
+            ServerPlayNetworking.send(srvrPlyr, new ManaPayload(srvrPlyr.getId(), thaum, capacity));
             this.lastSyncedCapacity = capacity;
-            this.lastSyncedMana = mana;
+            this.lastSyncedThaum = thaum;
         }
     }
 

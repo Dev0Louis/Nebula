@@ -17,22 +17,22 @@ public class CreativeInfiniteManaSource implements EntityManaPool {
     }
 
     @Override
-    public long getMana() {
+    public long getThaum() {
         return entity.isInCreativeMode() ? Long.MAX_VALUE : 0;
     }
 
     @Override
-    public long getCapacity() {
+    public long getThaumCapacity() {
         return entity.isInCreativeMode() ? Long.MAX_VALUE : 0;
     }
 
     @Override
-    public long insertMana(long insertion, TransactionContext context) {
+    public long insertThaum(long insertion, TransactionContext context) {
         return 0;
     }
 
     @Override
-    public long extractMana(long extraction, TransactionContext context) {
+    public long extractThaum(long extraction, TransactionContext context) {
         return entity.isInCreativeMode() ? extraction : 0;
     }
 

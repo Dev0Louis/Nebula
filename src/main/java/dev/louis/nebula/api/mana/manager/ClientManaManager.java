@@ -3,7 +3,7 @@ package dev.louis.nebula.api.mana.manager;
 import net.minecraft.entity.LivingEntity;
 
 public class ClientManaManager implements ManaManager {
-    private long mana;
+    private long thaum;
     private long capacity;
 
     public ClientManaManager() {
@@ -15,15 +15,15 @@ public class ClientManaManager implements ManaManager {
     }
 
     @Override
-    public long getMana() {
-        return mana;
+    public long getThaum() {
+        return thaum;
     }
 
-    public void setCapacity(long capacity) {
+    public void setThaumCapacity(long capacity) {
         this.capacity = capacity;
     }
 
-    public long getCapacity() {
+    public long getThaumCapacity() {
         return capacity;
     }
 
@@ -32,11 +32,11 @@ public class ClientManaManager implements ManaManager {
 
     }
 
-    public void setMana(long mana) {
-        this.mana = mana;
+    public void setThaum(long amount) {
+        this.thaum = amount;
     }
 
     public void copyFrom(ClientManaManager manaManager) {
-        this.mana = manaManager.mana;
+        this.thaum = manaManager.thaum;
     }
 }

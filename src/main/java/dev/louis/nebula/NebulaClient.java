@@ -30,8 +30,8 @@ public class NebulaClient implements ClientModInitializer {
         context.client().executeSync(() -> {
             var entity = context.client().world.getEntityById(manaPayload.entityId());
             if (entity instanceof ManaManagerHolder manaManagerHolder) {
-                ((ClientManaManager) manaManagerHolder.getManaManager()).setMana(manaPayload.mana());
-                ((ClientManaManager) manaManagerHolder.getManaManager()).setCapacity(manaPayload.capacity());
+                ((ClientManaManager) manaManagerHolder.getManaManager()).setThaum(manaPayload.mana());
+                ((ClientManaManager) manaManagerHolder.getManaManager()).setThaumCapacity(manaPayload.capacity());
             }
         });
     }

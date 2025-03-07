@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 import java.math.BigDecimal;
 
-public abstract class ManaHelper {
+public abstract class ThaumHelper {
     private static final BigDecimal BIG1000 = BigDecimal.TEN.pow(3);
-    private ManaHelper() {
+    private ThaumHelper() {
 
     }
 
@@ -26,17 +26,17 @@ public abstract class ManaHelper {
     }
 
     public static boolean drainManaOrFail(ManaSource manaSource, long amount, Transaction transaction) {
-        var extracted = manaSource.extractMana(amount, transaction);
+        var extracted = manaSource.extractThaum(amount, transaction);
         return !(extracted < amount);
     }
 
-    public static String formatKilomana(long mana) {
-        if (mana == Long.MAX_VALUE) {
+    public static String formatKilothaum(long thaum) {
+        if (thaum == Long.MAX_VALUE) {
             return "∞";
-        } else if (mana == Long.MIN_VALUE) {
+        } else if (thaum == Long.MIN_VALUE) {
             return "-∞";
         } else {
-            return new BigDecimal(mana).divide(BIG1000).toString();
+            return new BigDecimal(thaum).divide(BIG1000).toString();
         }
     }
 }

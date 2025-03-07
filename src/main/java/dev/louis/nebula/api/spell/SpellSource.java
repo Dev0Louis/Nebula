@@ -26,18 +26,18 @@ public interface SpellSource<Caster> {
 
     /**
      * Drains mana from the SpellSource if the required mana can't be supplied a {@link SpellFumble} will be thrown.
-     * @param amount The amount of mana to drain.
+     * @param amount The amount of thaum to drain.
      * @throws SpellFumble Thrown if mana resources are insufficient.
      */
-    void drainMana(long amount, TransactionContext context) throws SpellFumble;
+    void drainThaum(long amount, TransactionContext context) throws SpellFumble;
 
     /**
-     * Drains 1000 times more mana then {@link SpellSource#drainMana(long, TransactionContext)}. (A Kilo)
-     * @param amount The amount of kilomana to drain.
+     * Drains 1000 times more thaum than {@link SpellSource#drainThaum(long, TransactionContext)}. (A Kilo)
+     * @param amount The amount of kilothaum to drain.
      * @throws SpellFumble Thrown if mana resources are insufficient.
      */
-    default void drainKilomana(long amount, TransactionContext context) throws SpellFumble {
-        drainMana(amount * 1000L, context);
+    default void drainKilothaum(long amount, TransactionContext context) throws SpellFumble {
+        drainThaum(amount * 1000L, context);
     }
     void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
 

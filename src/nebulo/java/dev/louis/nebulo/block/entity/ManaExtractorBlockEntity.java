@@ -37,9 +37,9 @@ public class ManaExtractorBlockEntity extends BlockEntity {
         if (!(world instanceof ServerWorld)) return;
         world.getOtherEntities(null, new Box(pos).expand(6)).stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).forEach(entity -> {
             try(Transaction transaction = Transaction.openOuter()) {
-                long requestedMana = 10;
-                var extraction = ((ServerManaManager) entity.getManaManager()).extractMana(requestedMana, transaction);
-                var hasInserted = manaContainer.insertMana(extraction, transaction) > 0;
+                long requestedThaum = 10;
+                var extraction = ((ServerManaManager) entity.getManaManager()).extractThaum(requestedThaum, transaction);
+                var hasInserted = manaContainer.insertThaum(extraction, transaction) > 0;
                 if (hasInserted) {
                     this.markDirty();
                     this.world.updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), Block.NOTIFY_ALL);
