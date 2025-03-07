@@ -8,5 +8,13 @@ public interface Spell<Caster> {
     /**
      * This should not be called manually unless you are a SpellCaster.
      */
-    void cast(SpellSource<? extends Caster> source, TransactionContext context) throws SpellFumble;
+    void tryCast(SpellSource<? extends Caster> source, TransactionContext context) throws SpellFumble;
+
+    default void cast(Runnable cast, TransactionContext context) {
+        context.addOuterCloseCallback(result -> {
+            if (result.wasCommitted()) {
+                cast.run();
+            }
+        });
+    }
 }

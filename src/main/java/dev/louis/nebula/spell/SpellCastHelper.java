@@ -17,12 +17,12 @@ public final class SpellCastHelper {
         if (!SpellCastEvent.BEFORE.invoker().allowSpellCast(source, spell)) return false;
 
         try {
-            spell.cast(source, transaction);
+            spell.tryCast(source, transaction);
         } catch (SpellFumble e) {
             return false;
         }
-        SpellCastEvent.AFTER.invoker().onSpellCast(source, spell);
         transaction.commit();
+        SpellCastEvent.AFTER.invoker().onSpellCast(source, spell);
         return true;
     }
 }

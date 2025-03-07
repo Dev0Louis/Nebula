@@ -10,7 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public class CloudJumpSpell implements Spell<ServerPlayerEntity> {
 
     @Override
-    public void cast(SpellSource<? extends ServerPlayerEntity> source, TransactionContext context) throws SpellFumble {
+    public void tryCast(SpellSource<? extends ServerPlayerEntity> source, TransactionContext context) throws SpellFumble {
         source.drainKilomana(1, context);
         source.startSpellEffect(NebuloSpellEffects.CLOUD_JUMP, context);
     }
