@@ -148,6 +148,11 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
     }
 
     @Override
+    public boolean isSpellEffectActive(SpellEffect effect) {
+        return this.spellEffects.containsKey(effect);
+    }
+
+    @Override
     public Collection<SpellEffect> getSpellEffects() {
         return ImmutableList.copyOf(this.spellEffects.keySet());
     }

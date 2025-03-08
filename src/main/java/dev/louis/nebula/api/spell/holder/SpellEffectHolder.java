@@ -16,6 +16,10 @@ public interface SpellEffectHolder {
         throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");
     }
 
+    default boolean isSpellEffectActive(SpellEffect effect) {
+        throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");
+    }
+
     default Collection<SpellEffect> getSpellEffects() {
         throw new UnsupportedOperationException("BEEP BOOP ME MIXIN!");
     }
