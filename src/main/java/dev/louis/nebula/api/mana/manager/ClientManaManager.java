@@ -10,7 +10,7 @@ public class ClientManaManager implements ManaManager {
 
     }
 
-    public static ClientManaManager createManaManager(LivingEntity livingEntity) {
+    public static ClientManaManager createManaManager() {
         return new ClientManaManager();
     }
 

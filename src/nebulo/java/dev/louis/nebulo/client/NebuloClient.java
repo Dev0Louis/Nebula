@@ -1,6 +1,6 @@
 package dev.louis.nebulo.client;
 
-import dev.louis.nebula.api.mana.helper.ThaumHelper;
+import dev.louis.nebula.api.mana.helper.ManaHelper;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebulo.NebuloBlockEntities;
 import dev.louis.nebulo.client.block.entity.renderer.ManaExtractorBlockEntityRenderer;
@@ -64,7 +64,7 @@ public class NebuloClient implements ClientModInitializer {
     }
 
     private static String formatLong(long mana) {
-        return ThaumHelper.formatKilothaum(mana);
+        return ManaHelper.formatKilothaum(mana);
     }
 
 

@@ -1,7 +1,5 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.mana.pool.ManaPool;
-import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.spell.component.CastComponents;
@@ -72,7 +70,7 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     }
 
     @Override
-    public void drainThaum(long amount, TransactionContext context) throws SpellFumble {
+    public void expectThaum(long amount, TransactionContext context) throws SpellFumble {
         if (this.expectCastData(CastComponents.MANA_POOL).extractThaum(amount, context) != amount) {
             throw SpellFumble.manaFumble();
         }
@@ -80,18 +78,18 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
 
     @Contract
     @Override
-    public void startSpellEffect(SpellEffect spellEffect, TransactionContext context) throws SpellFumble {
+    public void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext context) throws SpellFumble {
         if (this.getCaster() instanceof LivingEntity livingEntity) {
             var storage = new SpellEffectWrapper(this.getWorld(), livingEntity);
             if (!storage.startSpellEffect(spellEffect, context)) throw SpellFumble.spellEffectFumble();
         }
     }
 
-    public <Data> Optional<Data> getCastData(CastComponent<Data> castComponent) {
+    public <Data> Optional<Data> getCastComponent(CastComponent<Data> castComponent) {
         return Optional.ofNullable((Data) this.customDataMap.get(castComponent));
     }
 
-    public <Data> void setCastData(CastComponent<Data> castComponent, Data data) {
+    public <Data> void setCastComponent(CastComponent<Data> castComponent, Data data) {
         this.customDataMap.put(castComponent, data);
     }
 }

@@ -1,6 +1,6 @@
 package dev.louis.nebulo.client.block.entity.renderer;
 
-import dev.louis.nebula.api.mana.helper.ThaumHelper;
+import dev.louis.nebula.api.mana.helper.ManaHelper;
 import dev.louis.nebulo.block.entity.ManaExtractorBlockEntity;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -26,9 +26,9 @@ public class ManaExtractorBlockEntityRenderer implements BlockEntityRenderer<Man
         matrices.push();
         matrices.translate(0.5, 4, 0.5);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(entity.getWorld().getTime()));
-        renderText(Text.literal(ThaumHelper.formatKilothaum(entity.manaContainer.getThaum())), matrices, vertexConsumers, light);
+        renderText(Text.literal(ManaHelper.formatKilothaum(entity.manaContainer.getThaum())), matrices, vertexConsumers, light);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
-        renderText(Text.literal(ThaumHelper.formatKilothaum(entity.manaContainer.getThaum())), matrices, vertexConsumers, light);
+        renderText(Text.literal(ManaHelper.formatKilothaum(entity.manaContainer.getThaum())), matrices, vertexConsumers, light);
         matrices.pop();
     }
 

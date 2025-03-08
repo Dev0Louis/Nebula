@@ -1,7 +1,5 @@
 package dev.louis.nebula.spell.source;
 
-import dev.louis.nebula.api.mana.pool.ManaPool;
-import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.component.CastComponent;
 import dev.louis.nebula.api.spell.SpellSource;
@@ -26,17 +24,17 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     private final BE blockEntity;
     private final ServerWorld world;
     private final BlockPos blockPos;
-    private final Map<CastComponent<?>, Object> customDataMap;
+    private final Map<CastComponent<?>, Object> castComponents;
 
     public BlockEntitySpellSource(BE blockEntity, ServerWorld world, BlockPos blockPos) {
         this(blockEntity, world, blockPos, new HashMap<>());
     }
 
-    public BlockEntitySpellSource(BE blockEntity, ServerWorld world, BlockPos blockPos, Map<CastComponent<?>, Object> customDataMap) {
+    public BlockEntitySpellSource(BE blockEntity, ServerWorld world, BlockPos blockPos, Map<CastComponent<?>, Object> castComponents) {
         this.blockEntity = blockEntity;
         this.world = world;
         this.blockPos = blockPos;
-        this.customDataMap = customDataMap;
+        this.castComponents = castComponents;
     }
 
     @Override
@@ -67,24 +65,24 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public void drainThaum(long amount, TransactionContext context) throws SpellFumble {
+    public void expectThaum(long amount, TransactionContext context) throws SpellFumble {
         if (this.expectCastData(CastComponents.MANA_POOL).extractThaum(amount, context) != amount) {
             throw SpellFumble.manaFumble();
         }
     }
 
     @Override
-    public void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble {
+    public void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble {
         throw SpellFumble.spellEffectFumble();
     }
 
     @Override
-    public <Data> Optional<Data> getCastData(CastComponent<Data> castComponent) {
-        return Optional.ofNullable((Data) this.customDataMap.get(castComponent));
+    public <Value> Optional<Value> getCastComponent(CastComponent<Value> component) {
+        return Optional.ofNullable((Value) this.castComponents.get(component));
     }
 
     @Override
-    public <Data> void setCastData(CastComponent<Data> castComponent, Data data) {
-        this.customDataMap.put(castComponent, data);
+    public <Value> void setCastComponent(CastComponent<Value> castComponent, Value value) {
+        this.castComponents.put(castComponent, value);
     }
 }

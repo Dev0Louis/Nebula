@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 import java.math.BigDecimal;
 
-public abstract class ThaumHelper {
+public abstract class ManaHelper {
     private static final BigDecimal BIG1000 = BigDecimal.TEN.pow(3);
-    private ThaumHelper() {
+    private ManaHelper() {
 
     }
 

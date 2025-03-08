@@ -11,8 +11,8 @@ public class CloudJumpSpell implements Spell<ServerPlayerEntity> {
 
     @Override
     public void tryCast(SpellSource<? extends ServerPlayerEntity> source, TransactionContext context) throws SpellFumble {
-        source.drainKilothaum(1, context);
-        source.startSpellEffect(NebuloSpellEffects.CLOUD_JUMP, context);
+        source.expectKilothaum(1, context);
+        source.expectStartSpellEffect(NebuloSpellEffects.CLOUD_JUMP, context);
     }
 
 }

@@ -56,7 +56,7 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
             at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setHealth(F)V", shift = At.Shift.AFTER)
     )
     public void lateManaManagerInit(EntityType<?> entityType, World world, CallbackInfo ci) {
-        manaManager = world.isClient ? ClientManaManager.createManaManager(((LivingEntity) (Object) this)) : ServerManaManager.createManaManager((LivingEntity) (Object) this);
+        manaManager = world.isClient ? ClientManaManager.createManaManager() : ServerManaManager.createManaManager((LivingEntity) (Object) this);
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
@@ -132,7 +132,6 @@ public abstract class LivingEntityMixin extends Entity implements ManaManagerHol
 
     @Override
     public boolean startSpellEffect(SpellEffect spellEffect) {
-        LivingEntity entity = (LivingEntity) (Object) this;
         if ((this.getWorld().isClient() || (canStartSpellEffect((ServerWorld) this.getWorld(), spellEffect)))) {
             var currentlyActive = this.spellEffects.put(spellEffect, 0) == null;
             if (currentlyActive) nebula$onSpellEffectStoppedInternal(spellEffect);

@@ -1,6 +1,5 @@
 package dev.louis.nebula.api.spell;
 
-import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.source.ManaSource;
 import dev.louis.nebula.api.spell.component.CastComponent;
 import dev.louis.nebula.api.spell.component.CastComponents;
@@ -25,6 +24,7 @@ public interface SpellSource<Caster> {
     Vec3d getPos();
     BlockPos getBlockPos();
     Caster getCaster();
+
     default ManaSource expectManaSource() throws SpellFumble {
         return this.expectCastData(CastComponents.MANA_POOL);
     }
@@ -34,26 +34,26 @@ public interface SpellSource<Caster> {
      * @param amount The amount of thaum to drain.
      * @throws SpellFumble Thrown if mana resources are insufficient.
      */
-    void drainThaum(long amount, TransactionContext context) throws SpellFumble;
+    void expectThaum(long amount, TransactionContext context) throws SpellFumble;
 
     /**
-     * Drains 1000 times more thaum than {@link SpellSource#drainThaum(long, TransactionContext)}. (A Kilo)
+     * Drains 1000 times more thaum than {@link SpellSource#expectThaum(long, TransactionContext)}. (A Kilo)
      * @param amount The amount of kilothaum to drain.
      * @throws SpellFumble Thrown if mana resources are insufficient.
      */
-    default void drainKilothaum(long amount, TransactionContext context) throws SpellFumble {
-        drainThaum(amount * 1000L, context);
+    default void expectKilothaum(long amount, TransactionContext context) throws SpellFumble {
+        expectThaum(amount * 1000L, context);
     }
 
-    void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
+    void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
 
-    default <Data> Data expectCastData(CastComponent<Data> castComponent) throws SpellFumble {
-        return this.getCastData(castComponent).orElseThrow(SpellFumble::new);
+    default <Value> Value expectCastData(CastComponent<Value> castComponent) throws SpellFumble {
+        return this.getCastComponent(castComponent).orElseThrow(SpellFumble::new);
     }
 
-    <Data> Optional<Data> getCastData(CastComponent<Data> castComponent);
+    <Value> Optional<Value> getCastComponent(CastComponent<Value> castComponent);
 
-    <Data> void setCastData(CastComponent<Data> castComponent, Data data);
+    <Value> void setCastComponent(CastComponent<Value> castComponent, Value value);
 
     static <E extends Entity> SpellSource<E> of(ServerWorld world, E entity, Vec3d castPos) {
         return new EntitySpellSource<>(entity, world, castPos, BlockPos.ofFloored(castPos));
