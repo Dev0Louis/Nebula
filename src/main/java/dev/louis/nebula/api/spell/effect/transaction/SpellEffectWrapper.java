@@ -33,7 +33,7 @@ public class SpellEffectWrapper extends SnapshotParticipant<SpellEffectWrapper.D
     }
 
     public boolean stopSpellEffect(SpellEffect effect, TransactionContext context) {
-        if (player.getSpellEffects().contains(effect)) {
+        if (player.isSpellEffectActive(effect)) {
             updateSnapshots(context);
             player.nebula$getSpellEffectsInternal().remove(effect);
             spellEffectModifications.add(new Modification(effect, false));
