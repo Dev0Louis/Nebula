@@ -44,7 +44,7 @@ public interface SpellEffectHolder {
     }
 
 
-        static void startSpellEffect(LivingEntity livingEntity, SpellEffect spellEffect) {
+    static void startSpellEffect(LivingEntity livingEntity, SpellEffect spellEffect) {
         livingEntity.startSpellEffect(spellEffect);
     }
 
