@@ -39,8 +39,8 @@ public interface SpellSource<Caster> {
     default void drainKilothaum(long amount, TransactionContext context) throws SpellFumble {
         drainThaum(amount * 1000L, context);
     }
-    void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
 
+    void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
 
     static <E extends Entity> SpellSource<E> of(ServerWorld world, E entity, Vec3d castPos) {
         return new EntitySpellSource<>(entity, world, castPos, BlockPos.ofFloored(castPos));
