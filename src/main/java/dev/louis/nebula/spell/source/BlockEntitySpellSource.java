@@ -66,7 +66,7 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
 
     @Override
     public void expectThaum(long amount, TransactionContext context) throws SpellFumble {
-        if (this.expectCastData(CastComponents.MANA_POOL).extractThaum(amount, context) != amount) {
+        if (this.expectCastComponent(CastComponents.MANA_POOL).extractThaum(amount, context) != amount) {
             throw SpellFumble.manaFumble();
         }
     }

@@ -26,7 +26,7 @@ public interface SpellSource<Caster> {
     Caster getCaster();
 
     default ManaSource expectManaSource() throws SpellFumble {
-        return this.expectCastData(CastComponents.MANA_POOL);
+        return this.expectCastComponent(CastComponents.MANA_POOL);
     }
 
     /**
@@ -47,7 +47,7 @@ public interface SpellSource<Caster> {
 
     void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
 
-    default <Value> Value expectCastData(CastComponent<Value> castComponent) throws SpellFumble {
+    default <Value> Value expectCastComponent(CastComponent<Value> castComponent) throws SpellFumble {
         return this.getCastComponent(castComponent).orElseThrow(SpellFumble::new);
     }
 
