@@ -3,7 +3,9 @@ package dev.louis.nebula.spell.source;
 import dev.louis.nebula.api.mana.pool.ManaPool;
 import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
+import dev.louis.nebula.api.spell.component.CastComponent;
 import dev.louis.nebula.api.spell.SpellSource;
+import dev.louis.nebula.api.spell.component.CastComponents;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebula.api.spell.fumble.SpellFumble;
 import dev.louis.nebula.spell.SpellCastHelper;
@@ -15,6 +17,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @ApiStatus.Internal
@@ -22,11 +26,17 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     private final BE blockEntity;
     private final ServerWorld world;
     private final BlockPos blockPos;
+    private final Map<CastComponent<?>, Object> customDataMap;
 
     public BlockEntitySpellSource(BE blockEntity, ServerWorld world, BlockPos blockPos) {
+        this(blockEntity, world, blockPos, new HashMap<>());
+    }
+
+    public BlockEntitySpellSource(BE blockEntity, ServerWorld world, BlockPos blockPos, Map<CastComponent<?>, Object> customDataMap) {
         this.blockEntity = blockEntity;
         this.world = world;
         this.blockPos = blockPos;
+        this.customDataMap = customDataMap;
     }
 
     @Override
@@ -57,18 +67,24 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public Optional<ManaPool> getManaPool() {
-        if (blockEntity instanceof ManaStorageHolder manaStorageHolder && manaStorageHolder.getManaStorage() instanceof ManaPool manaPool) return Optional.of(manaPool);
-        return Optional.empty();
-    }
-
-    @Override
     public void drainThaum(long amount, TransactionContext context) throws SpellFumble {
-        getManaPool().map(manaPool -> (manaPool.extractThaum(amount, context) == amount)).filter(Boolean::booleanValue).orElseThrow(SpellFumble::manaFumble);
+        if (this.expectCastData(CastComponents.MANA_POOL).extractThaum(amount, context) != amount) {
+            throw SpellFumble.manaFumble();
+        }
     }
 
     @Override
     public void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble {
         throw SpellFumble.spellEffectFumble();
+    }
+
+    @Override
+    public <Data> Optional<Data> getCastData(CastComponent<Data> castComponent) {
+        return Optional.ofNullable((Data) this.customDataMap.get(castComponent));
+    }
+
+    @Override
+    public <Data> void setCastData(CastComponent<Data> castComponent, Data data) {
+        this.customDataMap.put(castComponent, data);
     }
 }

@@ -13,7 +13,7 @@ public final class SpellCastHelper {
 
     }
 
-    public static <Caster> boolean tryCast(SpellSource<Caster> source, Spell<Caster> spell, Transaction transaction) {
+    public static <Caster> boolean tryCast(SpellSource<? extends Caster> source, Spell<Caster> spell, Transaction transaction) {
         if (!SpellCastEvent.BEFORE.invoker().allowSpellCast(source, spell)) return false;
 
         try {

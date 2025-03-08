@@ -11,21 +11,21 @@ public abstract class ThaumHelper {
 
     }
 
-    public static boolean drainKilomanaOrFail(ManaSource manaSource, long amount) {
-        return drainManaOrFail(manaSource, amount * 1000L);
+    public static boolean drainKilothaumOrFail(ManaSource manaSource, long amount) {
+        return drainThaumOrFail(manaSource, amount * 1000L);
     }
 
-    public static boolean drainManaOrFail(ManaSource manaSource, long amount) {
+    public static boolean drainThaumOrFail(ManaSource manaSource, long amount) {
         try(Transaction transaction = Transaction.openOuter()) {
-            return drainManaOrFail(manaSource, amount, transaction);
+            return drainThaumOrFail(manaSource, amount, transaction);
         }
     }
 
-    public static boolean drainKilomanaOrFail(ManaSource manaSource, long amount, Transaction transaction) {
-        return drainManaOrFail(manaSource, amount * 1000L, transaction);
+    public static boolean drainKilothaumOrFail(ManaSource manaSource, long amount, Transaction transaction) {
+        return drainThaumOrFail(manaSource, amount * 1000L, transaction);
     }
 
-    public static boolean drainManaOrFail(ManaSource manaSource, long amount, Transaction transaction) {
+    public static boolean drainThaumOrFail(ManaSource manaSource, long amount, Transaction transaction) {
         var extracted = manaSource.extractThaum(amount, transaction);
         return !(extracted < amount);
     }

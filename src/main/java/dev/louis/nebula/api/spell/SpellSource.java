@@ -1,6 +1,9 @@
 package dev.louis.nebula.api.spell;
 
 import dev.louis.nebula.api.mana.pool.ManaPool;
+import dev.louis.nebula.api.mana.source.ManaSource;
+import dev.louis.nebula.api.spell.component.CastComponent;
+import dev.louis.nebula.api.spell.component.CastComponents;
 import dev.louis.nebula.api.spell.effect.SpellEffect;
 import dev.louis.nebula.api.spell.fumble.SpellFumble;
 import dev.louis.nebula.spell.source.BlockEntitySpellSource;
@@ -22,7 +25,9 @@ public interface SpellSource<Caster> {
     Vec3d getPos();
     BlockPos getBlockPos();
     Caster getCaster();
-    Optional<ManaPool> getManaPool();
+    default ManaSource expectManaSource() throws SpellFumble {
+        return this.expectCastData(CastComponents.MANA_POOL);
+    }
 
     /**
      * Drains mana from the SpellSource if the required mana can't be supplied a {@link SpellFumble} will be thrown.
@@ -41,6 +46,14 @@ public interface SpellSource<Caster> {
     }
 
     void startSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
+
+    default <Data> Data expectCastData(CastComponent<Data> castComponent) throws SpellFumble {
+        return this.getCastData(castComponent).orElseThrow(SpellFumble::new);
+    }
+
+    <Data> Optional<Data> getCastData(CastComponent<Data> castComponent);
+
+    <Data> void setCastData(CastComponent<Data> castComponent, Data data);
 
     static <E extends Entity> SpellSource<E> of(ServerWorld world, E entity, Vec3d castPos) {
         return new EntitySpellSource<>(entity, world, castPos, BlockPos.ofFloored(castPos));
