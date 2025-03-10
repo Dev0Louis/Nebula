@@ -38,7 +38,7 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public boolean castSpell(Spell<BE> spell, Transaction transaction) {
+    public boolean tryCastSpell(Spell<BE> spell, Transaction transaction) {
         if (blockEntity.isRemoved()) return false;
 
         return SpellCastHelper.tryCast(this, spell, transaction);
@@ -66,7 +66,7 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
 
     @Override
     public void expectThaum(long amount, TransactionContext context) throws SpellFumble {
-        if (this.expectCastComponent(CastComponents.MANA_POOL).extractThaum(amount, context) != amount) {
+        if (this.expectComponent(CastComponents.MANA_SOURCE).extractThaum(amount, context) != amount) {
             throw SpellFumble.manaFumble();
         }
     }
@@ -77,12 +77,17 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public <Value> Optional<Value> getCastComponent(CastComponent<Value> component) {
+    public <Value> Optional<Value> getComponent(CastComponent<Value> component) {
         return Optional.ofNullable((Value) this.castComponents.get(component));
     }
 
     @Override
-    public <Value> void setCastComponent(CastComponent<Value> castComponent, Value value) {
-        this.castComponents.put(castComponent, value);
+    public <Value> void setComponent(CastComponent<Value> component, Value value) {
+        this.castComponents.put(component, value);
+    }
+
+    @Override
+    public <Value> void removeComponent(CastComponent<Value> component) {
+        this.castComponents.remove(component);
     }
 }

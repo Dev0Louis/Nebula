@@ -1,5 +1,7 @@
 package dev.louis.nebula.spell.source;
 
+import dev.louis.nebula.api.mana.source.ManaSource;
+import dev.louis.nebula.api.mana.storage.ManaStorageHolder;
 import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebula.api.spell.SpellSource;
 import dev.louis.nebula.api.spell.component.CastComponents;
@@ -30,8 +32,11 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     private final BlockPos blockPos;
     private final Map<CastComponent<?>, Object> customDataMap;
 
-    public EntitySpellSource(E entity, ServerWorld world, Vec3d pos, BlockPos blockPos) {
-        this(entity, world, pos, blockPos, new HashMap<>());
+    public EntitySpellSource(E entity, ServerWorld world, Vec3d pos) {
+        this(entity, world, pos, BlockPos.ofFloored(pos), new HashMap<>());
+        if (entity instanceof ManaStorageHolder holder) {
+            setComponent(CastComponents.MANA_SOURCE, (ManaSource) holder.getManaStorage());
+        }
     }
 
     public EntitySpellSource(E entity, ServerWorld world, Vec3d pos, BlockPos blockPos, HashMap<CastComponent<?>, Object> customDataMap) {
@@ -43,7 +48,7 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     }
 
     @Override
-    public boolean castSpell(Spell<E> spell, Transaction transaction) {
+    public boolean tryCastSpell(Spell<E> spell, Transaction transaction) {
         if (!entity.isAlive()) return false;
 
         return SpellCastHelper.tryCast(this, spell, transaction);
@@ -71,7 +76,7 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
 
     @Override
     public void expectThaum(long amount, TransactionContext context) throws SpellFumble {
-        if (this.expectCastComponent(CastComponents.MANA_POOL).extractThaum(amount, context) != amount) {
+        if (this.expectComponent(CastComponents.MANA_SOURCE).extractThaum(amount, context) != amount) {
             throw SpellFumble.manaFumble();
         }
     }
@@ -85,11 +90,20 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
         }
     }
 
-    public <Data> Optional<Data> getCastComponent(CastComponent<Data> castComponent) {
-        return Optional.ofNullable((Data) this.customDataMap.get(castComponent));
+    public <Value> Optional<Value> getComponent(CastComponent<Value> component) {
+        if (component == null) throw new IllegalArgumentException("component can't be null");
+        return Optional.ofNullable((Value) this.customDataMap.get(component));
     }
 
-    public <Data> void setCastComponent(CastComponent<Data> castComponent, Data data) {
-        this.customDataMap.put(castComponent, data);
+    public <Value> void setComponent(CastComponent<Value> component, Value value) {
+        if (value == null) throw new IllegalArgumentException("data can't be null");
+        if (component == null) throw new IllegalArgumentException("component can't be null");
+        this.customDataMap.put(component, value);
+    }
+
+    @Override
+    public <Value> void removeComponent(CastComponent<Value> component) {
+        if (component == null) throw new IllegalArgumentException("component can't be null");
+        this.customDataMap.remove(component);
     }
 }

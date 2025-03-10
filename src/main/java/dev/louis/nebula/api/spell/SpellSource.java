@@ -18,7 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Optional;
 
 public interface SpellSource<Caster> {
-    boolean castSpell(Spell<Caster> spell, Transaction transaction);
+    boolean tryCastSpell(Spell<Caster> spell, Transaction transaction);
 
     ServerWorld getWorld();
     Vec3d getPos();
@@ -26,7 +26,7 @@ public interface SpellSource<Caster> {
     Caster getCaster();
 
     default ManaSource expectManaSource() throws SpellFumble {
-        return this.expectCastComponent(CastComponents.MANA_POOL);
+        return this.expectComponent(CastComponents.MANA_SOURCE);
     }
 
     /**
@@ -45,18 +45,39 @@ public interface SpellSource<Caster> {
         expectThaum(amount * 1000L, context);
     }
 
-    void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
-
-    default <Value> Value expectCastComponent(CastComponent<Value> castComponent) throws SpellFumble {
-        return this.getCastComponent(castComponent).orElseThrow(SpellFumble::new);
+    /**
+     * Drains mana from the SpellSource if the required mana can't be supplied a {@link SpellFumble} will be thrown.
+     * @param amount The amount of thaum to drain.
+     * @throws SpellFumble Thrown if mana resources are insufficient.
+     */
+    default void expectThaum(Number amount, TransactionContext context) throws SpellFumble {
+        expectThaum(amount.longValue(), context);
     }
 
-    <Value> Optional<Value> getCastComponent(CastComponent<Value> castComponent);
+    /**
+     * Drains 1000 times more thaum than {@link SpellSource#expectThaum(long, TransactionContext)}. (A Kilo)
+     * @param amount The amount of kilothaum to drain.
+     * @throws SpellFumble Thrown if mana resources are insufficient.
+     */
+    default void expectKilothaum(Number amount, TransactionContext context) throws SpellFumble {
+        expectKilothaum(amount.longValue(), context);
+    }
 
-    <Value> void setCastComponent(CastComponent<Value> castComponent, Value value);
+    void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
+
+    default <Value> Value expectComponent(CastComponent<Value> component) throws SpellFumble {
+        return this.getComponent(component).orElseThrow(SpellFumble::new);
+    }
+
+    <Value> Optional<Value> getComponent(CastComponent<Value> component);
+
+    <Value> void setComponent(CastComponent<Value> component, Value value);
+
+    <Value> void removeComponent(CastComponent<Value> component);
+
 
     static <E extends Entity> SpellSource<E> of(ServerWorld world, E entity, Vec3d castPos) {
-        return new EntitySpellSource<>(entity, world, castPos, BlockPos.ofFloored(castPos));
+        return new EntitySpellSource<>(entity, world, castPos);
     }
 
     static <E extends Entity> SpellSource<E> of(ServerWorld world, E entity) {

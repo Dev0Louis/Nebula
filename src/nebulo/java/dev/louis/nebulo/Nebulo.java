@@ -64,7 +64,7 @@ public class Nebulo implements ModInitializer {
         var spellCreator = SpellCreator.REGISTRY.get(castSpellPayload.spellId());
         context.server().executeSync(() -> {
             try (Transaction t1 = Transaction.openOuter()) {
-                SpellSource.of(context.player().getServerWorld(), context.player()).castSpell(spellCreator.create(context.player()), t1);
+                SpellSource.of(context.player().getServerWorld(), context.player()).tryCastSpell(spellCreator.create(context.player()), t1);
             }
         });
     }
