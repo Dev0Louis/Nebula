@@ -32,16 +32,29 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     private final BlockPos blockPos;
     private final Map<CastComponent<?>, Object> customDataMap;
 
-    public EntitySpellSource(E entity, ServerWorld world, Vec3d pos) {
-        this(entity, world, pos, BlockPos.ofFloored(pos), new HashMap<>());
+    public EntitySpellSource(ServerWorld world, E entity, Vec3d pos, boolean populateDefaultComp) {
+        this(world, entity, pos, BlockPos.ofFloored(pos), createCompMap(entity, populateDefaultComp));
         if (entity instanceof ManaStorageHolder holder) {
             setComponent(CastComponents.MANA_SOURCE, (ManaSource) holder.getManaStorage());
         }
     }
 
-    public EntitySpellSource(E entity, ServerWorld world, Vec3d pos, BlockPos blockPos, HashMap<CastComponent<?>, Object> customDataMap) {
-        this.entity = entity;
+    private static <E extends Entity> Map<CastComponent<?>, Object> createCompMap(E entity, boolean populateDefaultComp) {
+        if (populateDefaultComp) {
+            HashMap<CastComponent<?>, Object> compMap = new HashMap<>(2);
+            compMap.put(CastComponents.ROTATION, entity.getRotationVector());
+            if (entity instanceof ManaStorageHolder holder) {
+                compMap.put(CastComponents.MANA_SOURCE, (ManaSource) holder.getManaStorage());
+            }
+            return compMap;
+        } else {
+            return new HashMap<>();
+        }
+    }
+
+    public EntitySpellSource(ServerWorld world, E entity, Vec3d pos, BlockPos blockPos, Map<CastComponent<?>, Object> customDataMap) {
         this.world = world;
+        this.entity = entity;
         this.pos = pos;
         this.blockPos = blockPos;
         this.customDataMap = customDataMap;
@@ -81,9 +94,8 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
         }
     }
 
-    @Contract
     @Override
-    public void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext context) throws SpellFumble {
+    public void expectSpellEffectStart(SpellEffect spellEffect, TransactionContext context) throws SpellFumble {
         if (this.getCaster() instanceof LivingEntity livingEntity) {
             var storage = new SpellEffectWrapper(this.getWorld(), livingEntity);
             if (!storage.startSpellEffect(spellEffect, context)) throw SpellFumble.spellEffectFumble();

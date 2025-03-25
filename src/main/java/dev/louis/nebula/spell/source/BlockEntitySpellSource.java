@@ -72,7 +72,7 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble {
+    public void expectSpellEffectStart(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble {
         throw SpellFumble.spellEffectFumble();
     }
 

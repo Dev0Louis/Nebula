@@ -63,7 +63,7 @@ public interface SpellSource<Caster> {
         expectKilothaum(amount.longValue(), context);
     }
 
-    void expectStartSpellEffect(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
+    void expectSpellEffectStart(SpellEffect spellEffect, TransactionContext transaction) throws SpellFumble;
 
     default <Value> Value expectComponent(CastComponent<Value> component) throws SpellFumble {
         return this.getComponent(component).orElseThrow(SpellFumble::new);
