@@ -11,6 +11,7 @@ public class SpellFumble extends Throwable {
   private static final Text UNKNOWN_REASON = Text.translatable("spell_exception.nebula.unknown");
   public static final Text MANA = Text.translatable("spell_exception.nebula.insufficient_mana");
   public static final Text SPELL_EFFECT = Text.translatable("spell_exception.nebula.already_running_spell_effect");
+  public static final Text COMPONENT_MISSING = Text.translatable("spell_exception.nebula.component_missing");
 
   private final Supplier<Text> reason;
 
@@ -33,4 +34,9 @@ public class SpellFumble extends Throwable {
   public static SpellFumble spellEffectFumble() {
     return new SpellFumble(() -> SPELL_EFFECT);
   }
+
+  public static SpellFumble componentMissing() {
+    return new SpellFumble(() -> COMPONENT_MISSING);
+  }
+
 }

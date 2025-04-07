@@ -51,14 +51,14 @@ public class LapisManaSource implements EntityManaPool {
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putBoolean("enabled", enabled);
-        nbt.putLong("storedMana", storedThaum);
+        nbt.putLong("storeThaum", storedThaum);
         return nbt;
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         this.enabled = nbt.getBoolean("enabled");
-        this.storedThaum = nbt.getLong("storedMana");
+        this.storedThaum = nbt.getLong("storeThaum");
     }
 
     @Override

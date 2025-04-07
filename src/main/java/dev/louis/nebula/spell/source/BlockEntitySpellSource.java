@@ -38,13 +38,6 @@ public class BlockEntitySpellSource<BE extends BlockEntity> implements SpellSour
     }
 
     @Override
-    public boolean tryCastSpell(Spell<BE> spell, Transaction transaction) {
-        if (blockEntity.isRemoved()) return false;
-
-        return SpellCastHelper.tryCast(this, spell, transaction);
-    }
-
-    @Override
     public ServerWorld getWorld() {
         return world;
     }

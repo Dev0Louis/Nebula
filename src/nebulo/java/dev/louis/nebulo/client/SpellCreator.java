@@ -12,16 +12,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 public interface SpellCreator {
-    RegistryKey<Registry<SpellCreator>> REGISTRY_KEY =
-            RegistryKey.ofRegistry(Identifier.of(Nebulo.MOD_ID, "spells"));
-    SimpleRegistry<SpellCreator> REGISTRY =
-            FabricRegistryBuilder.createSimple(REGISTRY_KEY).buildAndRegister();
-
-    SpellCreator CLOUD_CREATOR = Registry.register(REGISTRY, Identifier.of(Nebulo.MOD_ID, "cloud_spell"), (player) -> new CloudJumpSpell());
 
     static void init() {
 
     }
 
-    Spell<ServerPlayerEntity> create(ServerPlayerEntity caster);
+    Spell<ServerPlayerEntity> cast(ServerPlayerEntity caster);
 }

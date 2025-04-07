@@ -61,13 +61,6 @@ public class EntitySpellSource<E extends Entity> implements SpellSource<E> {
     }
 
     @Override
-    public boolean tryCastSpell(Spell<E> spell, Transaction transaction) {
-        if (!entity.isAlive()) return false;
-
-        return SpellCastHelper.tryCast(this, spell, transaction);
-    }
-
-    @Override
     public ServerWorld getWorld() {
         return world;
     }

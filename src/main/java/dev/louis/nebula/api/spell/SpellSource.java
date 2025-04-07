@@ -18,7 +18,6 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Optional;
 
 public interface SpellSource<Caster> {
-    boolean tryCastSpell(Spell<Caster> spell, Transaction transaction);
 
     ServerWorld getWorld();
     Vec3d getPos();
