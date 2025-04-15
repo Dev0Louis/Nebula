@@ -12,8 +12,8 @@ public class SimpleManaPool extends SnapshotParticipant<Long> implements ManaPoo
     private final long capacity;
     private long thaum;
 
-    public SimpleManaPool(long startingMana, long capacity) {
-        this.thaum = startingMana;
+    public SimpleManaPool(long initialThaum, long capacity) {
+        this.thaum = initialThaum;
         this.capacity = capacity;
     }
 

@@ -2,7 +2,7 @@ package dev.louis.nebula.api.mana.manager;
 
 import dev.louis.nebula.Nebula;
 import dev.louis.nebula.api.mana.pool.ManaPool;
-import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
+import dev.louis.nebula.api.mana.pool.entity.ManaAttachment;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import dev.louis.nebula.entrypoint.EntityManaPoolRegistrarImpl;
 import dev.louis.nebula.mana.EntityManaPoolOrderer;
@@ -13,6 +13,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
@@ -20,20 +21,20 @@ import java.util.*;
 public class ServerManaManager implements ManaPool, ManaManager {
     private final LivingEntity entity;
     private int knownTruth;
-    private Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools;
+    private Map<RegistryEntry<EntityManaPoolType>, ManaAttachment> manaPools;
 
     @ApiStatus.Internal
-    public ServerManaManager(LivingEntity entity, Map<RegistryEntry<EntityManaPoolType>, EntityManaPool> manaPools, int truth) {
+    public ServerManaManager(LivingEntity entity, Map<RegistryEntry<EntityManaPoolType>, ManaAttachment> manaPools, int truth) {
         this.entity = entity;
         this.manaPools = manaPools;
         this.knownTruth = truth;
     }
 
     @ApiStatus.Internal
-    public static ServerManaManager createManaManager(LivingEntity entity) {
+    public static ServerManaManager createManaManager(ServerPlayerEntity player) {
         return new ServerManaManager(
-                entity,
-                EntityManaPoolRegistrarImpl.INSTANCE.createManaPool(entity),
+                player,
+                EntityManaPoolRegistrarImpl.INSTANCE.createManaPool(player),
                 EntityManaPoolOrderer.TRUTH
         );
     }
@@ -63,11 +64,11 @@ public class ServerManaManager implements ManaPool, ManaManager {
 
     }
 
-    public Optional<EntityManaPool> getManaPool(EntityManaPoolType type) {
+    public Optional<ManaAttachment> getManaPool(EntityManaPoolType type) {
         return getManaPool(EntityManaPoolType.REGISTRY.getEntry(type));
     }
 
-    public Optional<EntityManaPool> getManaPool(RegistryEntry<EntityManaPoolType> entry) {
+    public Optional<ManaAttachment> getManaPool(RegistryEntry<EntityManaPoolType> entry) {
         ensureState();
         return Optional.ofNullable(manaPools.get(entry));
     }

@@ -1,18 +1,18 @@
 package dev.louis.nebula.mana;
 
-import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
+import dev.louis.nebula.api.mana.pool.entity.ManaAttachment;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class CreativeInfiniteManaSource implements EntityManaPool {
+public class CreativeInfiniteManaSource implements ManaAttachment {
     public static final EntityManaPoolType TYPE = EntityManaPoolType.create(CreativeInfiniteManaSource::new);
-    public LivingEntity entity;
+    public ServerPlayerEntity entity;
 
-    public CreativeInfiniteManaSource(LivingEntity entity) {
+    public CreativeInfiniteManaSource(ServerPlayerEntity entity) {
         this.entity = entity;
     }
 

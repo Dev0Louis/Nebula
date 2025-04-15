@@ -1,6 +1,6 @@
 package dev.louis.nebulo.mana;
 
-import dev.louis.nebula.api.mana.pool.entity.EntityManaPool;
+import dev.louis.nebula.api.mana.pool.entity.ManaAttachment;
 import dev.louis.nebula.api.mana.pool.entity.EntityManaPoolType;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
@@ -11,7 +11,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.MathHelper;
 
-public class LapisManaSource implements EntityManaPool {
+public class LapisManaSource implements ManaAttachment {
     public static final EntityManaPoolType TYPE = EntityManaPoolType.create(LapisManaSource::create);
     private final PlayerEntity player;
     private long storedThaum;

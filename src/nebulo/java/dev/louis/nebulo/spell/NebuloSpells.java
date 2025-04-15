@@ -1,9 +1,7 @@
 package dev.louis.nebulo.spell;
 
-import dev.louis.nebula.api.spell.Spell;
 import dev.louis.nebulo.Nebulo;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;

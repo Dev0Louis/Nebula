@@ -2,8 +2,7 @@ package dev.louis.nebulo;
 
 import com.mojang.logging.LogUtils;
 import dev.louis.nebula.api.mana.manager.ManaManagerHolder;
-import dev.louis.nebula.api.spell.SpellSource;
-import dev.louis.nebula.api.event.SpellCastEvent;
+import dev.louis.nebula.api.event.MagicUseAllowed;
 import dev.louis.nebulo.client.SpellCreator;
 import dev.louis.nebulo.mana.LapisManaSource;
 import dev.louis.nebulo.networking.CastSpellPayload;
@@ -17,6 +16,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.BlockPos;
 import org.slf4j.Logger;
 
 public class Nebulo implements ModInitializer {
@@ -49,9 +49,9 @@ public class Nebulo implements ModInitializer {
             return ActionResult.PASS;
         });
 
-        SpellCastEvent.BEFORE.register((spellSource, spell) -> {
-            if (spellSource.getWorld().getBlockState(spellSource.getBlockPos().down(1)).getBlock().equals(Blocks.BEDROCK)) {
-                if (spellSource.getCaster() instanceof PlayerEntity entity) {
+        MagicUseAllowed.EVENT.register((magicUser, world, pos) -> {
+            if (world.getBlockState(BlockPos.ofFloored(pos).down(1)).getBlock().equals(Blocks.BEDROCK)) {
+                if (magicUser instanceof PlayerEntity entity) {
                     entity.sendMessage(Text.of("Can't cast spells on Bedrock :>"), false);
                 }
                 return false;
@@ -61,11 +61,6 @@ public class Nebulo implements ModInitializer {
     }
 
     private static void receiveSpellCast(CastSpellPayload castSpellPayload, ServerPlayNetworking.Context context) {
-        var spellCreator = SpellCreator.REGISTRY.get(castSpellPayload.spellId());
-        context.server().executeSync(() -> {
-            try (Transaction t1 = Transaction.openOuter()) {
-                SpellSource.of(context.player().getServerWorld(), context.player()).tryCastSpell(spellCreator.create(context.player()), t1);
-            }
-        });
+
     }
 }
